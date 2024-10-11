@@ -2,20 +2,23 @@ import os
 import git
 import yaml
 
-from typing import List
+from typing import List, Generator
 from progress.bar import Bar
 from utils import authorIdExtractor
 from configuration import Configuration
 
 
-def replaceAliases(commits: List[git.Commit], config: Configuration):
+def replaceAliases(
+    commits: List[git.Commit], config: Configuration
+) -> Generator[git.Commit, None, None]:
+
     print("Cleaning aliased authors")
 
     # build path
     aliasPath = os.path.join(config.repositoryPath, "aliases.yml")
 
     # quick lowercase and trim if no alias file
-    if aliasPath == None or not os.path.exists(aliasPath):
+    if aliasPath is None or not os.path.exists(aliasPath):
         return commits
 
     # read aliases
@@ -35,7 +38,7 @@ def replaceAliases(commits: List[git.Commit], config: Configuration):
     return replaceAll(commits, transposesAliases)
 
 
-def replaceAll(commits, aliases):
+def replaceAll(commits, aliases) -> Generator[git.commit, None, None]:
     for commit in Bar("Processing").iter(list(commits)):
         copy = commit
         author = authorIdExtractor(commit.author)
