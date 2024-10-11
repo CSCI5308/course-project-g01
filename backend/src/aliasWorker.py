@@ -38,7 +38,7 @@ def replaceAliases(
     return replaceAll(commits, transposesAliases)
 
 
-def replaceAll(commits, aliases) -> Generator[git.commit, None, None]:
+def replaceAll(commits, aliases) -> Generator[git.Commit, None, None]:
     for commit in Bar("Processing").iter(list(commits)):
         copy = commit
         author = authorIdExtractor(commit.author)
