@@ -1,13 +1,13 @@
-import sys
 import os
-import subprocess
 import shutil
 import stat
 import git
-import pkg_resources
 import sentistrength
+from pathlib import Path
+from typing import Optional
 
-from configuration import parseDevNetworkArgs
+import testConfig
+from configuration import Configuration
 from repoLoader import getRepo
 from aliasWorker import replaceAliases
 from commitAnalysis import commitAnalysis
@@ -22,43 +22,30 @@ from politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
 
 
-def main(argv):
+def communitySmellsDetector(
+    pat: str,
+    repo_url: str,
+    senti_strength_path: Path,
+    output_path: Path,
+    google_api_key: Optional[str] = None,
+    batch_months: float = 9999,
+    start_date: Optional[str] = None,
+):
+
     try:
-        # validate running in venv
-        if not hasattr(sys, "prefix"):
-            raise Exception(
-                "The tool does not appear to be running in the virtual environment!\nSee README for activation."
-            )
-
-        # validate python version
-        
-        # validate installed modules
-        required = {
-            "wheel",
-            "networkx",
-            "pandas",
-            "matplotlib",
-            "gitpython",
-            "requests",
-            "pyyaml",
-            "progress",
-            "strsimpy",
-            "python-dateutil",
-            "sentistrength",
-            "joblib",
-        }
-        installed = {pkg for pkg in pkg_resources.working_set.by_key}
-        missing = required - installed
-
-        if len(missing) > 0:
-            raise Exception(
-                "Missing required modules: {0}.\nSee README for tool installation.".format(
-                    missing
-                )
-            )
 
         # parse args
-        config = parseDevNetworkArgs(sys.argv)
+        config: Configuration = Configuration(
+            repositoryUrl=repo_url,
+            batchMonths=batch_months,
+            outputPath=output_path,
+            sentiStrengthPath=senti_strength_path,
+            maxDistance=0,
+            pat=pat,
+            googleKey=google_api_key,
+            startDate=start_date,
+        )
+
         # prepare folders
         if os.path.exists(config.resultsPath):
             remove_tree(config.resultsPath)
@@ -71,11 +58,13 @@ def main(argv):
         # setup sentiment analysis
         senti = sentistrength.PySentiStr()
 
-        sentiJarPath = os.path.join(config.sentiStrengthPath, "SentiStrength.jar").replace("\\", "/")
-        senti.setSentiStrengthPath(sentiJarPath)
+        senti.setSentiStrengthPath(
+            os.path.join(config.sentiStrengthPath, "SentiStrength.jar")
+        )
 
-        sentiDataPath = os.path.join(config.sentiStrengthPath, "SentiStrength_Data").replace("\\", "/") + "/"
-        senti.setSentiStrengthLanguageFolderPath(sentiDataPath)
+        senti.setSentiStrengthLanguageFolderPath(
+            os.path.join(config.sentiStrengthPath, "SentiStrength_Data")
+        )
 
         # prepare batch delta
         delta = relativedelta(months=+config.batchMonths)
@@ -180,26 +169,10 @@ def remove_tree(path):
         os.remove(path)
 
 
-# https://stackoverflow.com/a/50965628
-import os
-import subprocess
-import platform
-
-def explore(path):
-    path = os.path.normpath(path)
-    if platform.system() == "Windows":
-        FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
-        if os.path.isdir(path):
-            subprocess.run([FILEBROWSER_PATH, path])
-        elif os.path.isfile(path):
-            subprocess.run([FILEBROWSER_PATH, "/select,", os.path.normpath(path)])
-    else:
-        if platform.system() == "Darwin": # macOS
-            subprocess.run(["open", path])
-        elif platform.system() == "Linux":
-            subprocess.run(["xdg-open", path])
-        else:
-            print(f"File explorer not supported on {platform.system()} systems.")
-
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    communitySmellsDetector(
+        pat=testConfig.PAT,
+        repo_url=testConfig.REPO_URL,
+        output_path=testConfig.OUTPUT_PATH,
+        senti_strength_path=testConfig.SENTI_STRENGTH_PATH,
+    )
