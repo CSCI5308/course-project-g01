@@ -1,11 +1,14 @@
 import csv
+from joblib import load
 import os
 import warnings
+from typing import List
 
-from joblib import load
 from configuration import Configuration
 
-warnings.filterwarnings("ignore") 
+warnings.filterwarnings("ignore")
+
+
 def smellDetection(config: Configuration, batchIdx: int):
 
     # prepare results holder for easy mapping
@@ -20,32 +23,22 @@ def smellDetection(config: Configuration, batchIdx: int):
         for row in rows:
             results[row[0]] = row[1]
 
-    import pandas as pd
-
-
     metrics = buildMetricsList(results)
-    metrics_df = pd.DataFrame(metrics)
-    metrics_df = metrics_df.apply(pd.to_numeric, errors='coerce')
-    metrics_df = metrics_df.fillna(metrics_df.mean())
-   
-    print(metrics_df)
-
 
     # load all models
     smells = ["OSE", "BCE", "PDE", "SV", "OS", "SD", "RS", "TF", "UI", "TC"]
     all_models = {}
-    import joblib
-    import pickle
+
     for smell in smells:
         modelPath = os.path.abspath("../models/{}.joblib".format(smell))
-        # with open(modelPath,'rb') as f:
-        #     all_models[smell] = pickle.load(f)
-        all_models[smell] = joblib.load(modelPath)
+        all_models[smell] = load(modelPath)
 
     # detect smells
-    import pandas as pd
-    
-    rawSmells = {smell: all_models[smell].predict(metrics_df) for smell in all_models}
+
+    rawSmells = {
+        smell_name: smell_model.predict(metrics)
+        for smell_name, smell_model in all_models.items()
+    }
     detectedSmells = [smell for smell in smells if rawSmells[smell][0] == 1]
 
     # add last commit date as first output param
@@ -59,7 +52,7 @@ def smellDetection(config: Configuration, batchIdx: int):
 def buildMetricsList(results: dict):
 
     # declare names to extract from the results file in the right order
-    names = [
+    names: List[str] = [
         "AuthorCount",
         "DaysActive",
         "CommitCount",
@@ -109,31 +102,21 @@ def buildMetricsList(results: dict):
         "RPCIssue",
         "IssueCountNegativeComments_mean",
         "PRCountNegativeComments_mean",
-        "ACCL"
+        "ACCL",
     ]
 
     # build key/value list
-    metrics = []
+    metrics: List[float] = []
     for name in names:
 
         # default value if key isn't present or the value is blank
-        result = results.get(name, 0)
-        if not result:
+        result: str | float = results.get(name, 0)
+        if result == "":
 
             print(f"No value for '{name}' during smell detection, defaulting to 0")
             result = 0
 
-        metrics.append(result)
+        metrics.append(float(result))
 
     # return as a 2D array
     return [metrics]
-
-
-
-# def main():
-#     smellDetection(config: Configuration, batchIdx: int):
-    
-# if __name__ == "__main__":
-#     main()
-
-
