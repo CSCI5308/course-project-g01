@@ -5,7 +5,7 @@
 
 ## Folder Structure
 - **webapp/**: Contains the frontend code of the project
-- **MLBackend/**: Contains the backend code of the project
+- **MLbackend/**: Contains the backend code of the project
 
 ## Branches
 - **main**: This branch contains the production-ready code.
