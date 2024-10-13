@@ -10,16 +10,15 @@ def politenessAnalysis(
     config: Configuration,
     prCommentBatches: list,
     issueCommentBatches: list,
-):
-    calculateACCL(config, prCommentBatches, issueCommentBatches)
+) -> None:
 
-    
+    calculateACCL(config, prCommentBatches, issueCommentBatches)
 
     calculateRPC(config, "PR", prCommentBatches)
     calculateRPC(config, "Issue", prCommentBatches)
 
 
-def calculateACCL(config, prCommentBatches, issueCommentBatches):
+def calculateACCL(config, prCommentBatches, issueCommentBatches) -> None:
     for batchIdx, batch in enumerate(prCommentBatches):
 
         prCommentLengths = list([len(c) for c in batch])
@@ -31,19 +30,18 @@ def calculateACCL(config, prCommentBatches, issueCommentBatches):
         accl = prCommentLengthsMean + issueCommentLengthsMean / 2
 
         # output results
-        with open(os.path.join(config.resultsPath, f"results_{batchIdx}.csv"),
-                  "a",
-                  newline=""
-                  ) as f:
+        with open(
+            os.path.join(config.resultsPath, f"results_{batchIdx}.csv"), "a", newline=""
+        ) as f:
             w = csv.writer(f, delimiter=",")
-            w.writerow([f"ACCL", accl])
+            w.writerow(["ACCL", accl])
 
 
-def calculateRPC(config, outputPrefix, commentBatches):
+def calculateRPC(config, outputPrefix, commentBatches) -> None:
     for batchIdx, batch in enumerate(commentBatches):
 
         # analyze batch
-        positiveMarkerCount = getResults(batch)
+        positiveMarkerCount = getResults(batch) if len(batch) > 0 else 0.0
 
         # output results
         with open(
@@ -55,7 +53,7 @@ def calculateRPC(config, outputPrefix, commentBatches):
             w.writerow([f"RPC{outputPrefix}", positiveMarkerCount])
 
 
-def getResults(comments: list):
+def getResults(comments: list) -> float:
 
     # define default speaker
     speaker = convokit.Speaker(id="default")

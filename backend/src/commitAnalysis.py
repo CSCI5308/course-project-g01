@@ -3,7 +3,7 @@ import csv
 import os
 
 from dateutil.relativedelta import relativedelta
-from typing import List
+from typing import List, Tuple, Dict, Any
 from progress.bar import Bar
 from datetime import datetime
 from utils import authorIdExtractor
@@ -19,7 +19,7 @@ def commitAnalysis(
     commits: List[git.Commit],
     delta: relativedelta,
     config: Configuration,
-):
+) -> Tuple[List[datetime], Dict[str, Dict[str, Any]], List[int]]:
 
     # sort commits
     commits.sort(key=lambda o: o.committed_datetime)
@@ -39,7 +39,7 @@ def commitAnalysis(
         if startDate is not None and startDate > commit.committed_datetime:
             continue
         # prepare first batch
-        if batchStartDate == None:
+        if batchStartDate is None:
             batchStartDate = commit.committed_datetime
             batchEndDate = batchStartDate + delta
 

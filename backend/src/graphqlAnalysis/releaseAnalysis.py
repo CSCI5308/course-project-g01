@@ -1,7 +1,6 @@
 import os
 import csv
 import graphqlAnalysis.graphqlAnalysisHelper as gql
-import dateutil
 import git
 import statsAnalysis as stats
 from typing import List
@@ -16,7 +15,7 @@ def releaseAnalysis(
     config: Configuration,
     delta: relativedelta,
     batchDates: List[datetime],
-):
+) -> None:
 
     # sort commits by ascending commit date
     allCommits.sort(key=lambda c: c.committed_datetime)
@@ -146,11 +145,11 @@ def releaseRequest(
 
             createdAt = isoparse(node["createdAt"])
 
-            if batchEndDate == None or (
+            if batchEndDate is None or (
                 createdAt > batchEndDate and len(batches) < len(batchDates) - 1
             ):
 
-                if batch != None:
+                if batch is not None:
                     batches.append(batch)
 
                 batchStartDate = batchDates[len(batches)]
@@ -177,8 +176,12 @@ def releaseRequest(
             config.repositoryOwner, config.repositoryName, cursor
         )
 
-    if batch != None:
+    if batch is not None:
         batches.append(batch)
+
+    print(
+        f"Number of Release batches is {len(batches)} and its first value is {batches[0]}"
+    )
 
     return batches
 

@@ -16,7 +16,7 @@ def tagAnalysis(
     batchDates: List[datetime.datetime],
     daysActive: List[int],
     config: Configuration,
-):
+) -> None:
     print("Analyzing tags")
 
     tagInfo = []
@@ -63,7 +63,11 @@ def tagAnalysis(
 def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configuration):
 
     # calculate FN
-    fn = len(tagInfo) / daysActive * 100
+    try:
+        fn = len(tagInfo) / daysActive * 100
+    except ZeroDivisionError:
+        fn: float = 0
+        print("daysActive is 0")
 
     # output non-tabular results
     with open(
@@ -100,7 +104,7 @@ def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configura
 def getTaggedDate(tag):
     date = None
 
-    if tag.tag == None:
+    if tag.tag is None:
         date = tag.commit.committed_datetime
     else:
 

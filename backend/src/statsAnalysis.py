@@ -1,5 +1,6 @@
-from statistics import *
+from statistics import mean, stdev, StatisticsError
 import os
+import sys
 import csv
 
 
@@ -22,11 +23,15 @@ def outputStatistics(idx: int, data: list, metric: str, outputDir: str):
 
 def calculateStats(data):
 
-    stats = dict(
-        count=len(data),
-        mean=mean(data),
-        stdev=stdev(data) if len(data) > 1 else None
-    )
+    try:
+        stats = dict(
+            count=len(data),
+            mean=mean(data) if len(data) > 0 else 0,
+            stdev=stdev(data) if len(data) > 1 else None,
+        )
+    except StatisticsError:
+        print(data)
+        sys.exit()
 
     return stats
 

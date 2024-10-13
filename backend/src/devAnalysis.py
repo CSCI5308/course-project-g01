@@ -19,7 +19,13 @@ def devAnalysis(
     numberActiveExperiencedDevs = len(devs.intersection(set(experiencedDevs)))
 
     # calculate bus factor
-    busFactor = (len(devs) - len(coreDevs)) / len(devs)
+    try:
+        busFactor = (len(devs) - len(coreDevs)) / len(devs)
+    except ZeroDivisionError:
+        print(
+            f"There are no devs in this batch #{batchIdx}, so we are considering bus factor as 0"
+        )
+        busFactor = 0
 
     # calculate TFC
     commitCount = sum(
@@ -52,3 +58,4 @@ def devAnalysis(
         w.writerow(["BusFactorNumber", busFactor])
         w.writerow(["SponsoredTFC", sponsoredTFC])
         w.writerow(["ExperiencedTFC", experiencedTFC])
+

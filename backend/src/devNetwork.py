@@ -1,10 +1,9 @@
 import os
 import shutil
 import stat
-import git
 import sentistrength
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Any
 
 import testConfig
 from configuration import Configuration
@@ -79,7 +78,9 @@ def communitySmellsDetector(
 
         tagAnalysis(repo, delta, batchDates, daysActive, config)
 
-        coreDevs = centrality.centralityAnalysis(commits, delta, batchDates, config)
+        coreDevs: List[List[Any]] = centrality.centralityAnalysis(
+            commits, delta, batchDates, config
+        )
 
         releaseAnalysis(commits, config, delta, batchDates)
 
@@ -148,11 +149,6 @@ def communitySmellsDetector(
             del repo
 
 
-class Progress(git.remote.RemoteProgress):
-    def update(self, op_code, cur_count, max_count=None, message=""):
-        print(self._cur_line, end="\r")
-
-
 def commitDate(tag):
     return tag.commit.committed_date
 
@@ -175,4 +171,5 @@ if __name__ == "__main__":
         repo_url=testConfig.REPO_URL,
         output_path=testConfig.OUTPUT_PATH,
         senti_strength_path=testConfig.SENTI_STRENGTH_PATH,
+        batch_months=testConfig.BATCH_MONTHS,
     )

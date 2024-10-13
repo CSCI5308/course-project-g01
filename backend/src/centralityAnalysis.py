@@ -1,15 +1,12 @@
 import os
-import git
-from matplotlib.figure import Figure
 import networkx as nx
 import csv
 import matplotlib.pyplot as plt
 
 from git.objects import Commit
-from typing import List
+from typing import List, Dict, Any
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from networkx.algorithms import core
 from networkx.algorithms.community import greedy_modularity_communities
 from progress.bar import Bar
 from collections import Counter
@@ -23,8 +20,8 @@ def centralityAnalysis(
     delta: relativedelta,
     batchDates: List[datetime],
     config: Configuration,
-):
-    coreDevs = list()
+) -> List[List[Any]]:
+    coreDevs: List[List[Any]] = list()
 
     # work with batched commits
     for idx, batchStartDate in enumerate(batchDates):
@@ -43,7 +40,9 @@ def centralityAnalysis(
     return coreDevs
 
 
-def processBatch(batchIdx: int, commits: List[Commit], config: Configuration):
+def processBatch(
+    batchIdx: int, commits: List[Commit], config: Configuration
+) -> List[Any]:
     allRelatedAuthors = {}
     authorCommits = Counter({})
 
@@ -109,7 +108,7 @@ def prepareGraph(
     batchIdx: int,
     outputPrefix: str,
     config: Configuration,
-):
+) -> List[Any]:
 
     # prepare graph
     print("Preparing NX graph")
@@ -124,7 +123,7 @@ def prepareGraph(
     # analyze graph
     closeness = dict(nx.closeness_centrality(G))
     betweenness = dict(nx.betweenness_centrality(G))
-    centrality = dict(nx.degree_centrality(G))
+    centrality: Dict[Any, float] = dict(nx.degree_centrality(G))
     density = nx.density(G)
     modularity = []
 
@@ -139,21 +138,35 @@ def prepareGraph(
         pass
 
     # finding high centrality authors
-    highCentralityAuthors = list(
-        [author for author, centrality in centrality.items() if centrality > 0.5]
-    )
+    highCentralityAuthors: List[Any] = [
+        author
+        for author, centrality_value in centrality.items()
+        if centrality_value > 0.5
+    ]
 
     numberHighCentralityAuthors = len(highCentralityAuthors)
 
-    percentageHighCentralityAuthors = numberHighCentralityAuthors / len(
-        allRelatedAuthors
-    )
+    try:
+        percentageHighCentralityAuthors = numberHighCentralityAuthors / len(
+            allRelatedAuthors
+        )
+    except ZeroDivisionError:
+        percentageHighCentralityAuthors = 0
+        print("length of allRelatedAuthors is 0")
 
     # calculate TFN
     tfn = len(authorItems) - numberHighCentralityAuthors
 
     # calculate TFC
-    tfc = sum(authorItems[author] for author in highCentralityAuthors) / sum(authorItems.values()) * 100
+    try:
+        tfc = (
+            sum(authorItems[author] for author in highCentralityAuthors)
+            / sum(authorItems.values())
+            * 100
+        )
+    except ZeroDivisionError:
+        tfc = 0
+        print("sum of authorItems values is 0")
 
     print("Outputting CSVs")
 
@@ -267,9 +280,7 @@ def prepareGraph(
         font_size=20,
     )
 
-    plt.savefig(
-        os.path.join(config.resultsPath, f"{outputPrefix}_{batchIdx}.pdf")
-    )
+    plt.savefig(os.path.join(config.resultsPath, f"{outputPrefix}_{batchIdx}.pdf"))
 
     nx.write_graphml(
         G, os.path.join(config.resultsPath, f"{outputPrefix}_{batchIdx}.xml")

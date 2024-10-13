@@ -1,6 +1,4 @@
 import os
-import argparse
-from typing import Sequence
 
 
 class Configuration:
