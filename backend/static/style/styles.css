@@ -1,0 +1,70 @@
+.bg-Color{
+    background: hsla(154, 68%, 82%, 1);
+
+background: linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
+
+background: -moz-linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
+
+background: -webkit-linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
+
+filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#B0F0D4", endColorstr="#D8F8EA", GradientType=1 );
+}
+
+.bg-color2{
+    background: hsla(154, 28%, 52%, 1);
+
+background: linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
+
+background: -moz-linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
+
+background: -webkit-linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
+
+filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#62A789", endColorstr="#FFFFFF", GradientType=1 );
+}
+
+
+.content {
+    min-height: 100vh;            /* At least the full viewport height */
+    width: 100%;                  /* Full width */
+    display: grid;                /* Grid layout for easy centering */
+    align-items: center;          /* Vertically center */
+    justify-content: center;      /* Horizontally center */
+    padding: 20px;                /* Add padding to the container */
+    box-sizing: border-box;       /* Include padding in width calculations */
+}
+
+.content form {
+    width: 100%;                  /* Form takes full width */
+    max-width: 600px;             /* Max width to control form size */
+    margin: 0 auto;               /* Center form horizontally */
+    padding: 20px;                /* Add padding around form content */
+    box-sizing: border-box;       /* Include padding in width calculations */
+}
+
+.mui-textfield {
+    width: 100%;                  /* Ensure textfield takes full width */
+    margin-bottom: 20px;          /* Add space between input fields */
+}
+
+.mui-textfield input {
+    width: 100%;                  /* Ensure the input field takes full width */
+    padding: 10px;                /* Add padding for better readability */
+    box-sizing: border-box;       /* Include padding in width calculations */
+    font-size: 16px;              /* Optional: Adjust font size */
+}
+
+
+.bg-green{
+    background-color:#62A789;
+}
+
+.heading-text {
+    font-family: "Roboto", sans-serif; /* Or your preferred font */
+    font-weight: bold;
+    font-size: 34px; /* Adjust the font size as needed */
+    overflow: hidden;
+    white-space: nowrap;
+    letter-spacing: 0.15em;
+  }
+  
+  

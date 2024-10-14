@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <!-- load MUI -->
+    <link href="https://cdn.muicss.com/mui-0.10.3/css/mui.min.css" rel="stylesheet" type="text/css" />
+    <link href ="/static/style/styles.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.muicss.com/mui-0.10.3/js/mui.min.js"></script>
+
+    <script src="/static/main.js" defer></script> 
+
+    <!-- custom font css -->
+    <style>
+      body {
+        font-family: "Roboto", "Helvetica Neue", Helvetica, Arial;
+      }
+    </style>
+  </head>
+<body>
+  <div class="mui-container-fluid">
+    <div class="mui-row">
+      <div class="mui-col-xs-6 mui-col-md-6 bg-color2">
+        <div class="content">
+            <h2 class="heading-text">Community Smell Detector</h2>
+        </div>
+      </div>
+      <div class="mui-col-xs-6 mui-col-md-6  bg-Color">
+        <div class="content">
+            <form id="inputForm">
+                <div class="mui-textfield">
+                  <label for="repo-url">
+                    <i class="fab fa-github"></i> GitHub Repository URL
+                  </label>
+                    <input type="text" id="repo-url" name="repo-url" placeholder="https://github.com/username/repository">
+                  </div>
+                  <div class="mui-textfield">
+                 
+                    <label for="access-token">
+                      <i class="fas fa-key"></i> GitHub Personal Access Token
+                    </label>
+                  <input type="text" id="access-token" name="access-token" placeholder="Enter your PAT">
+                  <div class="mui--text-caption">Don't have a token? 
+                    <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank"> Learn to create one </a>
+                  </div>
+                </div>
+                <div class="mui-textfield">
+                  <label for="email">
+                    <i class="fas fa-envelope"></i> Your Email Address
+                  </label>
+                    <input type="email" id="email" name="email" placeholder="youremail@example.com">
+                  </div>
+                  <button type="submit" class="mui-btn mui-btn--raised bg-green">Submit</button>
+
+                </div>
+                
+
+            </form>
+        </div>
+      </div>
+    </div>
+    </div>
+</body>
+</html>
