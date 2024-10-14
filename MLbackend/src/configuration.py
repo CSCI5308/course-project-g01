@@ -71,13 +71,6 @@ def parseAliasArgs(args: Sequence[str]):
     )
 
     parser.add_argument(
-        "-o",
-        "--outputPath",
-        help="local directory path for analysis output",
-        required=True,
-    )
-
-    parser.add_argument(
         "-sd",
         "--startDate",
         help="start date of project life",
@@ -86,11 +79,12 @@ def parseAliasArgs(args: Sequence[str]):
 
     args = parser.parse_args()
 
-    # Set the output path to "Output" folder
+    # Set the output path and sentiStrengthPath to fixed values
     outputPath = "../output"
+    sentiStrengthPath = "../data"
 
     config = Configuration(
-        args.repositoryUrl, 0, outputPath, "", args.maxDistance, args.pat, ""
+        args.repositoryUrl, 0, outputPath, sentiStrengthPath, args.maxDistance, args.pat, ""
     )
 
     return config
@@ -133,13 +127,6 @@ def parseDevNetworkArgs(args: Sequence[str]):
     )
 
     parser.add_argument(
-        "-s",
-        "--sentiStrengthPath",
-        help="local directory path to the SentiStregth tool",
-        required=True,
-    )
-
-    parser.add_argument(
         "-sd",
         "--startDate",
         help="Start date of project life",
@@ -148,14 +135,15 @@ def parseDevNetworkArgs(args: Sequence[str]):
 
     args = parser.parse_args()
 
-    # Set the output path to "Output" folder
+    # Set the output path and sentiStrengthPath to fixed values
     outputPath = "../output"
+    sentiStrengthPath = "../data"
 
     config = Configuration(
         args.repositoryUrl,
         args.batchMonths,
         outputPath,
-        args.sentiStrengthPath,
+        sentiStrengthPath,
         0,
         args.pat,
         args.googleKey,
