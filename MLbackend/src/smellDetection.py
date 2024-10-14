@@ -56,7 +56,7 @@ def smellDetection(config: Configuration, batchIdx: int):
     print(detectedSmells)
 
     # write results
-    with open("../output/temp_output.txt", "a") as f:
+    with open("../output/temp_output.txt", "w") as f:
         for smell in detectedSmells:
             f.write(smell + "\n")
 

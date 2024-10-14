@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smell Analysis</title>
+</head>
+
+<body>
+    <h1>Run GitHub Analysis</h1>
+    <form action="/run_analysis" method="post">
+        <label for="pat">GitHub PAT:</label>
+        <input type="text" id="pat" name="pat" required>
+        <br><br>
+        <label for="repo_url">GitHub Repository URL:</label>
+        <input type="url" id="repo_url" name="repo_url" required>
+        <br><br>
+        <input type="submit" value="Run Analysis">
+    </form>
+
+    {% if output %}
+    <h2>Analysis Output:</h2>
+    <pre>{{ output }}</pre>
+    {% endif %}
+</body>
+
+</html>
