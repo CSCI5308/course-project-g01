@@ -5,7 +5,7 @@ import sentistrength
 from pathlib import Path
 from typing import Optional, List, Any
 
-import testConfig
+import traceback  
 from configuration import Configuration
 from repoLoader import getRepo
 from aliasWorker import replaceAliases
@@ -29,11 +29,12 @@ def communitySmellsDetector(
     google_api_key: Optional[str] = None,
     batch_months: float = 9999,
     start_date: Optional[str] = None,
-):
+) -> dict:  # Specify the return type
+
+    results = {}  # Initialize a results dictionary
 
     try:
-
-        # parse args
+        # Parse args
         config: Configuration = Configuration(
             repositoryUrl=repo_url,
             batchMonths=batch_months,
@@ -45,33 +46,43 @@ def communitySmellsDetector(
             startDate=start_date,
         )
 
-        # prepare folders
+        print(
+            "repositoryUrl: ", repo_url, "\n"
+            "batchMonths: ", batch_months, "\n"
+            "outputPath: ", output_path, "\n"
+            "sentiStrengthPath: ", senti_strength_path, "\n"
+            "maxDistance: ", 0, "\n"
+            "pat: ", pat, "\n"
+            "googleKey: ", google_api_key, "\n"
+            "startDate: ", start_date
+            )
+
+
+        # Prepare folders
         if os.path.exists(config.resultsPath):
             remove_tree(config.resultsPath)
 
         os.makedirs(config.metricsPath)
 
-        # get repository reference
+        # Get repository reference
         repo = getRepo(config)
 
-        # setup sentiment analysis
+        # Setup sentiment analysis
         senti = sentistrength.PySentiStr()
-
         senti.setSentiStrengthPath(
             os.path.join(config.sentiStrengthPath, "SentiStrength.jar")
         )
-
         senti.setSentiStrengthLanguageFolderPath(
             os.path.join(config.sentiStrengthPath, "SentiStrength_Data")
         )
 
-        # prepare batch delta
+        # Prepare batch delta
         delta = relativedelta(months=+config.batchMonths)
 
-        # handle aliases
+        # Handle aliases
         commits = list(replaceAliases(repo.iter_commits(), config))
 
-        # run analysis
+        # Run analysis
         batchDates, authorInfoDict, daysActive = commitAnalysis(
             senti, commits, delta, config
         )
@@ -101,13 +112,12 @@ def communitySmellsDetector(
         politenessAnalysis(config, prCommentBatches, issueCommentBatches)
 
         for batchIdx, batchDate in enumerate(batchDates):
-
-            # get combined author lists
+            # Get combined author lists
             combinedAuthorsInBatch = (
                 prParticipantBatches[batchIdx] + issueParticipantBatches[batchIdx]
             )
 
-            # build combined network
+            # Build combined network
             centrality.buildGraphQlNetwork(
                 batchIdx,
                 combinedAuthorsInBatch,
@@ -115,7 +125,7 @@ def communitySmellsDetector(
                 config,
             )
 
-            # get combined unique authors for both PRs and issues
+            # Get combined unique authors for both PRs and issues
             uniqueAuthorsInPrBatch = set(
                 author for pr in prParticipantBatches[batchIdx] for author in pr
             )
@@ -128,10 +138,10 @@ def communitySmellsDetector(
                 uniqueAuthorsInIssueBatch
             )
 
-            # get batch core team
+            # Get batch core team
             batchCoreDevs = coreDevs[batchIdx]
 
-            # run dev analysis
+            # Run dev analysis
             devAnalysis(
                 authorInfoDict,
                 batchIdx,
@@ -140,14 +150,32 @@ def communitySmellsDetector(
                 config,
             )
 
-            # run smell detection
-            smellDetection(config, batchIdx)
-
+            # Run smell detection and collect results
+            smell_results = smellDetection(config, batchIdx)
+            results[f'batch_{batchIdx}'] = {
+                'batch_date': str(batchDate), 
+                'smell_results': smell_results,
+                'authors': uniqueAuthorsInBatch,
+                'core_devs': batchCoreDevs,
+                # Add more relevant results as needed
+            }
+    except Exception as e:
+    # Capture detailed error information
+        error_message = str(e)
+        error_traceback = traceback.format_exc()  # Get the full traceback
+        
+        # Return the detailed error
+        results = {
+            "status": "error",
+            "message": error_message,
+            "traceback": error_traceback  # Include stack trace for debugging
+        }
     finally:
-        # close repo to avoid resource leaks
+        # Close repo to avoid resource leaks
         if "repo" in locals():
             del repo
 
+    return results  # Return the collected results
 
 def commitDate(tag):
     return tag.commit.committed_date
@@ -163,13 +191,3 @@ def remove_tree(path):
         shutil.rmtree(path, onerror=remove_readonly)
     else:
         os.remove(path)
-
-
-if __name__ == "__main__":
-    communitySmellsDetector(
-        pat=testConfig.PAT,
-        repo_url=testConfig.REPO_URL,
-        output_path=testConfig.OUTPUT_PATH,
-        senti_strength_path=testConfig.SENTI_STRENGTH_PATH,
-        batch_months=testConfig.BATCH_MONTHS,
-    )
