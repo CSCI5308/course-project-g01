@@ -85,8 +85,12 @@ def parseAliasArgs(args: Sequence[str]):
     )
 
     args = parser.parse_args()
+
+    # Set the output path to "Output" folder
+    outputPath = "../output"
+
     config = Configuration(
-        args.repositoryUrl, 0, args.outputPath, "", args.maxDistance, args.pat, ""
+        args.repositoryUrl, 0, outputPath, "", args.maxDistance, args.pat, ""
     )
 
     return config
@@ -136,13 +140,6 @@ def parseDevNetworkArgs(args: Sequence[str]):
     )
 
     parser.add_argument(
-        "-o",
-        "--outputPath",
-        help="Local directory path for analysis output",
-        required=True,
-    )
-
-    parser.add_argument(
         "-sd",
         "--startDate",
         help="Start date of project life",
@@ -150,10 +147,14 @@ def parseDevNetworkArgs(args: Sequence[str]):
     )
 
     args = parser.parse_args()
+
+    # Set the output path to "Output" folder
+    outputPath = "../output"
+
     config = Configuration(
         args.repositoryUrl,
         args.batchMonths,
-        args.outputPath,
+        outputPath,
         args.sentiStrengthPath,
         0,
         args.pat,
