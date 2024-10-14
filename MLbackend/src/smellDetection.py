@@ -55,6 +55,12 @@ def smellDetection(config: Configuration, batchIdx: int):
     print("Detected smells:")
     print(detectedSmells)
 
+    # write results
+    with open("temp_output.txt", "a") as f:
+        for smell in detectedSmells:
+            f.write(smell + "\n")
+
+
 
 def buildMetricsList(results: dict):
 
