@@ -155,7 +155,7 @@ def communitySmellsDetector(
             results[f'batch_{batchIdx}'] = {
                 'batch_date': str(batchDate), 
                 'smell_results': smell_results,
-                'authors': uniqueAuthorsInBatch,
+                'authors': ', '.join(uniqueAuthorsInBatch),
                 'core_devs': batchCoreDevs,
                 # Add more relevant results as needed
             }
