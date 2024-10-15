@@ -67,7 +67,6 @@ def main(argv):
 
         # get repository reference
         repo = getRepo(config)
-
         # setup sentiment analysis
         senti = sentistrength.PySentiStr()
 
@@ -89,6 +88,10 @@ def main(argv):
         )
 
         tagAnalysis(repo, delta, batchDates, daysActive, config)
+        # Tag Analysis (results_{batch_id}.csv to pdf)
+        
+
+
 
         coreDevs = centrality.centralityAnalysis(commits, delta, batchDates, config)
 
@@ -149,6 +152,27 @@ def main(argv):
                 batchCoreDevs,
                 config,
             )
+
+            # Import the whole
+            
+            import pandas as pd
+            df = pd.read_csv(os.path.join(config.resultsPath, f"results_{batchIdx}.csv"))
+    
+            import pandas as pd
+            from fpdf import FPDF
+            # Create a PDF documen
+            pdf = FPDF()
+            pdf.set_auto_page_break(auto=True, margin=15)
+            pdf.add_page()
+            pdf.set_font("Arial", size=12)
+            for i in range(len(df)):
+                row = df.iloc[i].values
+                row_data = " | ".join(map(str, row))
+                pdf.cell(200, 10, txt=row_data, ln=True)
+            
+            pdf_output_path = os.path.join(config.resultsPath, f"results_{batchIdx}.pdf")
+            pdf.output(pdf_output_path)
+
 
             # run smell detection
             smellDetection(config, batchIdx)
