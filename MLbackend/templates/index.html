@@ -26,46 +26,46 @@
   </head>
 <body>
   <div class="mui-container-fluid">
-    <div class="mui-row">
-      <div class="mui-col-xs-6 mui-col-md-6 bg-color2">
-        <div class="content">
-            <h2 class="heading-text">Community Smell Detector</h2>
+      <div class="mui-row">
+        <div class="mui-col-xs-6 mui-col-md-6 bg-color2">
+          <div class="content">
+              <h2 class="heading-text">Community Smell Detector</h2>
+          </div>
         </div>
-      </div>
-      <div class="mui-col-xs-6 mui-col-md-6  bg-Color">
-        <div class="content">
-            <form id="inputForm">
-                <div class="mui-textfield">
-                  <label for="repo-url">
-                    <i class="fab fa-github"></i> GitHub Repository URL
-                  </label>
-                    <input type="text" id="repo-url" name="repo-url" placeholder="https://github.com/username/repository">
+        <div class="mui-col-xs-6 mui-col-md-6  bg-Color">
+          <div class="content">
+              <form id="inputForm">
+                  <div class="mui-textfield">
+                    <label for="repo-url">
+                      <i class="fab fa-github"></i> GitHub Repository URL
+                    </label>
+                      <input type="text" id="repo-url" name="repo-url" placeholder="https://github.com/username/repository">
+                    </div>
+                    <div class="mui-textfield">
+                  
+                      <label for="access-token">
+                        <i class="fas fa-key"></i> GitHub Personal Access Token
+                      </label>
+                    <input type="text" id="access-token" name="access-token" placeholder="Enter your PAT">
+                    <div class="mui--text-caption">Don't have a token? 
+                      <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank"> Learn to create one </a>
+                    </div>
                   </div>
                   <div class="mui-textfield">
-                 
-                    <label for="access-token">
-                      <i class="fas fa-key"></i> GitHub Personal Access Token
+                    <label for="email">
+                      <i class="fas fa-envelope"></i> Your Email Address
                     </label>
-                  <input type="text" id="access-token" name="access-token" placeholder="Enter your PAT">
-                  <div class="mui--text-caption">Don't have a token? 
-                    <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank"> Learn to create one </a>
+                      <input type="email" id="email" name="email" placeholder="youremail@example.com">
                   </div>
-                </div>
-                <div class="mui-textfield">
-                  <label for="email">
-                    <i class="fas fa-envelope"></i> Your Email Address
-                  </label>
-                    <input type="email" id="email" name="email" placeholder="youremail@example.com">
+                    <button type="submit" class="mui-btn mui-btn--raised bg-green">Submit</button>
                   </div>
-                  <button type="submit" class="mui-btn mui-btn--raised bg-green">Submit</button>
-
-                </div>
-                
-
-            </form>
+              </form>
+          </div>
         </div>
       </div>
+    <div class="loader">
+      <div class="mui-progress mui-progress--indeterminate"></div>
     </div>
-    </div>
+  </div>
 </body>
 </html>

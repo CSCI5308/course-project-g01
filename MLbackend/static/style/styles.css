@@ -66,5 +66,19 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#62A789", en
     white-space: nowrap;
     letter-spacing: 0.15em;
   }
+
+  .loader {
+    display: none; /* Hidden by default */
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+.loader .mui-progress {
+    width: 100px; 
+    height: 100px; 
+}
   
   
