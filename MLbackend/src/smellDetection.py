@@ -54,6 +54,7 @@ def smellDetection(config: Configuration, batchIdx: int):
     # display results
     print("Detected smells:")
     print(detectedSmells)
+    return detectedSmells
 
 
 def buildMetricsList(results: dict):

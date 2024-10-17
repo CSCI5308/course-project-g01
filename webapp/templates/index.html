@@ -1,28 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smell Analysis</title>
-</head>
+    <title>Community Smell Detection</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('smellForm').onsubmit = function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData();
+                formData.append('repo_url', document.getElementById('repo_url').value);
+                formData.append('pat', document.getElementById('pat').value);
 
+                fetch('/analyze_repo', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Smells detected:', data);
+
+                    // JSON Object (needs Post Processing -> To frontend)
+                    document.getElementById('smellsJson').textContent = JSON.stringify(data, null, 2);
+
+
+                    document.getElementById('downloadSection').style.display = 'block';
+                    document.getElementById('displaySection').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            };
+        });
+    </script>
+</head>
 <body>
-    <h1>Run GitHub Analysis</h1>
-    <form action="/run_analysis" method="post">
-        <label for="pat">GitHub PAT:</label>
+    <h1>Community Smell Detection</h1>
+    
+    <form id="smellForm">
+        <label for="repo_url">GitHub Repo URL:</label>
+        <input type="text" id="repo_url" name="repo_url" required>
+        <br><br>
+        
+        <label for="pat">Personal Access Token (PAT):</label>
         <input type="text" id="pat" name="pat" required>
         <br><br>
-        <label for="repo_url">GitHub Repository URL:</label>
-        <input type="url" id="repo_url" name="repo_url" required>
-        <br><br>
-        <input type="submit" value="Run Analysis">
+
+        <input type="submit" value="Submit">
     </form>
 
-    {% if output %}
-    <h2>Analysis Output:</h2>
-    <pre>{{ output }}</pre>
-    {% endif %}
-</body>
+    <!-- Post API Call Displaying part -->
+     <div id="displaySection" style="display:none;">
+        <h2>Detected Smells</h2>
+        <pre id="smellsJson"></pre>
+     </div>
+    
 
+    <!-- PDF Download Link -->
+    <div id="downloadSection" style="display:none;">
+        <h2>Download PDF Report</h2>
+        <a href="/generate_pdf" target="_blank">Download Smell Report</a>
+    </div>
+</body>
 </html>
