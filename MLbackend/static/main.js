@@ -6,8 +6,10 @@ document.getElementById('inputForm').addEventListener('submit', function(event) 
     const accessToken = document.getElementById('access-token').value;
     const email = document.getElementById('email').value;
 
-    // Get the loader element
-    const loader = document.querySelector('.loader');
+    const loaderOverlay = document.getElementById('loaderOverlay');
+    const loader = document.getElementById('loader');
+
+    loaderOverlay.style.display = 'block';
     loader.style.display = 'block';
 
     // Send a POST request to the Flask backend
@@ -23,7 +25,8 @@ document.getElementById('inputForm').addEventListener('submit', function(event) 
         }),
     })
     .then(response => {
-        loader.style.display = 'none'; // Hide loader 
+        loaderOverlay.style.display = 'none';
+        loader.style.display = 'none';
         if (!response.ok) {
             alert('Something went wrong!');
             throw new Error('Network response was not ok');
