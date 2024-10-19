@@ -1,28 +1,3 @@
-.bg-Color{
-    background: hsla(154, 68%, 82%, 1);
-
-background: linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
-
-background: -moz-linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
-
-background: -webkit-linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
-
-filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#B0F0D4", endColorstr="#D8F8EA", GradientType=1 );
-}
-
-.bg-color2{
-    background: hsla(154, 28%, 52%, 1);
-
-background: linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
-
-background: -moz-linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
-
-background: -webkit-linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
-
-filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#62A789", endColorstr="#FFFFFF", GradientType=1 );
-}
-
-
 .content {
     min-height: 100vh;            /* At least the full viewport height */
     width: 100%;                  /* Full width */
@@ -33,73 +8,52 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#62A789", en
     box-sizing: border-box;       /* Include padding in width calculations */
 }
 
-.content form {
-    width: 100%;                  /* Form takes full width */
-    max-width: 600px;             /* Max width to control form size */
-    margin: 0 auto;               /* Center form horizontally */
-    padding: 20px;                /* Add padding around form content */
-    box-sizing: border-box;       /* Include padding in width calculations */
+.content-form {
+    min-height: 100vh;            /* At least the full viewport height */
+    width: 100%;                  /* Full width */
+    display: grid;                /* Grid layout for easy centering */
+    align-items: center;          /* Vertically center items within the grid */
+    padding: 20px;   
+    box-sizing: border-box;             /* Add padding to the container */
 }
 
-.mui-textfield {
-    width: 100%;                  /* Ensure textfield takes full width */
-    margin-bottom: 20px;          /* Add space between input fields */
+.bg-Color {
+    background: linear-gradient(to top, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
 }
 
-.mui-textfield input {
-    width: 100%;                  /* Ensure the input field takes full width */
-    padding: 10px;                /* Add padding for better readability */
-    box-sizing: border-box;       /* Include padding in width calculations */
-    font-size: 16px;              /* Optional: Adjust font size */
-}
-
-
-.bg-green{
-    background-color:#62A789;
+.bg-color2 {
+    background: linear-gradient(to top, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
 }
 
 .heading-text {
-    font-family: "Roboto", sans-serif; /* Or your preferred font */
-    font-weight: bold;
-    font-size: 34px; /* Adjust the font size as needed */
-    overflow: hidden;
-    white-space: nowrap;
-    letter-spacing: 0.15em;
-  }
+    font-size: 3em;
+}
 
-/* Loader Overlay */
-.loader-overlay {
-    display: none; /* Hidden by default */
-    position: fixed;
-    top: 0;
-    left: 0;
+.overlay {
+    position: fixed;              
+    top: 0;                      
+    left: 0;                    
+    right: 0;                    
+    bottom: 0;                  
+    background-color: rgba(255, 255, 255, 0.7); 
+    display: flex;               
+    align-items: center;          
+    justify-content: center;     
+    z-index: 9999;                
+}
+
+.spinner-border {
+    width: 3rem;               
+    height: 3rem;                
+}
+
+.content-result {
     width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
-    z-index: 9998; /* Behind the loader */
+    min-height: 100vh; /* Set minimum height to 100% of the viewport height */
+    max-height: 100vh; /* Set maximum height to the viewport height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 20px; /* Add some padding for better readability */
+    box-sizing: border-box; /* Ensure padding does not affect total width */
+    border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+    border-radius: 5px;
 }
-
-/* Loader */
-.loader {
-    display: none; /* Hidden by default */
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border: 16px solid #f3f3f3; /* Light grey border */
-    border-radius: 50%;
-    border-top: 16px solid #3498db; /* Blue color for loader top */
-    width: 120px;
-    height: 120px;
-    animation: spin 2s linear infinite;
-    z-index: 9999; /* Above the overlay */
-}
-
-/* Spin Animation */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-  
-  
