@@ -3,6 +3,7 @@ import sys
 import os
 import re
 import validators
+import json
 
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
@@ -56,7 +57,7 @@ def detect_smells():
         }), 400
 
     senti_strength_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "data"))
-    output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "src"))
+    output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "src","results"))
     
     try:
         # Call the function and save the result
@@ -66,9 +67,9 @@ def detect_smells():
             senti_strength_path,  
             output_path,       
             google_api_key= None,
-            batch_months = 1,
             start_date= None
         )
+        print("Results:", result)
         # Check if result contains valid information
         if not result:
             return jsonify({
@@ -76,12 +77,49 @@ def detect_smells():
                 "message": "No data found, Please try again later"
             }), 404 
 
+        data = {
+                    "batch_date": "2024-10-19",
+                    "smell_results": [
+                        "Result 1",
+                        "Result 2",
+                        "Result 3",
+                        "Result 4",
+                        "Result 5",
+                        "Result 6",
+                        "Result 7",
+                        "Result 8",
+                        "Result 9",
+                        "Result 10",
+                        "Result 11",
+                        "Result 12",
+                        "Result 13",
+                        "Result 14",
+                        "Result 15",
+                        "Result 16",
+                        "Result 17",
+                        "Result 18",
+                        "Result 19",
+                        "Result 20"
+                    ],
+                    "authors": "Author 1, Author 2, Author 3, Author 4, Author 5, Author 6, Author 7, Author 8",
+                    "core_devs": "Core Dev 1, Core Dev 2, Core Dev 3",
+                    "authorInfoDict": {
+                        "Author 1": "Info about Author 1",
+                        "Author 2": "Info about Author 2",
+                        "Author 3": "Info about Author 3",
+                        "Author 4": "Info about Author 4",
+                        "Author 5": "Info about Author 5",
+                        "Author 6": "Info about Author 6",
+                        "Author 7": "Info about Author 7",
+                        "Author 8": "Info about Author 8"
+                    }
+                }
+
         # Return successful response
-        return jsonify({
-            "status": "success",
-            "result": result 
-        }), 200
-   
+        #return render_template('results.html', data=jsonify(json.loads(result)))
+        return render_template('results.html', data=data)
+
+        
     except Exception as e:
         # Handle unexpected errors
         return jsonify({
@@ -90,4 +128,4 @@ def detect_smells():
         }), 500  # Internal Server Error
     
 if __name__ == '__main__':
-    app.run(debug=True)  
+    app.run(port=8000,debug=True)  
