@@ -1,7 +1,6 @@
 import os
 import networkx as nx
 import csv
-import matplotlib.pyplot as plt
 
 from git.objects import Commit
 from typing import List, Dict, Any
@@ -265,22 +264,6 @@ def prepareGraph(
         f"{outputPrefix}_CommunityAuthorItemCount",
         config.resultsPath,
     )
-
-    # output graph
-    print("Outputting graph")
-    plt.figure(5, figsize=(30, 30))
-
-    nx.draw(
-        G,
-        with_labels=True,
-        node_color="orange",
-        node_size=4000,
-        edge_color="black",
-        linewidths=2,
-        font_size=20,
-    )
-
-    plt.savefig(os.path.join(config.resultsPath, f"{outputPrefix}_{batchIdx}.pdf"))
 
     nx.write_graphml(
         G, os.path.join(config.resultsPath, f"{outputPrefix}_{batchIdx}.xml")
