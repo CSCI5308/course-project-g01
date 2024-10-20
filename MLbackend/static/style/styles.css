@@ -17,14 +17,20 @@
     box-sizing: border-box;             /* Add padding to the container */
 }
 
-.bg-Color {
-    background: linear-gradient(to top, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
+.bg-Color{
+    background: hsla(154, 68%, 82%, 1);
+    background: linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
+    background: -moz-linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
+    background: -webkit-linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
+    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#B0F0D4", endColorstr="#D8F8EA", GradientType=1 );
 }
-
-.bg-color2 {
-    background: linear-gradient(to top, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
+.bg-color2{
+    background: hsla(154, 28%, 52%, 1);
+    background: linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
+    background: -moz-linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
+    background: -webkit-linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
+    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#62A789", endColorstr="#FFFFFF", GradientType=1 );
 }
-
 .heading-text {
     font-size: 3em;
 }
