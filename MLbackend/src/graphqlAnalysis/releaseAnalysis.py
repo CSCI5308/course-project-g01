@@ -23,6 +23,11 @@ def releaseAnalysis(
     print("Querying releases")
     batches = releaseRequest(config, delta, batchDates)
 
+    if not batches:
+        print("No batches found.")
+        return  # Exit the function if no batches are found
+
+
     for batchIdx, batch in enumerate(batches):
 
         releases = batch["releases"]
@@ -179,9 +184,9 @@ def releaseRequest(
     if batch is not None:
         batches.append(batch)
 
-    print(
-        f"Number of Release batches is {len(batches)} and its first value is {batches[0]}"
-    )
+    # print(
+    #     f"Number of Release batches is {len(batches)} and its first value is {batches[0]}"
+    # )
 
     return batches
 
