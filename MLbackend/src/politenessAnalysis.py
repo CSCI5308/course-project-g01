@@ -2,6 +2,7 @@ import os
 import csv
 import convokit
 
+from logging import Logger
 import src.statsAnalysis as stats
 from src.configuration import Configuration
 
@@ -10,22 +11,32 @@ def politenessAnalysis(
     config: Configuration,
     prCommentBatches: list,
     issueCommentBatches: list,
+    logger: Logger,
 ) -> None:
 
-    calculateACCL(config, prCommentBatches, issueCommentBatches)
+    calculateACCL(config, prCommentBatches, issueCommentBatches, logger)
 
-    calculateRPC(config, "PR", prCommentBatches)
-    calculateRPC(config, "Issue", prCommentBatches)
+    calculateRPC(config, "PR", prCommentBatches, logger)
+    calculateRPC(config, "Issue", prCommentBatches, logger)
 
 
-def calculateACCL(config, prCommentBatches, issueCommentBatches) -> None:
+def calculateACCL(
+    config, prCommentBatches, issueCommentBatches, logger: Logger
+) -> None:
+
+    logger.info(
+        "Calculating Average Comment Character Length based on comments in PRs and Issues batches."
+    )
+
     for batchIdx, batch in enumerate(prCommentBatches):
 
         prCommentLengths = list([len(c) for c in batch])
         issueCommentBatch = list([len(c) for c in issueCommentBatches[batchIdx]])
 
-        prCommentLengthsMean = stats.calculateStats(prCommentLengths)["mean"]
-        issueCommentLengthsMean = stats.calculateStats(issueCommentBatch)["mean"]
+        prCommentLengthsMean = stats.calculateStats(prCommentLengths, logger)["mean"]
+        issueCommentLengthsMean = stats.calculateStats(issueCommentBatch, logger)[
+            "mean"
+        ]
 
         accl = prCommentLengthsMean + issueCommentLengthsMean / 2
 
@@ -37,7 +48,10 @@ def calculateACCL(config, prCommentBatches, issueCommentBatches) -> None:
             w.writerow(["ACCL", accl])
 
 
-def calculateRPC(config, outputPrefix, commentBatches) -> None:
+def calculateRPC(config, outputPrefix, commentBatches, logger: Logger) -> None:
+
+    logger.info(f"Calculating Relative positive count for {outputPrefix}s.")
+
     for batchIdx, batch in enumerate(commentBatches):
 
         # analyze batch
@@ -70,7 +84,7 @@ def getResults(comments: list) -> float:
     corpus = convokit.Corpus(utterances=utterances)
 
     # parse
-    parser = convokit.TextParser(verbosity=1000)
+    parser = convokit.TextParser(verbosity=0)
     corpus = parser.transform(corpus)
 
     # extract politeness features

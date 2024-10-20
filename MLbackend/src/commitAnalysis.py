@@ -1,6 +1,7 @@
 import git
 import csv
 import os
+from logging import Logger
 
 from dateutil.relativedelta import relativedelta
 from typing import List, Tuple, Dict, Any
@@ -19,6 +20,7 @@ def commitAnalysis(
     commits: List[git.Commit],
     delta: relativedelta,
     config: Configuration,
+    logger: Logger,
 ) -> Tuple[List[datetime], Dict[str, Dict[str, Any]], List[int]]:
 
     # sort commits
@@ -35,7 +37,7 @@ def commitAnalysis(
     batchEndDate = None
     batchDates = []
 
-    for commit in Bar("Batching commits").iter(commits):
+    for commit in commits:
         if startDate is not None and startDate > commit.committed_datetime:
             continue
         # prepare first batch
@@ -68,7 +70,7 @@ def commitAnalysis(
 
         # get batch authors
         batchAuthorInfoDict, batchDaysActive = commitBatchAnalysis(
-            idx, senti, batch, config
+            idx, senti, batch, config, logger
         )
 
         # combine with main lists
@@ -79,7 +81,11 @@ def commitAnalysis(
 
 
 def commitBatchAnalysis(
-    idx: int, senti: PySentiStr, commits: List[git.Commit], config: Configuration
+    idx: int,
+    senti: PySentiStr,
+    commits: List[git.Commit],
+    config: Configuration,
+    logger: Logger,
 ):
 
     authorInfoDict = {}
@@ -87,7 +93,7 @@ def commitBatchAnalysis(
     experienceDays = 150
 
     # traverse all commits
-    print("Analyzing commits")
+    logger.info("Analyzing commits")
     startDate = None
     if config.startDate is not None:
         startDate = datetime.strptime(config.startDate, "%Y-%m-%d")
@@ -100,7 +106,7 @@ def commitBatchAnalysis(
     lastDate = None
     firstDate = None
     realCommitCount = 0
-    for commit in Bar("Processing").iter(commits):
+    for commit in commits:
         if startDate is not None and startDate > commit.committed_datetime:
             continue
         if lastDate is None:
@@ -152,7 +158,7 @@ def commitBatchAnalysis(
         if not commit.author_tz_offset == 0 and time.hour >= 9 and time.hour <= 17:
             authorInfo["sponsoredCommitCount"] += 1
 
-    print("Analyzing commit message sentiment")
+    logger.info("Analyzing commit message sentiment")
     sentimentScores = []
     commitMessageSentimentsPositive = []
     commitMessageSentimentsNegative = []
@@ -166,7 +172,7 @@ def commitBatchAnalysis(
             result for result in filter(lambda value: value <= -1, sentimentScores)
         )
 
-    print("Analyzing authors")
+    logger.info("Analyzing authors")
     sponsoredAuthorCount = 0
     for login, author in authorInfoDict.items():
 
@@ -202,7 +208,7 @@ def commitBatchAnalysis(
     if lastCommitDate is not None:
         daysActive = (lastCommitDate - firstCommitDate).days
 
-    print("Outputting CSVs")
+    logger.info("Outputting CSVs")
 
     # output author days on project
     with open(
@@ -252,6 +258,7 @@ def commitBatchAnalysis(
         [author["activeDays"] for login, author in authorInfoDict.items()],
         "AuthorActiveDays",
         config.resultsPath,
+        logger,
     )
 
     outputStatistics(
@@ -259,6 +266,7 @@ def commitBatchAnalysis(
         [author["commitCount"] for login, author in authorInfoDict.items()],
         "AuthorCommitCount",
         config.resultsPath,
+        logger,
     )
 
     outputStatistics(
@@ -266,6 +274,7 @@ def commitBatchAnalysis(
         [len(timezone["authors"]) for key, timezone in timezoneInfoDict.items()],
         "TimezoneAuthorCount",
         config.resultsPath,
+        logger,
     )
 
     outputStatistics(
@@ -273,13 +282,11 @@ def commitBatchAnalysis(
         [timezone["commitCount"] for key, timezone in timezoneInfoDict.items()],
         "TimezoneCommitCount",
         config.resultsPath,
+        logger,
     )
 
     outputStatistics(
-        idx,
-        sentimentScores,
-        "CommitMessageSentiment",
-        config.resultsPath,
+        idx, sentimentScores, "CommitMessageSentiment", config.resultsPath, logger
     )
 
     outputStatistics(
@@ -287,6 +294,7 @@ def commitBatchAnalysis(
         commitMessageSentimentsPositive,
         "CommitMessageSentimentsPositive",
         config.resultsPath,
+        logger,
     )
 
     outputStatistics(
@@ -294,6 +302,7 @@ def commitBatchAnalysis(
         commitMessageSentimentsNegative,
         "CommitMessageSentimentsNegative",
         config.resultsPath,
+        logger,
     )
 
     return authorInfoDict, daysActive

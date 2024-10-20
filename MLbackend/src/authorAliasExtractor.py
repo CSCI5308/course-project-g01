@@ -132,7 +132,6 @@ def extractAliases(config: Configuration, repo: git.Repo, aliasPath: str):
                     usedAsValues[authorB] = authorA
                     break
 
-    print("Writing aliases to '{0}'".format(aliasPath))
     if not os.path.exists(os.path.dirname(aliasPath)):
         os.makedirs(os.path.dirname(aliasPath))
 

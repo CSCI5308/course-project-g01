@@ -4,7 +4,7 @@ import stat
 import sentistrength
 from pathlib import Path
 from typing import Optional, List, Any
-from datetime import datetime
+from logging import Logger
 
 import traceback
 from src.configuration import Configuration
@@ -27,6 +27,7 @@ def communitySmellsDetector(
     repo_url: str,
     senti_strength_path: Path,
     output_path: Path,
+    logger: Logger,
     google_api_key: Optional[str] = None,
     batch_months: float = 9999,
     start_date: Optional[str] = None,
@@ -47,14 +48,16 @@ def communitySmellsDetector(
             startDate=start_date,
         )
 
-        print(f"-- Repository URL: {repo_url}")
-        print(f"-- Batch Size: {batch_months} months")
-        print(f"-- Output Path: {output_path}")
-        print(f"-- SentiStrength Path: {senti_strength_path}")
-        print(f"-- Max Distance: {0}")
-        print(f"-- PAT: {pat}")
-        print(f"-- Google Key: {google_api_key}")
-        print(f"-- Start Date: {start_date}")
+        logger.info(f"Received a new request for {repo_url}.")
+
+        logger.debug(f"Repository URL: {repo_url}")
+        logger.debug(f"Batch Size: {batch_months} months")
+        logger.debug(f"Output Path: {output_path}")
+        logger.debug(f"SentiStrength Path: {senti_strength_path}")
+        logger.debug(f"Max Distance: {0}")
+        logger.debug(f"PAT: {pat}")
+        logger.debug(f"Google Key: {google_api_key}")
+        logger.debug(f"Start Date: {start_date}")
 
         # Prepare folders
         if os.path.exists(config.resultsPath):
@@ -63,7 +66,7 @@ def communitySmellsDetector(
         os.makedirs(config.metricsPath)
 
         # Get repository reference
-        repo = getRepo(config)
+        repo = getRepo(config, logger)
 
         # Setup sentiment analysis
         senti = sentistrength.PySentiStr()
@@ -78,26 +81,27 @@ def communitySmellsDetector(
         delta = relativedelta(months=+config.batchMonths)
 
         # Handle aliases
-        commits = list(replaceAliases(repo.iter_commits(), config))
+        commits = list(replaceAliases(repo.iter_commits(), config, logger))
 
         # Run analysis
         batchDates, authorInfoDict, daysActive = commitAnalysis(
-            senti, commits, delta, config
+            senti, commits, delta, config, logger
         )
 
-        tagAnalysis(repo, delta, batchDates, daysActive, config)
+        tagAnalysis(repo, delta, batchDates, daysActive, config, logger)
 
         coreDevs: List[List[Any]] = centrality.centralityAnalysis(
-            commits, delta, batchDates, config
+            commits, delta, batchDates, config, logger
         )
 
-        releaseAnalysis(commits, config, delta, batchDates)
+        releaseAnalysis(commits, config, delta, batchDates, logger)
 
         prParticipantBatches, prCommentBatches = prAnalysis(
             config,
             senti,
             delta,
             batchDates,
+            logger,
         )
 
         issueParticipantBatches, issueCommentBatches = issueAnalysis(
@@ -105,9 +109,10 @@ def communitySmellsDetector(
             senti,
             delta,
             batchDates,
+            logger,
         )
 
-        politenessAnalysis(config, prCommentBatches, issueCommentBatches)
+        politenessAnalysis(config, prCommentBatches, issueCommentBatches, logger)
 
         for batchIdx, batchDate in enumerate(batchDates):
             # Get combined author lists
@@ -121,6 +126,7 @@ def communitySmellsDetector(
                 combinedAuthorsInBatch,
                 "issuesAndPRsCentrality",
                 config,
+                logger,
             )
 
             # Get combined unique authors for both PRs and issues
@@ -146,28 +152,26 @@ def communitySmellsDetector(
                 uniqueAuthorsInBatch,
                 batchCoreDevs,
                 config,
+                logger,
             )
 
             # Run smell detection and collect results
-            smell_results = smellDetection(config, batchIdx)
+            smell_results = smellDetection(config, batchIdx, logger)
             results = {
-                        "batch_date": batchDate.strftime("%Y-%m-%d"),
-                        "smell_results": list(smell_results),
-                        "core_devs": list(batchCoreDevs),
-                    }
+                "batch_date": batchDate.strftime("%Y-%m-%d"),
+                "smell_results": list(smell_results),
+                "core_devs": list(batchCoreDevs),
+            }
 
-                # Add more relevant results as needed
-            
+            # Add more relevant results as needed
+
     except Exception as e:
-        # Capture detailed error information
-        error_message = str(e)
-        error_traceback = traceback.format_exc()  # Get the full traceback
 
         # Return the detailed error
         results = {
             "status": "error",
-            "message": error_message,
-            "traceback": error_traceback,  # Include stack trace for debugging
+            "message": str(e),
+            "traceback": traceback.format_exc(),
         }
     finally:
         # Close repo to avoid resource leaks

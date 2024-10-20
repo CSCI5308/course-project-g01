@@ -2,6 +2,7 @@ import os
 import networkx as nx
 import csv
 
+from logging import Logger
 from git.objects import Commit
 from typing import List, Dict, Any
 from datetime import datetime
@@ -19,6 +20,7 @@ def centralityAnalysis(
     delta: relativedelta,
     batchDates: List[datetime],
     config: Configuration,
+    logger: Logger,
 ) -> List[List[Any]]:
     coreDevs: List[List[Any]] = list()
 
@@ -33,21 +35,21 @@ def centralityAnalysis(
             and commit.committed_datetime < batchEndDate
         ]
 
-        batchCoreDevs = processBatch(idx, batch, config)
+        batchCoreDevs = processBatch(idx, batch, config, logger)
         coreDevs.append(batchCoreDevs)
 
     return coreDevs
 
 
 def processBatch(
-    batchIdx: int, commits: List[Commit], config: Configuration
+    batchIdx: int, commits: List[Commit], config: Configuration, logger: Logger
 ) -> List[Any]:
     allRelatedAuthors = {}
     authorCommits = Counter({})
 
     # for all commits...
-    print("Analyzing centrality")
-    for commit in Bar("Processing").iter(commits):
+    logger.info("Analyzing centrality for commits")
+    for commit in commits:
         author = authorIdExtractor(commit.author)
 
         # increase author commit count
@@ -71,16 +73,18 @@ def processBatch(
         authorRelatedAuthors.update(commitRelatedAuthors)
 
     return prepareGraph(
-        allRelatedAuthors, authorCommits, batchIdx, "commitCentrality", config
+        allRelatedAuthors, authorCommits, batchIdx, "commitCentrality", config, logger
     )
 
 
-def buildGraphQlNetwork(batchIdx: int, batch: list, prefix: str, config: Configuration):
+def buildGraphQlNetwork(
+    batchIdx: int, batch: list, prefix: str, config: Configuration, logger: Logger
+):
     allRelatedAuthors = {}
     authorItems = Counter({})
 
     # for all commits...
-    print("Analyzing centrality")
+    logger.info("Analyzing centrality")
     for authors in batch:
 
         for author in authors:
@@ -98,7 +102,7 @@ def buildGraphQlNetwork(batchIdx: int, batch: list, prefix: str, config: Configu
             authorRelatedAuthors = allRelatedAuthors.setdefault(author, set())
             authorRelatedAuthors.update(relatedAuthors)
 
-    prepareGraph(allRelatedAuthors, authorItems, batchIdx, prefix, config)
+    prepareGraph(allRelatedAuthors, authorItems, batchIdx, prefix, config, logger)
 
 
 def prepareGraph(
@@ -107,10 +111,11 @@ def prepareGraph(
     batchIdx: int,
     outputPrefix: str,
     config: Configuration,
+    logger: Logger,
 ) -> List[Any]:
 
     # prepare graph
-    print("Preparing NX graph")
+    logger.info(f"Preparing NX graph for {outputPrefix}")
     G = nx.Graph()
 
     for author in allRelatedAuthors:
@@ -134,6 +139,9 @@ def prepareGraph(
             modularity.append(row)
     except ZeroDivisionError:
         # not handled
+        logger.warning(
+            f"A zero division error occured while preparing graph for {outputPrefix}."
+        )
         pass
 
     # finding high centrality authors
@@ -151,7 +159,9 @@ def prepareGraph(
         )
     except ZeroDivisionError:
         percentageHighCentralityAuthors = 0
-        print("length of allRelatedAuthors is 0")
+        logger.warning(
+            f"Length of related authors is 0 while computing percentage of high centrality authors in {outputPrefix}"
+        )
 
     # calculate TFN
     tfn = len(authorItems) - numberHighCentralityAuthors
@@ -165,9 +175,11 @@ def prepareGraph(
         )
     except ZeroDivisionError:
         tfc = 0
-        print("sum of authorItems values is 0")
+        logger.warning(
+            f"Sum of author values is 0 while computing TFC in {outputPrefix}"
+        )
 
-    print("Outputting CSVs")
+    logger.info(f"Outputting CSVs for {outputPrefix}")
 
     # output non-tabular results
     with open(
@@ -235,6 +247,7 @@ def prepareGraph(
         [value for key, value in closeness.items()],
         f"{outputPrefix}_Closeness",
         config.resultsPath,
+        logger,
     )
 
     outputStatistics(
@@ -242,6 +255,7 @@ def prepareGraph(
         [value for key, value in betweenness.items()],
         f"{outputPrefix}_Betweenness",
         config.resultsPath,
+        logger,
     )
 
     outputStatistics(
@@ -249,6 +263,7 @@ def prepareGraph(
         [value for key, value in centrality.items()],
         f"{outputPrefix}_Centrality",
         config.resultsPath,
+        logger,
     )
 
     outputStatistics(
@@ -256,6 +271,7 @@ def prepareGraph(
         [community[0] for community in modularity],
         f"{outputPrefix}_CommunityAuthorCount",
         config.resultsPath,
+        logger,
     )
 
     outputStatistics(
@@ -263,6 +279,7 @@ def prepareGraph(
         [community[1] for community in modularity],
         f"{outputPrefix}_CommunityAuthorItemCount",
         config.resultsPath,
+        logger,
     )
 
     nx.write_graphml(

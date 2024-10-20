@@ -1,9 +1,23 @@
+from datetime import datetime
 from flask import Flask, render_template, request, jsonify
+import logging
+from logging import Logger
 from pathlib import Path
 import re
 import validators
 from src.devNetwork import communitySmellsDetector
 
+LOG_FOLDER_PATH: Path = Path(".", "logs")
+time_now = datetime.now()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    filename=Path(".", "logs", time_now.strftime("log_%Y-%m-%d_%H-%M-%S.log")),
+)
+
+LOGGER: Logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -15,18 +29,21 @@ class InvalidInputError(Exception):
 def validate_repo_url(url: str) -> None:
 
     if not url or not validators.url(url):
+        LOGGER.error(f"Invalid repository URL format {url}.")
         raise InvalidInputError("Invalid repository URL format.")
 
 
 def validate_email(email: str) -> None:
 
     if not email or not validators.email(email):
+        LOGGER.error(f"Invalid Email format {email}.")
         raise InvalidInputError("Invalid email format.")
 
 
 def validate_pat(token: str) -> None:
 
     if not re.match(r"^[a-zA-Z0-9-_]+$", token):
+        LOGGER.error(f"Invalid PAT format {token}.")
         raise ValueError("Invalid PAT format.")
 
 
@@ -56,12 +73,8 @@ def detect_smells():
     try:
         # Call the function and save the result
         result = communitySmellsDetector(
-            pat,
-            repo_url,
-            senti_strength_path,
-            output_path,
+            pat, repo_url, senti_strength_path, output_path, LOGGER
         )
-        print("Results:", result)
         # Check if result contains valid information
         if not result:
             return (
@@ -75,15 +88,21 @@ def detect_smells():
             )
 
         # Return successful response
-        return render_template('results.html', data=result)
+        return render_template("results.html", data=result)
 
-        
-    except Exception as e:
+    except Exception:
         # Handle unexpected errors
-        return jsonify({
-            "status": "error",
-            "message": "Something went wrong. Please try again later"
-        }), 500  # Internal Server Error
-    
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "message": "Something went wrong. Please try again later",
+                }
+            ),
+            500,
+        )  # Internal Server Error
+
+
+if __name__ == "__main__":
+
+    app.run(host="0.0.0.0", port=5000)

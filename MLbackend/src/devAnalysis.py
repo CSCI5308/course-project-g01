@@ -1,18 +1,22 @@
 import os
 import csv
 
+from logging import Logger
 from src.configuration import Configuration
 
 
 def devAnalysis(
-    authorInfoDict: set, batchIdx: int, devs: set, coreDevs: set, config: Configuration
+    authorInfoDict: set,
+    batchIdx: int,
+    devs: set,
+    coreDevs: set,
+    config: Configuration,
+    logger: Logger,
 ):
 
     # select experienced developers
     experiencedDevs = [
-        login
-        for login, author in authorInfoDict.items()
-        if author["experienced"] == True
+        login for login, author in authorInfoDict.items() if author["experienced"]
     ]
 
     # filter by developers present in list of aliased developers by commit
@@ -22,7 +26,7 @@ def devAnalysis(
     try:
         busFactor = (len(devs) - len(coreDevs)) / len(devs)
     except ZeroDivisionError:
-        print(
+        logger.warning(
             f"There are no devs in this batch #{batchIdx}, so we are considering bus factor as 0"
         )
         busFactor = 0
@@ -35,21 +39,21 @@ def devAnalysis(
         [
             author["commitCount"]
             for login, author in authorInfoDict.items()
-            if author["sponsored"] == True
+            if author["sponsored"]
         ]
     )
     experiencedCommitCount = sum(
         [
             author["commitCount"]
             for login, author in authorInfoDict.items()
-            if author["experienced"] == True
+            if author["experienced"]
         ]
     )
 
     sponsoredTFC = sponsoredCommitCount / commitCount * 100
     experiencedTFC = experiencedCommitCount / commitCount * 100
 
-    print("Writing developer analysis results")
+    logger.info("Writing developer analysis results")
     with open(
         os.path.join(config.resultsPath, f"results_{batchIdx}.csv"), "a", newline=""
     ) as f:

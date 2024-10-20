@@ -3,6 +3,7 @@ import csv
 import src.graphqlAnalysis.graphqlAnalysisHelper as gql
 import git
 import src.statsAnalysis as stats
+from logging import Logger
 from typing import List
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import isoparse
@@ -15,18 +16,18 @@ def releaseAnalysis(
     config: Configuration,
     delta: relativedelta,
     batchDates: List[datetime],
+    logger: Logger,
 ) -> None:
 
     # sort commits by ascending commit date
     allCommits.sort(key=lambda c: c.committed_datetime)
 
-    print("Querying releases")
-    batches = releaseRequest(config, delta, batchDates)
+    logger.info("Querying releases")
+    batches = releaseRequest(config, delta, batchDates, logger)
 
     if not batches:
-        print("No batches found.")
+        logger.warning("No batches found.")
         return  # Exit the function if no batches are found
-
 
     for batchIdx, batch in enumerate(batches):
 
@@ -84,7 +85,7 @@ def releaseAnalysis(
             )
         }
 
-        print("Writing results")
+        logger.info("Writing results for analysis of releases to CSVs.")
         with open(
             os.path.join(config.resultsPath, f"results_{batchIdx}.csv"), "a", newline=""
         ) as f:
@@ -114,6 +115,7 @@ def releaseAnalysis(
             [value["authorsCount"] for key, value in releaseCommitsCount.items()],
             "ReleaseAuthorCount",
             config.resultsPath,
+            logger,
         )
 
         stats.outputStatistics(
@@ -121,11 +123,15 @@ def releaseAnalysis(
             [value["commitsCount"] for key, value in releaseCommitsCount.items()],
             "ReleaseCommitCount",
             config.resultsPath,
+            logger,
         )
 
 
 def releaseRequest(
-    config: Configuration, delta: relativedelta, batchDates: List[datetime]
+    config: Configuration,
+    delta: relativedelta,
+    batchDates: List[datetime],
+    logger: Logger,
 ):
     query = buildReleaseRequestQuery(
         config.repositoryOwner, config.repositoryName, None
@@ -140,7 +146,7 @@ def releaseRequest(
     while True:
 
         # get page of releases
-        result = gql.runGraphqlRequest(config.pat, query)
+        result = gql.runGraphqlRequest(config.pat, query, logger)
 
         # extract nodes
         nodes = result["repository"]["releases"]["nodes"]
@@ -173,6 +179,7 @@ def releaseRequest(
 
         # check for next page
         pageInfo = result["repository"]["releases"]["pageInfo"]
+
         if not pageInfo["hasNextPage"]:
             break
 
@@ -183,10 +190,6 @@ def releaseRequest(
 
     if batch is not None:
         batches.append(batch)
-
-    # print(
-    #     f"Number of Release batches is {len(batches)} and its first value is {batches[0]}"
-    # )
 
     return batches
 
