@@ -4,8 +4,8 @@ import yaml
 
 from typing import List, Generator
 from progress.bar import Bar
-from utils import authorIdExtractor
-from configuration import Configuration
+from src.utils import authorIdExtractor
+from src.configuration import Configuration
 
 
 def replaceAliases(

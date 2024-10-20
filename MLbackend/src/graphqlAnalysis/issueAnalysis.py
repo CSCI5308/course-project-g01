@@ -1,22 +1,18 @@
-import io
 import os
 import csv
 import math
 import sys
-from random import randint
-import statsAnalysis as stats
+import src.statsAnalysis as stats
 import sentistrength
-import graphqlAnalysis.graphqlAnalysisHelper as gql
-import centralityAnalysis as centrality
-from functools import reduce
+import src.graphqlAnalysis.graphqlAnalysisHelper as gql
+import src.centralityAnalysis as centrality
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import isoparse
 from typing import List, Any, Dict
-from datetime import date, datetime, timezone
-from configuration import Configuration
+from datetime import datetime, timezone
+from src.configuration import Configuration
 import threading
-from collections import Counter
-from perspectiveAnalysis import getToxicityPercentage
+from src.perspectiveAnalysis import getToxicityPercentage
 
 
 def issueAnalysis(

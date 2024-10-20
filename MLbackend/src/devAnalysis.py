@@ -1,7 +1,7 @@
 import os
 import csv
 
-from configuration import Configuration
+from src.configuration import Configuration
 
 
 def devAnalysis(
@@ -58,4 +58,3 @@ def devAnalysis(
         w.writerow(["BusFactorNumber", busFactor])
         w.writerow(["SponsoredTFC", sponsoredTFC])
         w.writerow(["ExperiencedTFC", experiencedTFC])
-

@@ -4,7 +4,7 @@ import os
 import warnings
 from typing import List
 
-from configuration import Configuration
+from src.configuration import Configuration
 
 warnings.filterwarnings("ignore")
 
@@ -45,10 +45,9 @@ def smellDetection(config: Configuration, batchIdx: int):
     detectedSmells.insert(0, results["LastCommitDate"])
 
     # display results
-    #print("Detected smells:")
-    #print(detectedSmells)
+    # print("Detected smells:")
+    # print(detectedSmells)
     return detectedSmells
-
 
 
 def buildMetricsList(results: dict):

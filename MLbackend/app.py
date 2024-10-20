@@ -1,48 +1,45 @@
 from flask import Flask, render_template, request, jsonify
-import sys
-import os
+from pathlib import Path
 import re
 import validators
-import json
-
-
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-from devNetwork import communitySmellsDetector
-
+from src.devNetwork import communitySmellsDetector
 
 
 app = Flask(__name__)
 
+
 class InvalidInputError(Exception):
     pass
+
 
 def validate_repo_url(url: str) -> None:
 
     if not url or not validators.url(url):
         raise InvalidInputError("Invalid repository URL format.")
 
+
 def validate_email(email: str) -> None:
 
     if not email or not validators.email(email):
         raise InvalidInputError("Invalid email format.")
 
+
 def validate_pat(token: str) -> None:
 
-    if not re.match(r'^[a-zA-Z0-9-_]+$', token):
+    if not re.match(r"^[a-zA-Z0-9-_]+$", token):
         raise ValueError("Invalid PAT format.")
 
 
-
-@app.route('/')
+@app.route("/")
 def home():
-    return render_template('index.html')  
+    return render_template("index.html")
 
-@app.route('/api/v1/smells', methods=['POST'])
+
+@app.route("/api/v1/smells", methods=["POST"])
 def detect_smells():
-    repo_url = request.form['repo-url']
-    email = request.form['email']
-    pat = request.form['access-token']
-
+    repo_url = request.form["repo-url"]
+    email = request.form["email"]
+    pat = request.form["access-token"]
 
     # Validate inputs
     try:
@@ -51,31 +48,31 @@ def detect_smells():
         validate_pat(pat)
 
     except InvalidInputError as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 400
+        return jsonify({"status": "error", "message": str(e)}), 400
 
-    senti_strength_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "data"))
-    output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "src","results"))
-    
+    senti_strength_path: Path = Path(".", "data")
+    output_path: Path = Path(".", "src", "results")
+
     try:
         # Call the function and save the result
         result = communitySmellsDetector(
             pat,
             repo_url,
-            senti_strength_path,  
-            output_path,       
-            google_api_key= None,
-            start_date= None
+            senti_strength_path,
+            output_path,
         )
         print("Results:", result)
         # Check if result contains valid information
         if not result:
-            return jsonify({
-                "status": "error",
-                "message": "No data found, Please try again later"
-            }), 404 
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "No data found, Please try again later",
+                    }
+                ),
+                404,
+            )
 
         data = {
                     "batch_date": "2024-10-19",
@@ -128,4 +125,4 @@ def detect_smells():
         }), 500  # Internal Server Error
     
 if __name__ == '__main__':
-    app.run(port=8000,debug=True)  
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -5,19 +5,19 @@ import sentistrength
 from pathlib import Path
 from typing import Optional, List, Any
 
-import traceback  
-from configuration import Configuration
-from repoLoader import getRepo
-from aliasWorker import replaceAliases
-from commitAnalysis import commitAnalysis
-import centralityAnalysis as centrality
-from tagAnalysis import tagAnalysis
-from devAnalysis import devAnalysis
-from graphqlAnalysis.releaseAnalysis import releaseAnalysis
-from graphqlAnalysis.prAnalysis import prAnalysis
-from graphqlAnalysis.issueAnalysis import issueAnalysis
-from smellDetection import smellDetection
-from politenessAnalysis import politenessAnalysis
+import traceback
+from src.configuration import Configuration
+from src.repoLoader import getRepo
+from src.aliasWorker import replaceAliases
+from src.commitAnalysis import commitAnalysis
+import src.centralityAnalysis as centrality
+from src.tagAnalysis import tagAnalysis
+from src.devAnalysis import devAnalysis
+from src.graphqlAnalysis.releaseAnalysis import releaseAnalysis
+from src.graphqlAnalysis.prAnalysis import prAnalysis
+from src.graphqlAnalysis.issueAnalysis import issueAnalysis
+from src.smellDetection import smellDetection
+from src.politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
 
 
@@ -46,17 +46,14 @@ def communitySmellsDetector(
             startDate=start_date,
         )
 
-        print(
-            "repositoryUrl: ", repo_url, "\n"
-            "batchMonths: ", batch_months, "\n"
-            "outputPath: ", output_path, "\n"
-            "sentiStrengthPath: ", senti_strength_path, "\n"
-            "maxDistance: ", 0, "\n"
-            "pat: ", pat, "\n"
-            "googleKey: ", google_api_key, "\n"
-            "startDate: ", start_date
-            )
-
+        print(f"-- Repository URL: {repo_url}")
+        print(f"-- Batch Size: {batch_months} months")
+        print(f"-- Output Path: {output_path}")
+        print(f"-- SentiStrength Path: {senti_strength_path}")
+        print(f"-- Max Distance: {0}")
+        print(f"-- PAT: {pat}")
+        print(f"-- Google Key: {google_api_key}")
+        print(f"-- Start Date: {start_date}")
 
         # Prepare folders
         if os.path.exists(config.resultsPath):
@@ -152,23 +149,23 @@ def communitySmellsDetector(
 
             # Run smell detection and collect results
             smell_results = smellDetection(config, batchIdx)
-            results[f'batch_{batchIdx}'] = {
-                'batch_date': str(batchDate), 
-                'smell_results': smell_results,
-                'authors': ', '.join(uniqueAuthorsInBatch),
-                'core_devs': batchCoreDevs,
+            results[f"batch_{batchIdx}"] = {
+                "batch_date": str(batchDate),
+                "smell_results": smell_results,
+                "authors": ", ".join(uniqueAuthorsInBatch),
+                "core_devs": batchCoreDevs,
                 # Add more relevant results as needed
             }
     except Exception as e:
-    # Capture detailed error information
+        # Capture detailed error information
         error_message = str(e)
         error_traceback = traceback.format_exc()  # Get the full traceback
-        
+
         # Return the detailed error
         results = {
             "status": "error",
             "message": error_message,
-            "traceback": error_traceback  # Include stack trace for debugging
+            "traceback": error_traceback,  # Include stack trace for debugging
         }
     finally:
         # Close repo to avoid resource leaks
@@ -176,6 +173,7 @@ def communitySmellsDetector(
             del repo
 
     return results  # Return the collected results
+
 
 def commitDate(tag):
     return tag.commit.committed_date
