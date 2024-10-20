@@ -28,7 +28,7 @@
                     <form id="inputForm" novalidate>
                         <div class="mb-3">
                             <label for="repo-url" class="form-label">
-                                <i class="fab fa-github"></i> GitHub Repository URL
+                                <i class="fab fa-github"></i> GitHub Repository URL(Public only)
                             </label>
                             <input type="text" class="form-control" id="repo-url" name="repo-url" placeholder="https://github.com/username/repository" required />
                             <div class="invalid-feedback">
@@ -52,6 +52,11 @@
                             <div class="invalid-feedback">
                                 Please provide a valid email address.
                             </div>
+                        </div>
+                        <div class="form-text mb-3">
+                            <small>
+                                Please note that your GitHub username and Personal Access Token (PAT) will only be used for the purpose of cloning the repository and will not be stored or logged in any way.
+                            </small>
                         </div>
                         <button type="submit" class="btn btn-success">Submit</button>
                     </form>
