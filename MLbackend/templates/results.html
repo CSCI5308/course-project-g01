@@ -24,28 +24,24 @@
                 </div>
             </div>
             <div class="col-md-6 bg-Color d-flex align-items-center">
-                <div class="content-result" style=" width: 100%;">
+                <div class="content-result" style="width: 100%;">
                     <h1>Results for {{ data.batch_date }}</h1>
+                    
                     <h2>Smell Results</h2>
-                        <ul>
-                            {% for result in data.smell_results %}
-                                <li>{{ result }}</li>
-                            {% endfor %}
-                        </ul>
-
-                        <h2>Authors</h2>
-                        <p>{{ data.authors }}</p>
-
-                        <h2>Core Developers</h2>
-                        <p>{{ data.core_devs }}</p>
-
-                        <h2>Author Information</h2>
-                        <ul>
-                            {% for author, info in data.authorInfoDict.items() %}
-                                <li><strong>{{ author }}:</strong> {{ info }}</li>
-                            {% endfor %}
-                        </ul>
+                    <ul>
+                        {% for result in data.smell_results %}
+                            <li>{{ result }}</li>
+                        {% endfor %}
+                    </ul>
+                
+                    <h2>Core Developers</h2>
+                    <ul>
+                        {% for dev in data.core_devs %}
+                            <li>{{ dev }}</li>
+                        {% endfor %}
+                    </ul>
                 </div>
+                
             </div>
         </div>
     </div>

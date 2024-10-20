@@ -4,6 +4,7 @@ import stat
 import sentistrength
 from pathlib import Path
 from typing import Optional, List, Any
+from datetime import datetime
 
 import traceback
 from src.configuration import Configuration
@@ -149,13 +150,14 @@ def communitySmellsDetector(
 
             # Run smell detection and collect results
             smell_results = smellDetection(config, batchIdx)
-            results[f"batch_{batchIdx}"] = {
-                "batch_date": str(batchDate),
-                "smell_results": smell_results,
-                "authors": ", ".join(uniqueAuthorsInBatch),
-                "core_devs": batchCoreDevs,
+            results = {
+                        "batch_date": batchDate.strftime("%Y-%m-%d"),
+                        "smell_results": list(smell_results),
+                        "core_devs": list(batchCoreDevs),
+                    }
+
                 # Add more relevant results as needed
-            }
+            
     except Exception as e:
         # Capture detailed error information
         error_message = str(e)
