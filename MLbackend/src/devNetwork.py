@@ -6,18 +6,18 @@ from pathlib import Path
 from typing import Optional, List, Any
 
 import traceback
-from configuration import Configuration
-from repoLoader import getRepo
-from aliasWorker import replaceAliases
-from commitAnalysis import commitAnalysis
-import centralityAnalysis as centrality
-from tagAnalysis import tagAnalysis
-from devAnalysis import devAnalysis
-from graphqlAnalysis.releaseAnalysis import releaseAnalysis
-from graphqlAnalysis.prAnalysis import prAnalysis
-from graphqlAnalysis.issueAnalysis import issueAnalysis
-from smellDetection import smellDetection
-from politenessAnalysis import politenessAnalysis
+from src.configuration import Configuration
+from src.repoLoader import getRepo
+from src.aliasWorker import replaceAliases
+from src.commitAnalysis import commitAnalysis
+import src.centralityAnalysis as centrality
+from src.tagAnalysis import tagAnalysis
+from src.devAnalysis import devAnalysis
+from src.graphqlAnalysis.releaseAnalysis import releaseAnalysis
+from src.graphqlAnalysis.prAnalysis import prAnalysis
+from src.graphqlAnalysis.issueAnalysis import issueAnalysis
+from src.smellDetection import smellDetection
+from src.politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
 
 

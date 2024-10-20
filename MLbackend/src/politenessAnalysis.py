@@ -2,8 +2,8 @@ import os
 import csv
 import convokit
 
-import statsAnalysis as stats
-from configuration import Configuration
+import src.statsAnalysis as stats
+from src.configuration import Configuration
 
 
 def politenessAnalysis(

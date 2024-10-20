@@ -9,9 +9,9 @@ from dateutil.relativedelta import relativedelta
 from networkx.algorithms.community import greedy_modularity_communities
 from progress.bar import Bar
 from collections import Counter
-from utils import authorIdExtractor
-from statsAnalysis import outputStatistics
-from configuration import Configuration
+from src.utils import authorIdExtractor
+from src.statsAnalysis import outputStatistics
+from src.configuration import Configuration
 
 
 def centralityAnalysis(

@@ -2,16 +2,16 @@ import math
 import os
 import csv
 import sys
-from perspectiveAnalysis import getToxicityPercentage
-import statsAnalysis as stats
+from src.perspectiveAnalysis import getToxicityPercentage
+import src.statsAnalysis as stats
 import sentistrength
-import graphqlAnalysis.graphqlAnalysisHelper as gql
-import centralityAnalysis as centrality
+import src.graphqlAnalysis.graphqlAnalysisHelper as gql
+import src.centralityAnalysis as centrality
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import isoparse
 from typing import List, Dict, Any
 from datetime import datetime, timezone
-from configuration import Configuration
+from src.configuration import Configuration
 import threading
 from typing import List, Tuple
 

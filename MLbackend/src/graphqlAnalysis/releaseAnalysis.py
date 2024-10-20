@@ -1,13 +1,13 @@
 import os
 import csv
-import graphqlAnalysis.graphqlAnalysisHelper as gql
+import src.graphqlAnalysis.graphqlAnalysisHelper as gql
 import git
-import statsAnalysis as stats
+import src.statsAnalysis as stats
 from typing import List
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import isoparse
 from datetime import datetime
-from configuration import Configuration
+from src.configuration import Configuration
 
 
 def releaseAnalysis(

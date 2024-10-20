@@ -1,8 +1,8 @@
 import os
 import git
 
-from configuration import Configuration
-from utils.progress import Progress
+from src.configuration import Configuration
+from src.utils.progress import Progress
 
 
 def getRepo(config: Configuration):
