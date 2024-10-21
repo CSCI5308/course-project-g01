@@ -10,7 +10,8 @@ class TestReleaseAnalysis(unittest.TestCase):
 
     @classmethod
     @patch("src.configuration.Configuration")
-    def setUpClass(cls, mock_configuration) -> None:
+    @patch("logging.Logger")
+    def setUpClass(cls, mock_configuration, mock_logger) -> None:
         cls.mock_config_instance = MagicMock()
 
         # Set return values for the properties you need
@@ -24,6 +25,8 @@ class TestReleaseAnalysis(unittest.TestCase):
         cls.mock_config_instance.googleKey = None
         cls.delta = relativedelta(months=+cls.mock_config_instance.batchMonths)
         cls.batch_dates = [datetime.now()]
+        cls.mock_logger = MagicMock()
+        cls.mock_logger.return_value = cls.mock_logger
 
     @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
     def test_noReleaseAvailable(self, mock_runGraphqlRequest) -> None:
@@ -32,11 +35,14 @@ class TestReleaseAnalysis(unittest.TestCase):
             config=self.mock_config_instance,
             delta=self.delta,
             batchDates=self.batch_dates,
-            logger=None,
+            logger=self.mock_logger,
         )
 
         self.assertEqual(result, [])
         mock_runGraphqlRequest.assert_called_once()
+        self.mock_logger.error.assert_called_once_with(
+            "There are no releases for this repository"
+        )
 
         return None
 
