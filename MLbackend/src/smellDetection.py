@@ -4,7 +4,7 @@ import os
 import warnings
 from typing import List
 
-from configuration import Configuration
+from src.configuration import Configuration
 
 warnings.filterwarnings("ignore")
 
@@ -30,7 +30,7 @@ def smellDetection(config: Configuration, batchIdx: int):
     all_models = {}
 
     for smell in smells:
-        modelPath = os.path.abspath("../models/{}.joblib".format(smell))
+        modelPath = os.path.abspath("./models/{}.joblib".format(smell))
         all_models[smell] = load(modelPath)
 
     # detect smells
@@ -45,8 +45,9 @@ def smellDetection(config: Configuration, batchIdx: int):
     detectedSmells.insert(0, results["LastCommitDate"])
 
     # display results
-    print("Detected smells:")
-    print(detectedSmells)
+    # print("Detected smells:")
+    # print(detectedSmells)
+    return detectedSmells
 
 
 def buildMetricsList(results: dict):

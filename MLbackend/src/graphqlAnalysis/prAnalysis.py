@@ -1,33 +1,30 @@
-import io
+import math
 import os
 import csv
-import math
 import sys
-from random import randint
-import statsAnalysis as stats
+from src.perspectiveAnalysis import getToxicityPercentage
+import src.statsAnalysis as stats
 import sentistrength
-import graphqlAnalysis.graphqlAnalysisHelper as gql
-import centralityAnalysis as centrality
-from functools import reduce
+import src.graphqlAnalysis.graphqlAnalysisHelper as gql
+import src.centralityAnalysis as centrality
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import isoparse
-from typing import List, Any, Dict
-from datetime import date, datetime, timezone
-from configuration import Configuration
+from typing import List, Dict, Any
+from datetime import datetime, timezone
+from src.configuration import Configuration
 import threading
-from collections import Counter
-from perspectiveAnalysis import getToxicityPercentage
+from typing import List, Tuple
 
 
-def issueAnalysis(
+def prAnalysis(
     config: Configuration,
     senti: sentistrength.PySentiStr,
     delta: relativedelta,
     batchDates: List[datetime],
-):
+) -> Tuple[List[List[List[str]]], List[List[str]]]:
 
-    print("Querying issue comments")
-    batches = issueRequest(
+    print("Querying PRs")
+    batches = prRequest(
         config.pat, config.repositoryOwner, config.repositoryName, delta, batchDates
     )
 
@@ -35,27 +32,28 @@ def issueAnalysis(
     batchComments = list()
 
     for batchIdx, batch in enumerate(batches):
-        print(f"Analyzing issue batch #{batchIdx}")
+        print(f"Analyzing PR batch #{batchIdx}")
 
         # extract data from batch
-        issueCount = len(batch)
+        prCount = len(batch)
         participants = list(
-            issue["participants"] for issue in batch if len(issue["participants"]) > 0
+            pr["participants"] for pr in batch if len(pr["participants"]) > 0
         )
         batchParticipants.append(participants)
 
         allComments = list()
-        issuePositiveComments = list()
-        issueNegativeComments = list()
+        prPositiveComments = list()
+        prNegativeComments = list()
         generallyNegative = list()
 
-        print(f"    Sentiments per issue", end="")
+        print(f"    Sentiments per PR", end="")
 
         semaphore = threading.Semaphore(15)
         threads = []
-        for issue in batch:
+        for pr in batch:
+
             comments = list(
-                comment for comment in issue["comments"] if comment and comment.strip()
+                comment for comment in pr["comments"] if comment and comment.strip()
             )
 
             # split comments that are longer than 20KB
@@ -86,8 +84,8 @@ def issueAnalysis(
             comments = splitComments
 
             if len(comments) == 0:
-                issuePositiveComments.append(0)
-                issueNegativeComments.append(0)
+                prPositiveComments.append(0)
+                prNegativeComments.append(0)
                 continue
 
             allComments.extend(comments)
@@ -97,8 +95,8 @@ def issueAnalysis(
                 args=(
                     senti,
                     comments,
-                    issuePositiveComments,
-                    issueNegativeComments,
+                    prPositiveComments,
+                    prNegativeComments,
                     generallyNegative,
                     semaphore,
                 ),
@@ -120,17 +118,16 @@ def issueAnalysis(
         commentLengths = [len(c) for c in allComments]
 
         try:
-            generallyNegativeRatio = len(generallyNegative) / issueCount
+            generallyNegativeRatio = len(generallyNegative) / prCount
         except ZeroDivisionError:
+            print(f"There are no PRs in batch #{batchIdx}")
             generallyNegativeRatio = 0
-            print(f"There are no Issues for batch #{batchIdx}")
 
         # get pr duration stats
         durations = [(pr["closedAt"] - pr["createdAt"]).days for pr in batch]
 
         print("    All sentiments")
 
-        # analyze comment issue sentiment
         commentSentiments = []
         commentSentimentsPositive = 0
         commentSentimentsNegative = 0
@@ -146,89 +143,96 @@ def issueAnalysis(
 
         toxicityPercentage = getToxicityPercentage(config, allComments)
 
-        centrality.buildGraphQlNetwork(batchIdx, participants, "Issues", config)
+        centrality.buildGraphQlNetwork(batchIdx, participants, "PRs", config)
 
-        print("Writing GraphQL analysis results")
+        print("    Writing results")
         with open(
             os.path.join(config.resultsPath, f"results_{batchIdx}.csv"),
             "a",
             newline="",
         ) as f:
             w = csv.writer(f, delimiter=",")
-            w.writerow(["NumberIssues", len(batch)])
-            w.writerow(["NumberIssueComments", len(allComments)])
-            w.writerow(["IssueCommentsPositive", commentSentimentsPositive])
-            w.writerow(["IssueCommentsNegative", commentSentimentsNegative])
-            w.writerow(["IssueCommentsNegativeRatio", generallyNegativeRatio])
-            w.writerow(["IssueCommentsToxicityPercentage", toxicityPercentage])
+            w.writerow(["NumberPRs", prCount])
+            w.writerow(["NumberPRComments", len(allComments)])
+            w.writerow(["PRCommentsPositive", commentSentimentsPositive])
+            w.writerow(["PRCommentsNegative", commentSentimentsNegative])
+            w.writerow(["PRCommentsNegativeRatio", generallyNegativeRatio])
+            w.writerow(["PRCommentsToxicityPercentage", toxicityPercentage])
 
         with open(
-            os.path.join(config.metricsPath, f"issueCommentsCount_{batchIdx}.csv"),
+            os.path.join(config.metricsPath, f"PRCommits_{batchIdx}.csv"),
             "a",
             newline="",
         ) as f:
             w = csv.writer(f, delimiter=",")
-            w.writerow(["Issue Number", "Comment Count"])
-            for issue in batch:
-                w.writerow([issue["number"], len(issue["comments"])])
+            w.writerow(["PR Number", "Commit Count"])
+            for pr in batch:
+                w.writerow([pr["number"], pr["commitCount"]])
 
         with open(
-            os.path.join(config.metricsPath, f"issueParticipantCount_{batchIdx}.csv"),
+            os.path.join(config.metricsPath, f"PRParticipants_{batchIdx}.csv"),
             "a",
             newline="",
         ) as f:
             w = csv.writer(f, delimiter=",")
-            w.writerow(["Issue Number", "Developer Count"])
-            for issue in batch:
-                w.writerow([issue["number"], len(set(issue["participants"]))])
+            w.writerow(["PR Number", "Developer Count"])
+            for pr in batch:
+                w.writerow([pr["number"], len(set(pr["participants"]))])
 
         # output statistics
         stats.outputStatistics(
             batchIdx,
             commentLengths,
-            "IssueCommentsLength",
+            "PRCommentsLength",
             config.resultsPath,
         )
 
         stats.outputStatistics(
             batchIdx,
             durations,
-            "IssueDuration",
+            "PRDuration",
             config.resultsPath,
         )
 
         stats.outputStatistics(
             batchIdx,
-            [len(issue["comments"]) for issue in batch],
-            "IssueCommentsCount",
+            [len(pr["comments"]) for pr in batch],
+            "PRCommentsCount",
+            config.resultsPath,
+        )
+
+        stats.outputStatistics(
+            batchIdx,
+            [pr["commitCount"] for pr in batch],
+            "PRCommitsCount",
             config.resultsPath,
         )
 
         stats.outputStatistics(
             batchIdx,
             commentSentiments,
-            "IssueCommentSentiments",
+            "PRCommentSentiments",
             config.resultsPath,
         )
 
         stats.outputStatistics(
             batchIdx,
-            [len(set(issue["participants"])) for issue in batch],
-            "IssueParticipantCount",
+            [len(set(pr["participants"])) for pr in batch],
+            "PRParticipantsCount",
             config.resultsPath,
         )
 
         stats.outputStatistics(
             batchIdx,
-            issuePositiveComments,
-            "IssueCountPositiveComments",
+            prPositiveComments,
+            "PRCountPositiveComments",
             config.resultsPath,
         )
 
         stats.outputStatistics(
             batchIdx,
-            issueNegativeComments,
-            "IssueCountNegativeComments",
+            prNegativeComments,
+            "PRCountNegativeComments",
             config.resultsPath,
         )
 
@@ -263,9 +267,10 @@ def analyzeSentiments(
             print(f".", end="")
 
 
-# def issueRequest(
+# def prRequest(
 #     pat: str, owner: str, name: str, delta: relativedelta, batchDates: List[datetime]
 # ):
+#     query = buildPrRequestQuery(owner, name, None)
 
 #     # prepare batches
 #     batches = []
@@ -273,18 +278,16 @@ def analyzeSentiments(
 #     batchStartDate = None
 #     batchEndDate = None
 
-#     cursor = None
 #     while True:
 
-#         # get page of PRs
-#         query = buildIssueRequestQuery(owner, name, cursor)
+#         # get page
 #         result = gql.runGraphqlRequest(pat, query)
 #         print("...")
 
 #         # extract nodes
-#         nodes = result["repository"]["issues"]["nodes"]
+#         nodes = result["repository"]["pullRequests"]["nodes"]
 
-#         # analyse
+#         # add results
 #         for node in nodes:
 
 #             createdAt = isoparse(node["createdAt"])
@@ -294,10 +297,11 @@ def analyzeSentiments(
 #                 else isoparse(node["closedAt"])
 #             )
 
-#             if batchEndDate == None or (
+#             if batchEndDate is None or (
 #                 createdAt > batchEndDate and len(batches) < len(batchDates) - 1
 #             ):
-#                 if batch != None:
+
+#                 if batch is not None:
 #                     batches.append(batch)
 
 #                 batchStartDate = batchDates[len(batches)]
@@ -305,78 +309,150 @@ def analyzeSentiments(
 
 #                 batch = []
 
-#             issue = {
-#                 "number": node["number"],
-#                 "createdAt": createdAt,
-#                 "closedAt": closedAt,
-#                 "comments": list(c["bodyText"] for c in node["comments"]["nodes"]),
-#                 "participants": list(),
-#             }
+#         pr = {
+#                         "number": node["number"],
+#                         "createdAt": createdAt,
+#                         "closedAt": closedAt,
+#                         "comments": list(c["bodyText"] for c in node["comments"]["nodes"]),
+#                         "commitCount": node["commits"]["totalCount"],
+#                         "participants": list(),
+#                     }
 
-#             # participants
-#             for user in node["participants"]["nodes"]:
-#                 gql.addLogin(user, issue["participants"])
+#                     # participants
+#                     for user in node["participants"]["nodes"]:
+#                         gql.addLogin(user, pr["participants"])
 
-#             batch.append(issue)
+#                     batch.append(pr)
 
-#         # check for next page
-#         pageInfo = result["repository"]["issues"]["pageInfo"]
-#         if not pageInfo["hasNextPage"]:
-#             break
+#                 # check for next page
+#                 pageInfo = result["repository"]["pullRequests"]["pageInfo"]
+#                 if not pageInfo["hasNextPage"]:
+#                     break
 
-#         cursor = pageInfo["endCursor"]
+#                 cursor = pageInfo["endCursor"]
+#                 query = buildPrRequestQuery(owner, name, cursor)
 
-#     if batch != None:
+#     if batch is not None:
 #         batches.append(batch)
 
 #     return batches
 
 
-def issueRequest(
-    pat: str, owner: str, name: str, delta: relativedelta, batch_dates: List[datetime]
+# def prRequest(
+#     pat: str, owner: str, name: str, delta: relativedelta, batchDates: List[datetime]
+# ):
+#     query = buildPrRequestQuery(owner, name, None)
+#     print(query)
+#     batches = []
+#     current_batch_index = 0
+#     result = gql.runGraphqlRequest(pat, query)
+#     print(f"Batch length is {batchDates[0]} - {batchDates[0] + delta}")
+#     for node in result["repository"]["pullRequests"]["nodes"]:
+#         print(
+#             isoparse(node["createdAt"]),
+#             result["repository"]["pullRequests"]["pageInfo"]["hasNextPage"],
+#         )
+#     sys.exit()
+
+#     # Ensure that batches are generated for all batch dates, even if no PR data exists
+#     while current_batch_index < len(batchDates):
+#         # Prepare current batch dates
+#         batchStartDate = batchDates[current_batch_index]
+#         batchEndDate = batchStartDate + delta
+#         batch = []
+#         print(
+#             f"Current batch Index: {current_batch_index} and the date range is {batchStartDate} - {batchEndDate}"
+#         )
+#         nodes = result["repository"]["pullRequests"]["nodes"]
+
+#         # Fetch PR data
+#         while True:
+
+#             for node in nodes:
+#                 createdAt = isoparse(node["createdAt"])
+#                 closedAt = (
+#                     datetime.now(timezone.utc)
+#                     if node["closedAt"] is None
+#                     else isoparse(node["closedAt"])
+#                 )
+
+#                 # Only process PRs within the current batch's date range
+#                 if batchStartDate <= createdAt < batchEndDate:
+#                     pr = {
+#                         "number": node["number"],
+#                         "createdAt": createdAt,
+#                         "closedAt": closedAt,
+#                         "comments": [c["bodyText"] for c in node["comments"]["nodes"]],
+#                         "commitCount": node["commits"]["totalCount"],
+#                         "participants": [],
+#                     }
+
+#                     # Add participants
+#                     for user in node["participants"]["nodes"]:
+#                         gql.addLogin(user, pr["participants"])
+
+#                     batch.append(pr)
+
+#             # Check for the next page
+#             pageInfo = result["repository"]["pullRequests"]["pageInfo"]
+#             print(f"Next page exists: {pageInfo['hasNextPage']}")
+#             if not pageInfo["hasNextPage"]:
+#                 break
+
+#             # Update query with next page cursor
+#             cursor = pageInfo["endCursor"]
+#             query = buildPrRequestQuery(owner, name, cursor)
+
+#         # Append the batch (empty or not) to batches
+#         batches.append(batch)
+#         current_batch_index += 1  # Move to the next batch date
+
+#     return batches
+
+
+def prRequest(
+    pat: str, owner: str, name: str, delta: relativedelta, batchDates: List[datetime]
 ) -> None:
 
-    query = buildIssueRequestQuery(owner=owner, name=name, cursor=None)
+    query = buildPrRequestQuery(owner=owner, name=name, cursor=None)
 
+    # prepare batches
     batches_pre: Dict[datetime, List[Dict[str, Any]]] = {
-        date: [] for date in batch_dates
+        date: [] for date in batchDates
     }
-    batches_pre[datetime.now(batch_dates[-1].tzinfo)] = []
-
+    batches_pre[datetime.now(batchDates[-1].tzinfo)] = []
     no_next_page: bool = False
 
     while not no_next_page:
 
-        # Get chunk of page
-        result = gql.runGraphqlRequest(pat=pat, query=query)
+        # Get a chunk of page
+        result = gql.runGraphqlRequest(pat, query)
         print("...")
 
         # Get all the nodes in the result
-        nodes = result["repository"]["issues"]["nodes"]
+        nodes = result["repository"]["pullRequests"]["nodes"]
 
         # Add all nodes that are required
         for node in nodes:
-
-            created_at: datetime = isoparse(node["createdAt"])
-            closed_at: datetime = (
+            created_at = isoparse(node["createdAt"])
+            closed_at = (
                 datetime.now(timezone.utc)
                 if node["closedAt"] is None
                 else isoparse(node["closedAt"])
             )
 
-            # Get all the authors
             authors: List[str] = list()
             for user_node in node["participants"]["nodes"]:
                 gql.addLogin(node=user_node, authors=authors)
 
-            # Create the issue dictionary
-            issue: Dict[str, Any] = {
+            pr: Dict[str, Any] = {
                 "number": node["number"],
                 "createdAt": created_at,
                 "closedAt": closed_at,
                 "comments": [
                     comment["bodyText"] for comment in node["comments"]["nodes"]
                 ],
+                "commitCount": node["commits"]["totalCount"],
                 "participants": authors,
             }
 
@@ -388,35 +464,39 @@ def issueRequest(
                     # This means we have exceeded the range by 1
                     break
 
-            batches_pre[batch_date].append(issue)
+            batches_pre[batch_date].append(pr)
 
-        # Check for next page
-        page_info = result["repository"]["issues"]["pageInfo"]
-        if not page_info["hasNextPage"]:
+        # check for next page
+        pageInfo = result["repository"]["pullRequests"]["pageInfo"]
+        if not pageInfo["hasNextPage"]:
+            # There is no next page to query
             no_next_page = True
         else:
-            cursor = page_info["endCursor"]
-            query = buildIssueRequestQuery(owner=owner, name=name, cursor=cursor)
+            cursor = pageInfo["endCursor"]
+            query = buildPrRequestQuery(owner=owner, name=name, cursor=cursor)
 
     return list(batches_pre.values())
 
 
-def buildIssueRequestQuery(owner: str, name: str, cursor: str):
+def buildPrRequestQuery(owner: str, name: str, cursor: str):
     return """{{
         repository(owner: "{0}", name: "{1}") {{
-            issues(first: 100{2}) {{
+            pullRequests(first:100{2}) {{
                 pageInfo {{
-                    hasNextPage
                     endCursor
+                    hasNextPage
                 }}
                 nodes {{
                     number
-                    createdAt    
+                    createdAt
                     closedAt
                     participants(first: 100) {{
                         nodes {{
                             login
                         }}
+                    }}
+                    commits {{
+                        totalCount
                     }}
                     comments(first: 100) {{
                         nodes {{
@@ -426,6 +506,7 @@ def buildIssueRequestQuery(owner: str, name: str, cursor: str):
                 }}
             }}
         }}
-    }}""".format(
+    }}
+    """.format(
         owner, name, gql.buildNextPageQuery(cursor)
     )

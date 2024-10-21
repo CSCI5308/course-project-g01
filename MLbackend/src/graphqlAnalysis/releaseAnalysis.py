@@ -1,13 +1,13 @@
 import os
 import csv
-import graphqlAnalysis.graphqlAnalysisHelper as gql
+import src.graphqlAnalysis.graphqlAnalysisHelper as gql
 import git
-import statsAnalysis as stats
+import src.statsAnalysis as stats
 from typing import List
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import isoparse
 from datetime import datetime
-from configuration import Configuration
+from src.configuration import Configuration
 
 
 def releaseAnalysis(
@@ -22,6 +22,11 @@ def releaseAnalysis(
 
     print("Querying releases")
     batches = releaseRequest(config, delta, batchDates)
+
+    if not batches:
+        print("No batches found.")
+        return  # Exit the function if no batches are found
+
 
     for batchIdx, batch in enumerate(batches):
 
@@ -179,9 +184,9 @@ def releaseRequest(
     if batch is not None:
         batches.append(batch)
 
-    print(
-        f"Number of Release batches is {len(batches)} and its first value is {batches[0]}"
-    )
+    # print(
+    #     f"Number of Release batches is {len(batches)} and its first value is {batches[0]}"
+    # )
 
     return batches
 

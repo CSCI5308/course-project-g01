@@ -1,7 +1,6 @@
 import os
 import networkx as nx
 import csv
-import matplotlib.pyplot as plt
 
 from git.objects import Commit
 from typing import List, Dict, Any
@@ -10,9 +9,9 @@ from dateutil.relativedelta import relativedelta
 from networkx.algorithms.community import greedy_modularity_communities
 from progress.bar import Bar
 from collections import Counter
-from utils import authorIdExtractor
-from statsAnalysis import outputStatistics
-from configuration import Configuration
+from src.utils import authorIdExtractor
+from src.statsAnalysis import outputStatistics
+from src.configuration import Configuration
 
 
 def centralityAnalysis(
@@ -265,22 +264,6 @@ def prepareGraph(
         f"{outputPrefix}_CommunityAuthorItemCount",
         config.resultsPath,
     )
-
-    # output graph
-    print("Outputting graph")
-    plt.figure(5, figsize=(30, 30))
-
-    nx.draw(
-        G,
-        with_labels=True,
-        node_color="orange",
-        node_size=4000,
-        edge_color="black",
-        linewidths=2,
-        font_size=20,
-    )
-
-    plt.savefig(os.path.join(config.resultsPath, f"{outputPrefix}_{batchIdx}.pdf"))
 
     nx.write_graphml(
         G, os.path.join(config.resultsPath, f"{outputPrefix}_{batchIdx}.xml")

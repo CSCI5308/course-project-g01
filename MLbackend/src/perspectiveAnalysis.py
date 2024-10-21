@@ -5,7 +5,7 @@ import requests
 import math
 
 from typing import List
-from configuration import Configuration
+from src.configuration import Configuration
 
 
 def getToxicityPercentage(config: Configuration, comments: List):
@@ -87,6 +87,8 @@ def sleepUntilNextMinute():
     t = datetime.utcnow()
     sleeptime = 60 - (t.second + t.microsecond / 1000000.0)
     time.sleep(sleeptime)
+
+
 # from datetime import datetime
 # import json
 # import time
