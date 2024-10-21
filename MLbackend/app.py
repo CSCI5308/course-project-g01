@@ -7,7 +7,7 @@ from src.devNetwork import communitySmellsDetector
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder="../frontend/templates/",static_folder="../frontend/static/")
 
 
 class InvalidInputError(Exception):
