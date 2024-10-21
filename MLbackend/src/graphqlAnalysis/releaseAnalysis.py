@@ -149,7 +149,12 @@ def releaseRequest(
         result = gql.runGraphqlRequest(config.pat, query, logger)
 
         # extract nodes
-        nodes = result["repository"]["releases"]["nodes"]
+        try:
+            nodes = result["repository"]["releases"]["nodes"]
+        except TypeError:
+            # There are no releases present
+            logger.error("There are no releases for this repository")
+            break
 
         # parse
         for node in nodes:
