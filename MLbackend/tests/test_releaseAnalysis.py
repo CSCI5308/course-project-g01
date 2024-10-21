@@ -80,6 +80,40 @@ class TestReleaseAnalysis(unittest.TestCase):
 
         return None
 
+    @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    def test_releaseAvailableNumberOfItemInBatch(self, mock_runGraphqlRequest) -> None:
+        mock_runGraphqlRequest.return_value = {
+            "repository": {
+                "releases": {
+                    "totalCount": 1,
+                    "nodes": [
+                        {
+                            "author": {"login": "sampleAuthor"},
+                            "createdAt": "2024-01-15T12:00:00Z",
+                            "name": "v1.0.0",
+                        }
+                    ],
+                    "pageInfo": {
+                        "endCursor": "Y3Vyc29yOnYyOpHOBYEJRz==",
+                        "hasNextPage": False,
+                    },
+                }
+            }
+        }
+
+        result = releaseRequest(
+            config=self.mock_config_instance,
+            delta=self.delta,
+            batchDates=self.batch_dates,
+            logger=self.mock_logger,
+        )
+        self.assertEqual(len(result[0]["releases"]), 1)
+
+        mock_runGraphqlRequest.assert_called_once()
+        self.mock_logger.assert_not_called()
+
+        return None
+
 
 if __name__ == "__main__":
     unittest.main()
