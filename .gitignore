@@ -1,0 +1,9 @@
+devfiles/
+results/
+venv/
+__pycache__/
+SentiStrength
+testConfig.py
+.python-version
+
+*.pyc
