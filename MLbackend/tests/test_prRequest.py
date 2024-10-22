@@ -16,7 +16,7 @@ class TestPRRequest(unittest.TestCase):
         cls.mock_logger.return_value = cls.mock_logger
 
     @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
-    def test_noReleaseAvailable(self, mock_runGraphqlRequest) -> None:
+    def test_noPRsAvailable(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {"repository": None}
         result = prRequest(
             pat="test_pat",
