@@ -10,7 +10,7 @@ import src.graphqlAnalysis.graphqlAnalysisHelper as gql
 import src.centralityAnalysis as centrality
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import isoparse
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 from src.configuration import Configuration
 import threading
@@ -284,7 +284,6 @@ def prRequest(
         date: [] for date in batchDates
     }
     current_time: datetime = datetime.now(batchDates[-1].tzinfo)
-    batches_pre[current_time] = []
     no_next_page: bool = False
 
     while not no_next_page:
@@ -322,7 +321,7 @@ def prRequest(
                 "participants": authors,
             }
 
-            batch_date: datetime
+            batch_date: Optional[datetime] = None
 
             for date in batches_pre.keys():
                 batch_date = date
@@ -330,7 +329,12 @@ def prRequest(
                     # This means we have exceeded the range by 1
                     break
 
-            batches_pre[batch_date].append(pr)
+            if batch_date is not None:
+                batches_pre[batch_date].append(pr)
+            else:
+                if current_time not in batches_pre.keys():
+                    batches_pre[current_time] = []
+                batches_pre[current_time].append(pr)
 
         # check for next page
         pageInfo = result["repository"]["pullRequests"]["pageInfo"]
