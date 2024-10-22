@@ -6,7 +6,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
-class TestReleaseAnalysis(unittest.TestCase):
+class TestReleaseRequest(unittest.TestCase):
 
     @classmethod
     @patch("src.configuration.Configuration")
