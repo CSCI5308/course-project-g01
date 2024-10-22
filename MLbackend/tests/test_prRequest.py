@@ -1,4 +1,5 @@
 import unittest
+from typing import List
 from unittest.mock import patch, MagicMock
 from src.graphqlAnalysis.prAnalysis import prRequest
 from datetime import datetime, timezone
@@ -11,19 +12,19 @@ class TestPRRequest(unittest.TestCase):
     @patch("logging.Logger")
     def setUpClass(cls, mock_logger) -> None:
         cls.delta = relativedelta(months=+9999)
-        cls.batch_dates = [datetime.now(timezone.utc)]
         cls.mock_logger = MagicMock()
         cls.mock_logger.return_value = cls.mock_logger
 
     @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
     def test_noPRsAvailable(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {"repository": None}
+        batch_dates: List[datetime] = [datetime.now(timezone.utc)]
         result = prRequest(
             pat="test_pat",
             owner="test_owner",
             name="test_name",
             delta=self.delta,
-            batchDates=self.batch_dates,
+            batchDates=batch_dates,
             logger=self.mock_logger,
         )
 
@@ -69,13 +70,14 @@ class TestPRRequest(unittest.TestCase):
                 }
             }
         }
+        batch_dates: List[datetime] = [datetime.now(timezone.utc)]
 
         result = prRequest(
             pat="test_pat",
             owner="test_owner",
             name="test_name",
             delta=self.delta,
-            batchDates=self.batch_dates,
+            batchDates=batch_dates,
             logger=self.mock_logger,
         )
 
