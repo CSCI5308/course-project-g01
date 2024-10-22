@@ -275,7 +275,7 @@ def prRequest(
     delta: relativedelta,
     batchDates: List[datetime],
     logger: Logger,
-) -> None:
+) -> List[List[Dict[str, Any]]]:
 
     query = buildPrRequestQuery(owner=owner, name=name, cursor=None)
 
@@ -293,7 +293,12 @@ def prRequest(
         result = gql.runGraphqlRequest(pat, query, logger)
 
         # Get all the nodes in the result
-        nodes = result["repository"]["pullRequests"]["nodes"]
+        try:
+            nodes = result["repository"]["pullRequests"]["nodes"]
+        except TypeError:
+            # There are no PRs in this repository
+            logger.error("There are no PRs for this repository")
+            break
 
         # Add all nodes that are required
         for node in nodes:
