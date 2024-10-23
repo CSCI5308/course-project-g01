@@ -48,6 +48,7 @@ def tagAnalysis(
             lastTag = tag
 
     # output tag batches
+    res = []
     for idx, batchStartDate in enumerate(batchDates):
         batchEndDate = batchStartDate + delta
 
@@ -57,7 +58,9 @@ def tagAnalysis(
             if tag["rawDate"] >= batchStartDate and tag["rawDate"] < batchEndDate
         ]
 
-        outputTags(idx, batchTags, daysActive[idx], config)
+        x = outputTags(idx, batchTags, daysActive[idx], config)
+        res.append(x)
+    return res
 
 
 def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configuration):
@@ -93,12 +96,14 @@ def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configura
         for tag in tagInfo:
             w.writerow([tag["path"], tag["date"], tag["commitCount"]])
 
+
     outputStatistics(
         idx,
         [tag["commitCount"] for tag in tagInfo],
         "TagCommitCount",
         config.resultsPath,
     )
+    return [tag["commitCount"] for tag in tagInfo]
 
 
 def getTaggedDate(tag):

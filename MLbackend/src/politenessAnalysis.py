@@ -12,13 +12,15 @@ def politenessAnalysis(
     issueCommentBatches: list,
 ) -> None:
 
-    calculateACCL(config, prCommentBatches, issueCommentBatches)
+    accl = calculateACCL(config, prCommentBatches, issueCommentBatches)
 
-    calculateRPC(config, "PR", prCommentBatches)
-    calculateRPC(config, "Issue", prCommentBatches)
+    rpc_pr = calculateRPC(config, "PR", prCommentBatches)
+    rpc_issues = calculateRPC(config, "Issue", prCommentBatches)
+    return (accl,rpc_pr,rpc_issues)
 
 
 def calculateACCL(config, prCommentBatches, issueCommentBatches) -> None:
+    accls = []
     for batchIdx, batch in enumerate(prCommentBatches):
 
         prCommentLengths = list([len(c) for c in batch])
@@ -28,6 +30,7 @@ def calculateACCL(config, prCommentBatches, issueCommentBatches) -> None:
         issueCommentLengthsMean = stats.calculateStats(issueCommentBatch)["mean"]
 
         accl = prCommentLengthsMean + issueCommentLengthsMean / 2
+        accls.append(accl)
 
         # output results
         with open(
@@ -35,13 +38,17 @@ def calculateACCL(config, prCommentBatches, issueCommentBatches) -> None:
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow(["ACCL", accl])
+    return accls
 
 
 def calculateRPC(config, outputPrefix, commentBatches) -> None:
+    rpcs = []
     for batchIdx, batch in enumerate(commentBatches):
 
         # analyze batch
         positiveMarkerCount = getResults(batch) if len(batch) > 0 else 0.0
+        rpcs.append((outputPrefix,positiveMarkerCount))
+
 
         # output results
         with open(
@@ -51,6 +58,8 @@ def calculateRPC(config, outputPrefix, commentBatches) -> None:
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow([f"RPC{outputPrefix}", positiveMarkerCount])
+    return rpcs
+        
 
 
 def getResults(comments: list) -> float:
