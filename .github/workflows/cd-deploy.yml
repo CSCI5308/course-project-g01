@@ -1,6 +1,5 @@
 name: Deploy to Remote VM
 
-# Run this workflow on every push to the main branch
 on:
   push:
     branches:
@@ -8,27 +7,24 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Application
-    runs-on: ubuntu-latest # Use a GitHub-hosted runner
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up SSH for connecting to the remote VM
       - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # Step 3: Transfer files to the VM via SCP or run commands directly via SSH
-      - name: Deploy Application to VM
+      - name: Deploy to VM
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << EOF
-            cd /path/to/your/application
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+            cd /home/student/course-project-g01/MLbackend  # Correct path on your VM
             git pull origin main
-            # If you are using Docker, you can rebuild and restart your container
-            docker-compose down
-            docker-compose up -d --build
+            docker build -t myapp .
+            docker stop myapp || true
+            docker rm myapp || true
+            docker run -d --name myapp -p 5000:5000 myapp:latest
           EOF
