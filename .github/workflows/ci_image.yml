@@ -1,0 +1,44 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: self-hosted # Use the self-hosted runner
+
+    steps:
+      # Step 1: Check out the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # Step 3: Determine the image tag
+      # Use a unique tag based on the Git commit SHA or timestamp
+      - name: Set image tag
+        id: tag
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "TAG=main-${{ github.sha }}" >> $GITHUB_ENV
+          else
+            echo "TAG=dev-${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      # Step 4: Build the Docker image
+      - name: Build Docker image
+        run: docker build -t communitysmells:${{ env.TAG }} .
+
+      # Step 5: Tag the image for Docker Hub
+      - name: Tag Docker image
+        run: docker tag communitysmells:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/communitysmells:${{ env.TAG }}
+
+      # Step 6: Push the Docker image to Docker Hub
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/communitysmells:${{ env.TAG }}
