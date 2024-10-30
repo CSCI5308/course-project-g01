@@ -3,37 +3,35 @@ name: CD Pipeline
 on:
   push:
     branches:
-      - main # Only trigger deployment on pushes to the main branch
-      - feature/ci-cd
-  workflow_dispatch: # Allows for manual deployment
+      - main
+      - feature ci-cd
+  workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: self-hosted # Run on self-hosted runner
+    runs-on: self-hosted
 
     steps:
-      # Step 1: Check out the code (optional, for reference or extra checks)
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Log in to Docker Hub
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # Step 3: SSH into the VM and deploy the new Docker image
+      # Decode the Base64-encoded SSH key and save it as a file
+      - name: Prepare SSH Key
+        run: |
+          echo "${{ secrets.VM_SSH_KEY_BASE64 }}" | base64 -d > /tmp/vm_ssh_key
+          chmod 600 /tmp/vm_ssh_key
+
       - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.VM_HOST }} # The IP address or hostname of your VM
-          username: ${{ secrets.VM_USERNAME }} # The SSH username for your VM
-          key: ${{ secrets.VM_SSH_KEY }} # The SSH private key for your VM
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key_path: /tmp/vm_ssh_key
           script: |
-            # Pull the latest Docker image
             docker pull ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
-
-            # Stop and remove any existing container
             docker stop communitysmells || true
             docker rm communitysmells || true
-
-            # Run the new container
             docker run -d --name communitysmells -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
