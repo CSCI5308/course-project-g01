@@ -3,12 +3,13 @@ name: CD Pipeline
 on:
   push:
     branches:
-      - main  # Trigger deployment on pushes to the main branch
+      - main
+      - feature/ci-cd # Trigger deployment on pushes to the main branch
   workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: self-hosted  # Ensure this runner is installed on the target VM
+    runs-on: self-hosted # Ensure this runner is installed on the target VM
 
     steps:
       - name: Checkout code
