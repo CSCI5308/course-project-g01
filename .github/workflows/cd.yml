@@ -23,6 +23,13 @@ jobs:
         run: |
           echo "${{ secrets.VM_SSH_KEY_BASE64 }}" | base64 -d > /tmp/vm_ssh_key
           chmod 600 /tmp/vm_ssh_key
+          
+      - name: Check SSH Key
+        run: |
+          ls -l /tmp/vm_ssh_key
+          cat /tmp/vm_ssh_key
+
+      
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.7
