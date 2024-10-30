@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - development
+      - feature/ci-cd
   workflow_dispatch:
 
 jobs:
@@ -27,6 +28,7 @@ jobs:
         run: |
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "TAG=main-${{ github.sha }}" >> $GITHUB_ENV
+            echo "LATEST_TAG=latest" >> $GITHUB_ENV
           else
             echo "TAG=dev-${{ github.sha }}" >> $GITHUB_ENV
           fi
@@ -37,8 +39,18 @@ jobs:
 
       # Step 5: Tag the image for Docker Hub
       - name: Tag Docker image
-        run: docker tag communitysmells:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/communitysmells:${{ env.TAG }}
+        run: |
+          docker tag communitysmells:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/communitysmells:${{ env.TAG }}
+          # If on main, also tag the image as latest
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            docker tag communitysmells:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
+          fi
 
       # Step 6: Push the Docker image to Docker Hub
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/communitysmells:${{ env.TAG }}
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/communitysmells:${{ env.TAG }}
+          # Push latest tag if on main
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
+          fi
