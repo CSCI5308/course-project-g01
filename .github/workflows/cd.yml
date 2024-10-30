@@ -12,33 +12,47 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      # Step 1: Check out the code
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step 2: Log in to Docker Hub
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # Decode the Base64-encoded SSH key and save it as a file
+      # Step 3: Decode the Base64-encoded SSH key and save it as a file
       - name: Prepare SSH Key
         run: |
-          echo "${{ secrets.VM_SSH_KEY_BASE64 }}" | base64 -d > /tmp/vm_ssh_key
-          chmod 600 /tmp/vm_ssh_key
-          
-      - name: Check SSH Key
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VM_SSH_KEY_BASE64 }}" | base64 -d > ~/.ssh/vm_ssh_key
+          chmod 600 ~/.ssh/vm_ssh_key
+
+      # Step 4: Debug - Check SSH Key File Creation
+      - name: Confirm SSH Key File
         run: |
-          ls -l /tmp/vm_ssh_key
-          cat /tmp/vm_ssh_key
+          echo "Listing files in the home directory:"
+          ls -la ~
+          echo "Listing files in the .ssh directory:"
+          ls -la ~/.ssh
+          echo "Displaying contents of the SSH key file (for debugging):"
+          cat ~/.ssh/vm_ssh_key
 
-      
-
+      # Step 5: Deploy to Server
       - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USERNAME }}
-          key_path: /tmp/vm_ssh_key
+          key_path: ~/.ssh/vm_ssh_key
+          port: 22
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
             docker stop communitysmells || true
             docker rm communitysmells || true
             docker run -d --name communitysmells -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
+
+      # Step 6: Cleanup SSH Key (optional for security)
+      - name: Cleanup SSH Key
+        if: always()
+        run: |
+          rm -f ~/.ssh/vm_ssh_key
