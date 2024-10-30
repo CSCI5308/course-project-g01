@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main # Only trigger deployment on pushes to the main branch
+      - feature/ci-cd
   workflow_dispatch: # Allows for manual deployment
 
 jobs:
