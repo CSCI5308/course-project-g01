@@ -3,7 +3,8 @@ name: CD Pipeline
 on:
   push:
     branches:
-      - main  # Trigger deployment on pushes to the main branch
+      - main
+      - feature/ci-cd # Trigger deployment on pushes to the main branch
   workflow_dispatch:
 
 jobs:
