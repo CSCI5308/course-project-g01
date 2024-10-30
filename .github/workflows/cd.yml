@@ -3,13 +3,12 @@ name: CD Pipeline
 on:
   push:
     branches:
-      - main
-      - feature/ci-cd # Trigger deployment on pushes to the main branch
+      - main  # Trigger deployment on pushes to the main branch
   workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: self-hosted  # Ensure the runner is installed on the VM directly
+    runs-on: self-hosted  # Ensure this runner is installed on the target VM
 
     steps:
       - name: Checkout code
@@ -18,25 +17,10 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # Decode the Base64-encoded SSH key and save it in a stable directory
-      - name: Prepare SSH Key
+      # Pull the latest Docker image and run it
+      - name: Deploy Docker Container
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VM_SSH_KEY_BASE64 }}" | base64 -d > ~/.ssh/vm_ssh_key
-          chmod 600 ~/.ssh/vm_ssh_key
-
-      # Debugging step to confirm that the SSH key file was created successfully
-      - name: Confirm SSH Key File
-        run: |
-          ls -la ~/.ssh
-          cat ~/.ssh/vm_ssh_key
-
-      # Deploy to the server using SSH
-      - name: Deploy to VM
-        run: |
-          ssh -i ~/.ssh/vm_ssh_key -o StrictHostKeyChecking=no "${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}" << EOF
-            docker pull ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
-            docker stop communitysmells || true
-            docker rm communitysmells || true
-            docker run -d --name communitysmells -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
-          EOF
+          docker pull ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
+          docker stop communitysmells || true
+          docker rm communitysmells || true
+          docker run -d --name communitysmells -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
