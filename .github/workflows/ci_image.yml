@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - development
-      - feature/ci-cd
   workflow_dispatch:
 
 jobs:
@@ -21,36 +20,12 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # Step 3: Determine the image tag
-      # Use a unique tag based on the Git commit SHA or timestamp
-      - name: Set image tag
-        id: tag
+      # Step 3: Build and tag the Docker image as 'latest'
+      - name: Build and Tag Docker image
         run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "TAG=main-${{ github.sha }}" >> $GITHUB_ENV
-            echo "LATEST_TAG=latest" >> $GITHUB_ENV
-          else
-            echo "TAG=dev-${{ github.sha }}" >> $GITHUB_ENV
-          fi
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest .
 
-      # Step 4: Build the Docker image
-      - name: Build Docker image
-        run: docker build -t communitysmells:${{ env.TAG }} .
-
-      # Step 5: Tag the image for Docker Hub
-      - name: Tag Docker image
-        run: |
-          docker tag communitysmells:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/communitysmells:${{ env.TAG }}
-          # If on main, also tag the image as latest
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            docker tag communitysmells:${{ env.TAG }} ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
-          fi
-
-      # Step 6: Push the Docker image to Docker Hub
+      # Step 4: Push the Docker image to Docker Hub with 'latest' tag
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/communitysmells:${{ env.TAG }}
-          # Push latest tag if on main
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            docker push ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
-          fi
+          docker push ${{ secrets.DOCKER_USERNAME }}/communitysmells:latest
