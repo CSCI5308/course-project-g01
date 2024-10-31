@@ -6,9 +6,17 @@ import io
 from src.devNetwork import communitySmellsDetector
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from flask_mail import Mail, Message
 
 app = Flask(__name__,template_folder="../frontend/templates/",static_folder="../frontend/static/")
 
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USERNAME'] = 'g01communitysmellsdetector@gmail.com'  # Use your actual Gmail address
+app.config['MAIL_PASSWORD'] = 'gmki hznr hixx bihb'     # Use your generated App Password
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+mail = Mail(app)
 
 class InvalidInputError(Exception):
     pass
@@ -134,6 +142,7 @@ def detect_smells():
         )
 
         print("Results:", result)
+        send_email(email=email)
         # Check if result contains valid information
         if not result:
             return (
@@ -191,33 +200,35 @@ def generate_pdf():
 
 
 
-    # if df is None or df.empty:
-    #     return "DataFrame is empty or not initialized.", 400
+def send_email(email):
+    PDF_FILE_PATH = os.path.join(output_path,"smell_report.pdf")
+    metrics_results = result["metrics"]
+    meta_results = result["meta"]
+    smell_abbreviations = result["smell_results"][1:]
+    smells = {
+    "OSE": "Organizational Silo Effect: Isolated subgroups lead to poor communication, wasted resources, and duplicated code.",
+    "BCE": "Black-cloud Effect: Information overload due to limited collaboration and a lack of experts, causing knowledge gaps.",
+    "PDE": "Prima-donnas Effect: Resistance to external input due to ineffective collaboration, hindering team synergy.",
+    "SV": "Sharing Villainy: Poor-quality information exchange results in outdated or incorrect knowledge being shared.",
+    "OS": "Organizational Skirmish: Misaligned expertise and communication affect productivity, timelines, and costs.",
+    "SD": "Solution Defiance: Conflicting technical opinions within subgroups cause delays and uncooperative behavior.",
+    "RS": "Radio Silence: Formal, rigid procedures delay decision-making and waste time, leading to project delays.",
+    "TFS": "Truck Factor Smell: Concentration of knowledge in few individuals leads to risks if they leave the project.",
+    "UI": "Unhealthy Interaction: Weak, slow communication among developers, with low participation and long response times.",
+    "TC": "Toxic Communication: Negative, hostile interactions among developers, resulting in frustration, stress, and potential project abandonment."
+            }
+    generate_pdf1(metrics_results, meta_results, smell_abbreviations, smells,PDF_FILE_PATH)
+    msg = Message(
+        subject='Community Smells Detector', 
+        sender='g01communitysmellsdetector@gmail.com',  
+        recipients=[email]  
+    )
+    msg.body = "Hey, PFA smells report"
+    with app.open_resource(PDF_FILE_PATH) as fp:  
+        msg.attach("smell_report.pdf", "application/pdf", fp.read()) 
+    mail.send(msg)
+    return "Message sent!"
 
-    # pdf_buffer = io.BytesIO()
-    # pdf = canvas.Canvas(pdf_buffer, pagesize=letter)
-    # width, height = letter
-
-    # pdf.drawString(100, height - 50, "Community Smell Report")
-    # pdf.drawString(100, height - 70, "Metric                Value")
-
-    # y_position = height - 100
-    # for index, row in df.iterrows():
-    #     pdf.drawString(100, y_position, f"{row['Metric']: <20} {row['Value']}")
-    #     y_position -= 20
-        
-        
-    #     if y_position < 40:  
-    #         pdf.showPage()  
-    #         pdf.drawString(100, height - 50, "Community Smell Report")
-    #         pdf.drawString(100, height - 70, "Metric                Value")
-    #         y_position = height - 100  
-
-    # pdf.save()
-    # pdf_buffer.seek(0)
-
-    # return send_file(pdf_buffer, as_attachment=True, download_name="smell_report.pdf", mimetype='application/pdf')
-    
 
     
 if __name__ == '__main__':
