@@ -317,12 +317,12 @@ def issueRequest(
             batch_date: Optional[datetime] = None
 
             for date in batches_pre.keys():
-                batch_date = date
                 if date <= created_at < date + delta:
+                    batch_date = date
                     # This means we have exceeded the range by 1
                     break
 
-            if batch_date is None:
+            if batch_date is not None:
                 batches_pre[batch_date].append(issue)
             else:
                 if current_time not in batches_pre.keys():
