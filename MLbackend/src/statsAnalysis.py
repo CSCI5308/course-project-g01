@@ -1,17 +1,18 @@
 from statistics import mean, stdev, StatisticsError
+from logging import Logger
 import os
 import sys
 import csv
 
 
-def outputStatistics(idx: int, data: list, metric: str, outputDir: str):
+def outputStatistics(idx: int, data: list, metric: str, outputDir: str, logger: Logger):
 
     # validate
     if len(data) < 1:
         return
 
     # calculate and output
-    stats = calculateStats(data)
+    stats = calculateStats(data, logger)
 
 
     # output
@@ -24,7 +25,7 @@ def outputStatistics(idx: int, data: list, metric: str, outputDir: str):
 
 
 
-def calculateStats(data):
+def calculateStats(data, logger: Logger):
 
     try:
         stats = dict(
@@ -33,8 +34,7 @@ def calculateStats(data):
             stdev=stdev(data) if len(data) > 1 else None,
         )
     except StatisticsError:
-        print(data)
-        sys.exit()
+        logger.error(f"There was a statistical error. The data was {data}")
 
     return stats
 

@@ -2,6 +2,7 @@ import math
 import os
 import csv
 import sys
+from logging import Logger
 from src.perspectiveAnalysis import getToxicityPercentage
 import src.statsAnalysis as stats
 import sentistrength
@@ -9,7 +10,7 @@ import src.graphqlAnalysis.graphqlAnalysisHelper as gql
 import src.centralityAnalysis as centrality
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import isoparse
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 from src.configuration import Configuration
 import threading
@@ -21,18 +22,24 @@ def prAnalysis(
     senti: sentistrength.PySentiStr,
     delta: relativedelta,
     batchDates: List[datetime],
+    logger: Logger,
 ) -> Tuple[List[List[List[str]]], List[List[str]]]:
 
-    print("Querying PRs")
+    logger.info("Querying PRs")
     batches = prRequest(
-        config.pat, config.repositoryOwner, config.repositoryName, delta, batchDates
+        config.pat,
+        config.repositoryOwner,
+        config.repositoryName,
+        delta,
+        batchDates,
+        logger,
     )
 
     batchParticipants = list()
     batchComments = list()
 
     for batchIdx, batch in enumerate(batches):
-        print(f"Analyzing PR batch #{batchIdx}")
+        logger.info(f"Analyzing PR batch #{batchIdx}")
 
         # extract data from batch
         prCount = len(batch)
@@ -45,8 +52,6 @@ def prAnalysis(
         prPositiveComments = list()
         prNegativeComments = list()
         generallyNegative = list()
-
-        print(f"    Sentiments per PR", end="")
 
         semaphore = threading.Semaphore(15)
         threads = []
@@ -109,8 +114,6 @@ def prAnalysis(
         for thread in threads:
             thread.join()
 
-        print("")
-
         # save comments
         batchComments.append(allComments)
 
@@ -120,13 +123,13 @@ def prAnalysis(
         try:
             generallyNegativeRatio = len(generallyNegative) / prCount
         except ZeroDivisionError:
-            print(f"There are no PRs in batch #{batchIdx}")
+            logger.warning(
+                f"There are no PRs in batch #{batchIdx} so setting generally negative ratio as 0."
+            )
             generallyNegativeRatio = 0
 
         # get pr duration stats
         durations = [(pr["closedAt"] - pr["createdAt"]).days for pr in batch]
-
-        print("    All sentiments")
 
         commentSentiments = []
         commentSentimentsPositive = 0
@@ -141,11 +144,11 @@ def prAnalysis(
                 1 for _ in filter(lambda value: value <= -1, commentSentiments)
             )
 
-        toxicityPercentage = getToxicityPercentage(config, allComments)
+        toxicityPercentage = getToxicityPercentage(config, allComments, logger)
 
-        centrality.buildGraphQlNetwork(batchIdx, participants, "PRs", config)
+        centrality.buildGraphQlNetwork(batchIdx, participants, "PRs", config, logger)
 
-        print("    Writing results")
+        logger.info("Writing results of PR analysis to CSVs.")
         with open(
             os.path.join(config.resultsPath, f"results_{batchIdx}.csv"),
             "a",
@@ -181,17 +184,11 @@ def prAnalysis(
 
         # output statistics
         stats.outputStatistics(
-            batchIdx,
-            commentLengths,
-            "PRCommentsLength",
-            config.resultsPath,
+            batchIdx, commentLengths, "PRCommentsLength", config.resultsPath, logger
         )
 
         stats.outputStatistics(
-            batchIdx,
-            durations,
-            "PRDuration",
-            config.resultsPath,
+            batchIdx, durations, "PRDuration", config.resultsPath, logger
         )
 
         stats.outputStatistics(
@@ -199,6 +196,7 @@ def prAnalysis(
             [len(pr["comments"]) for pr in batch],
             "PRCommentsCount",
             config.resultsPath,
+            logger,
         )
 
         stats.outputStatistics(
@@ -206,6 +204,7 @@ def prAnalysis(
             [pr["commitCount"] for pr in batch],
             "PRCommitsCount",
             config.resultsPath,
+            logger,
         )
 
         stats.outputStatistics(
@@ -213,6 +212,7 @@ def prAnalysis(
             commentSentiments,
             "PRCommentSentiments",
             config.resultsPath,
+            logger,
         )
 
         stats.outputStatistics(
@@ -220,6 +220,7 @@ def prAnalysis(
             [len(set(pr["participants"])) for pr in batch],
             "PRParticipantsCount",
             config.resultsPath,
+            logger,
         )
 
         stats.outputStatistics(
@@ -227,6 +228,7 @@ def prAnalysis(
             prPositiveComments,
             "PRCountPositiveComments",
             config.resultsPath,
+            logger,
         )
 
         stats.outputStatistics(
@@ -234,6 +236,7 @@ def prAnalysis(
             prNegativeComments,
             "PRCountNegativeComments",
             config.resultsPath,
+            logger,
         )
 
     return batchParticipants, batchComments
@@ -264,155 +267,15 @@ def analyzeSentiments(
             if commentSentimentsNegative / len(comments) > 0.5:
                 generallyNegative.append(True)
 
-            print(f".", end="")
-
-
-# def prRequest(
-#     pat: str, owner: str, name: str, delta: relativedelta, batchDates: List[datetime]
-# ):
-#     query = buildPrRequestQuery(owner, name, None)
-
-#     # prepare batches
-#     batches = []
-#     batch = None
-#     batchStartDate = None
-#     batchEndDate = None
-
-#     while True:
-
-#         # get page
-#         result = gql.runGraphqlRequest(pat, query)
-#         print("...")
-
-#         # extract nodes
-#         nodes = result["repository"]["pullRequests"]["nodes"]
-
-#         # add results
-#         for node in nodes:
-
-#             createdAt = isoparse(node["createdAt"])
-#             closedAt = (
-#                 datetime.now(timezone.utc)
-#                 if node["closedAt"] is None
-#                 else isoparse(node["closedAt"])
-#             )
-
-#             if batchEndDate is None or (
-#                 createdAt > batchEndDate and len(batches) < len(batchDates) - 1
-#             ):
-
-#                 if batch is not None:
-#                     batches.append(batch)
-
-#                 batchStartDate = batchDates[len(batches)]
-#                 batchEndDate = batchStartDate + delta
-
-#                 batch = []
-
-#         pr = {
-#                         "number": node["number"],
-#                         "createdAt": createdAt,
-#                         "closedAt": closedAt,
-#                         "comments": list(c["bodyText"] for c in node["comments"]["nodes"]),
-#                         "commitCount": node["commits"]["totalCount"],
-#                         "participants": list(),
-#                     }
-
-#                     # participants
-#                     for user in node["participants"]["nodes"]:
-#                         gql.addLogin(user, pr["participants"])
-
-#                     batch.append(pr)
-
-#                 # check for next page
-#                 pageInfo = result["repository"]["pullRequests"]["pageInfo"]
-#                 if not pageInfo["hasNextPage"]:
-#                     break
-
-#                 cursor = pageInfo["endCursor"]
-#                 query = buildPrRequestQuery(owner, name, cursor)
-
-#     if batch is not None:
-#         batches.append(batch)
-
-#     return batches
-
-
-# def prRequest(
-#     pat: str, owner: str, name: str, delta: relativedelta, batchDates: List[datetime]
-# ):
-#     query = buildPrRequestQuery(owner, name, None)
-#     print(query)
-#     batches = []
-#     current_batch_index = 0
-#     result = gql.runGraphqlRequest(pat, query)
-#     print(f"Batch length is {batchDates[0]} - {batchDates[0] + delta}")
-#     for node in result["repository"]["pullRequests"]["nodes"]:
-#         print(
-#             isoparse(node["createdAt"]),
-#             result["repository"]["pullRequests"]["pageInfo"]["hasNextPage"],
-#         )
-#     sys.exit()
-
-#     # Ensure that batches are generated for all batch dates, even if no PR data exists
-#     while current_batch_index < len(batchDates):
-#         # Prepare current batch dates
-#         batchStartDate = batchDates[current_batch_index]
-#         batchEndDate = batchStartDate + delta
-#         batch = []
-#         print(
-#             f"Current batch Index: {current_batch_index} and the date range is {batchStartDate} - {batchEndDate}"
-#         )
-#         nodes = result["repository"]["pullRequests"]["nodes"]
-
-#         # Fetch PR data
-#         while True:
-
-#             for node in nodes:
-#                 createdAt = isoparse(node["createdAt"])
-#                 closedAt = (
-#                     datetime.now(timezone.utc)
-#                     if node["closedAt"] is None
-#                     else isoparse(node["closedAt"])
-#                 )
-
-#                 # Only process PRs within the current batch's date range
-#                 if batchStartDate <= createdAt < batchEndDate:
-#                     pr = {
-#                         "number": node["number"],
-#                         "createdAt": createdAt,
-#                         "closedAt": closedAt,
-#                         "comments": [c["bodyText"] for c in node["comments"]["nodes"]],
-#                         "commitCount": node["commits"]["totalCount"],
-#                         "participants": [],
-#                     }
-
-#                     # Add participants
-#                     for user in node["participants"]["nodes"]:
-#                         gql.addLogin(user, pr["participants"])
-
-#                     batch.append(pr)
-
-#             # Check for the next page
-#             pageInfo = result["repository"]["pullRequests"]["pageInfo"]
-#             print(f"Next page exists: {pageInfo['hasNextPage']}")
-#             if not pageInfo["hasNextPage"]:
-#                 break
-
-#             # Update query with next page cursor
-#             cursor = pageInfo["endCursor"]
-#             query = buildPrRequestQuery(owner, name, cursor)
-
-#         # Append the batch (empty or not) to batches
-#         batches.append(batch)
-#         current_batch_index += 1  # Move to the next batch date
-
-#     return batches
-
 
 def prRequest(
-    pat: str, owner: str, name: str, delta: relativedelta, batchDates: List[datetime]
-) -> None:
+    pat: str,
+    owner: str,
+    name: str,
+    delta: relativedelta,
+    batchDates: List[datetime],
+    logger: Logger,
+) -> List[List[Dict[str, Any]]]:
 
     query = buildPrRequestQuery(owner=owner, name=name, cursor=None)
 
@@ -420,25 +283,27 @@ def prRequest(
     batches_pre: Dict[datetime, List[Dict[str, Any]]] = {
         date: [] for date in batchDates
     }
-    batches_pre[datetime.now(batchDates[-1].tzinfo)] = []
+    current_time: datetime = datetime.now(batchDates[-1].tzinfo)
     no_next_page: bool = False
 
     while not no_next_page:
 
         # Get a chunk of page
-        result = gql.runGraphqlRequest(pat, query)
-        print("...")
+        result = gql.runGraphqlRequest(pat, query, logger)
 
         # Get all the nodes in the result
-        nodes = result["repository"]["pullRequests"]["nodes"]
+        try:
+            nodes = result["repository"]["pullRequests"]["nodes"]
+        except TypeError:
+            # There are no PRs in this repository
+            logger.error("There are no PRs for this repository")
+            break
 
         # Add all nodes that are required
         for node in nodes:
             created_at = isoparse(node["createdAt"])
             closed_at = (
-                datetime.now(timezone.utc)
-                if node["closedAt"] is None
-                else isoparse(node["closedAt"])
+                current_time if node["closedAt"] is None else isoparse(node["closedAt"])
             )
 
             authors: List[str] = list()
@@ -456,7 +321,7 @@ def prRequest(
                 "participants": authors,
             }
 
-            batch_date: datetime
+            batch_date: Optional[datetime] = None
 
             for date in batches_pre.keys():
                 batch_date = date
@@ -464,7 +329,12 @@ def prRequest(
                     # This means we have exceeded the range by 1
                     break
 
-            batches_pre[batch_date].append(pr)
+            if batch_date is not None:
+                batches_pre[batch_date].append(pr)
+            else:
+                if current_time not in batches_pre.keys():
+                    batches_pre[current_time] = []
+                batches_pre[current_time].append(pr)
 
         # check for next page
         pageInfo = result["repository"]["pullRequests"]["pageInfo"]

@@ -4,12 +4,13 @@ import os
 import warnings
 from typing import List
 
+from logging import Logger
 from src.configuration import Configuration
 
 warnings.filterwarnings("ignore")
 
 
-def smellDetection(config: Configuration, batchIdx: int):
+def smellDetection(config: Configuration, batchIdx: int, logger: Logger):
 
     # prepare results holder for easy mapping
     results = {}
@@ -23,7 +24,7 @@ def smellDetection(config: Configuration, batchIdx: int):
         for row in rows:
             results[row[0]] = row[1]
 
-    metrics = buildMetricsList(results)
+    metrics = buildMetricsList(results, logger)
 
     # load all models
     smells = ["OSE", "BCE", "PDE", "SV", "OS", "SD", "RS", "TF", "UI", "TC"]
@@ -44,13 +45,10 @@ def smellDetection(config: Configuration, batchIdx: int):
     # add last commit date as first output param
     detectedSmells.insert(0, results["LastCommitDate"])
 
-    # display results
-    # print("Detected smells:")
-    # print(detectedSmells)
     return detectedSmells
 
 
-def buildMetricsList(results: dict):
+def buildMetricsList(results: dict, logger: Logger):
 
     # declare names to extract from the results file in the right order
     names: List[str] = [
@@ -111,11 +109,11 @@ def buildMetricsList(results: dict):
     for name in names:
 
         # default value if key isn't present or the value is blank
-        result: str | float = results.get(name, 0)
-        if result == "":
-
-            print(f"No value for '{name}' during smell detection, defaulting to 0")
-            result = 0
+        result: float = results.get(name) or 0
+        if result == 0:
+            logger.warning(
+                f"No value for '{name}' during smell detection, defaulting to 0"
+            )
 
         metrics.append(float(result))
 

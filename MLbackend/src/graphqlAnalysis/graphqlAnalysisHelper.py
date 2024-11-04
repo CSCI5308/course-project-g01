@@ -1,6 +1,7 @@
 import requests
 import random
 import time
+from logging import Logger
 
 
 def buildNextPageQuery(cursor: str):
@@ -9,7 +10,7 @@ def buildNextPageQuery(cursor: str):
     return ', after:"{0}"'.format(cursor)
 
 
-def runGraphqlRequest(pat: str, query: str):
+def runGraphqlRequest(pat: str, query: str, logger: Logger):
     headers = {"Authorization": "Bearer {0}".format(pat)}
 
     sleepTime = random.randint(0, 8)
@@ -22,6 +23,9 @@ def runGraphqlRequest(pat: str, query: str):
     if request.status_code == 200:
         return request.json()["data"]
 
+    logger.error(
+        f"Query execution failed with code {request.status_code}: {request.text}."
+    )
     raise Exception(
         "Query execution failed with code {0}: {1}".format(
             request.status_code, request.text

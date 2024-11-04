@@ -4,9 +4,9 @@ import stat
 import sentistrength
 from pathlib import Path
 from typing import Optional, List, Any
+from logging import Logger
 from datetime import datetime
 import pandas as pd
-
 import traceback
 from src.configuration import Configuration
 from src.repoLoader import getRepo
@@ -21,10 +21,8 @@ from src.graphqlAnalysis.issueAnalysis import issueAnalysis
 from src.smellDetection import smellDetection
 from src.politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
-
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 
@@ -38,67 +36,74 @@ smells = {
     "RS": "Radio Silence: Formal, rigid procedures delay decision-making and waste time, leading to project delays.",
     "TFS": "Truck Factor Smell: Concentration of knowledge in few individuals leads to risks if they leave the project.",
     "UI": "Unhealthy Interaction: Weak, slow communication among developers, with low participation and long response times.",
-    "TC": "Toxic Communication: Negative, hostile interactions among developers, resulting in frustration, stress, and potential project abandonment."
+    "TC": "Toxic Communication: Negative, hostile interactions among developers, resulting in frustration, stress, and potential project abandonment.",
 }
 
 
-def create_community_smell_report(pdf_file, metrics_results, meta_results, smell_abbreviations):
+def create_community_smell_report(
+    pdf_file, metrics_results, meta_results, smell_abbreviations
+):
     document = SimpleDocTemplate(pdf_file, pagesize=letter)
     content = []
 
     styles = getSampleStyleSheet()
-    title_style = styles['Title']
+    title_style = styles["Title"]
     title = Paragraph("Community Smell Definitions and Metric Analysis", title_style)
     content.append(title)
-    content.append(Paragraph("<br/><b>Community Smell Definitions:</b>", styles['Heading2']))
+    content.append(
+        Paragraph("<br/><b>Community Smell Definitions:</b>", styles["Heading2"])
+    )
 
     for smell_name in smell_abbreviations:
         smell_definition = smells.get(smell_name)
         if smell_definition:
             definition = f"{smell_name}: {smell_definition}"
-            paragraph = Paragraph(definition, styles['Normal'])
+            paragraph = Paragraph(definition, styles["Normal"])
             content.append(paragraph)
 
-    commit_analysis_title = Paragraph("Commit Analysis:", styles['Heading2'])
+    commit_analysis_title = Paragraph("Commit Analysis:", styles["Heading2"])
     content.append(commit_analysis_title)
 
     commit_analysis_table = Table(meta_results)
-    commit_analysis_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-
+    commit_analysis_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ]
+        )
+    )
 
     content.append(commit_analysis_table)
 
-
-    metrics_title = Paragraph("<br/><b>Commit and PR Analysis Metrics:</b>", styles['Heading2'])
+    metrics_title = Paragraph(
+        "<br/><b>Commit and PR Analysis Metrics:</b>", styles["Heading2"]
+    )
     content.append(metrics_title)
 
-
     metrics_table = Table(metrics_results)
-    metrics_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-
+    metrics_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ]
+        )
+    )
 
     content.append(metrics_table)
 
     document.build(content)
-    print(f"PDF created successfully: {pdf_file}")
-
-
 
 
 def communitySmellsDetector(
@@ -106,6 +111,7 @@ def communitySmellsDetector(
     repo_url: str,
     senti_strength_path: Path,
     output_path: Path,
+    logger: Logger,
     google_api_key: Optional[str] = None,
     batch_months: float = 9999,
     start_date: Optional[str] = None,
@@ -127,14 +133,16 @@ def communitySmellsDetector(
             startDate=start_date,
         )
 
-        print(f"-- Repository URL: {repo_url}")
-        print(f"-- Batch Size: {batch_months} months")
-        print(f"-- Output Path: {output_path}")
-        print(f"-- SentiStrength Path: {senti_strength_path}")
-        print(f"-- Max Distance: {0}")
-        print(f"-- PAT: {pat}")
-        print(f"-- Google Key: {google_api_key}")
-        print(f"-- Start Date: {start_date}")
+        logger.info(f"Received a new request for {repo_url}.")
+
+        logger.debug(f"Repository URL: {repo_url}")
+        logger.debug(f"Batch Size: {batch_months} months")
+        logger.debug(f"Output Path: {output_path}")
+        logger.debug(f"SentiStrength Path: {senti_strength_path}")
+        logger.debug(f"Max Distance: {0}")
+        logger.debug(f"PAT: {pat}")
+        logger.debug(f"Google Key: {google_api_key}")
+        logger.debug(f"Start Date: {start_date}")
 
         # Prepare folders
         if os.path.exists(config.resultsPath):
@@ -143,7 +151,7 @@ def communitySmellsDetector(
         os.makedirs(config.metricsPath)
 
         # Get repository reference
-        repo = getRepo(config)
+        repo = getRepo(config, logger)
 
         # Setup sentiment analysis
         senti = sentistrength.PySentiStr()
@@ -158,27 +166,27 @@ def communitySmellsDetector(
         delta = relativedelta(months=+config.batchMonths)
 
         # Handle aliases
-        commits = list(replaceAliases(repo.iter_commits(), config))
+        commits = list(replaceAliases(repo.iter_commits(), config, logger))
 
         # Run analysis
-        batchDates, authorInfoDict, daysActive, results_meta, results_metrics = commitAnalysis(
-            senti, commits, delta, config
+        batchDates, authorInfoDict, daysActive, results_meta, results_metrics = (
+            commitAnalysis(senti, commits, delta, config, logger)
         )
 
-
-        tagres = tagAnalysis(repo, delta, batchDates, daysActive, config)
+        tagres = tagAnalysis(repo, delta, batchDates, daysActive, config, logger)
 
         coreDevs: List[List[Any]] = centrality.centralityAnalysis(
-            commits, delta, batchDates, config
+            commits, delta, batchDates, config, logger
         )
 
-        releaseres = releaseAnalysis(commits, config, delta, batchDates)
+        releaseres = releaseAnalysis(commits, config, delta, batchDates, logger)
 
         prParticipantBatches, prCommentBatches = prAnalysis(
             config,
             senti,
             delta,
             batchDates,
+            logger,
         )
 
         issueParticipantBatches, issueCommentBatches = issueAnalysis(
@@ -186,10 +194,12 @@ def communitySmellsDetector(
             senti,
             delta,
             batchDates,
+            logger,
         )
 
-        politeness = politenessAnalysis(config, prCommentBatches, issueCommentBatches)
-
+        politeness = politenessAnalysis(
+            config, prCommentBatches, issueCommentBatches, logger
+        )
 
         for batchIdx, batchDate in enumerate(batchDates):
             # Get combined author lists
@@ -203,6 +213,7 @@ def communitySmellsDetector(
                 combinedAuthorsInBatch,
                 "issuesAndPRsCentrality",
                 config,
+                logger,
             )
 
             # Get combined unique authors for both PRs and issues
@@ -228,43 +239,37 @@ def communitySmellsDetector(
                 uniqueAuthorsInBatch,
                 batchCoreDevs,
                 config,
+                logger,
             )
 
             # Run smell detection and collect results
-            smell_results = smellDetection(config, batchIdx)
+            smell_results = smellDetection(config, batchIdx, logger)
             results = {
-                        "batch_date": batchDate.strftime("%Y-%m-%d"),
-                        "smell_results": list(smell_results),
-                        "core_devs": list(batchCoreDevs),
-                        "meta":results_meta,
-                        "metrics":results_metrics
-                    }
-            
-            
+                "batch_date": batchDate.strftime("%Y-%m-%d"),
+                "smell_results": list(smell_results),
+                "core_devs": list(batchCoreDevs),
+                "meta": results_meta,
+                "metrics": results_metrics,
+            }
 
-                # Add more relevant results as needed
-            df = pd.read_csv(os.path.join(config.resultsPath, f"results_{batchIdx}.csv"))
-            df.columns=["Metric", "Value"]
-        
-        # create_community_smell_report("community_smell_metrics.pdf", results_metrics, results_meta, smell_results[1:])
+            df = pd.read_csv(
+                os.path.join(config.resultsPath, f"results_{batchIdx}.csv")
+            )
+            df.columns = ["Metric", "Value"]
     except Exception as e:
-        # Capture detailed error information
-        error_message = str(e)
-        error_traceback = traceback.format_exc()  # Get the full traceback
 
         # Return the detailed error
         results = {
             "status": "error",
-            "message": error_message,
-            "traceback": error_traceback,  # Include stack trace for debugging
+            "message": str(e),
+            "traceback": traceback.format_exc(),
         }
     finally:
         # Close repo to avoid resource leaks
         if "repo" in locals():
             del repo
-            
 
-    return results,df  # Return the collected results
+    return results, df  # Return the collected results
 
 
 def commitDate(tag):
@@ -281,4 +286,3 @@ def remove_tree(path):
         shutil.rmtree(path, onerror=remove_readonly)
     else:
         os.remove(path)
-
