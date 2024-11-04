@@ -317,8 +317,8 @@ def issueRequest(
             batch_date: Optional[datetime] = None
 
             for date in batches_pre.keys():
+                batch_date = date
                 if date <= created_at < date + delta:
-                    batch_date = date
                     # This means we have exceeded the range by 1
                     break
 
