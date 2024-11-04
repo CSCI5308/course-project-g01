@@ -1,5 +1,6 @@
 devfiles/
 results/
+logs/
 venv/
 __pycache__/
 SentiStrength

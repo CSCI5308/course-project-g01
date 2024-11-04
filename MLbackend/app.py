@@ -8,13 +8,15 @@ import validators
 from src.devNetwork import communitySmellsDetector
 
 LOG_FOLDER_PATH: Path = Path(".", "logs")
-time_now = datetime.now()
+
+if not LOG_FOLDER_PATH.exists():
+    LOG_FOLDER_PATH.mkdir()
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.WARNING,
     format="%(asctime)s %(levelname)s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    filename=Path(".", "logs", time_now.strftime("log_%Y-%m-%d_%H-%M-%S.log")),
+    filename=Path(".", "logs", datetime.now().strftime("log_%Y-%m-%d_%H-%M-%S.log")),
 )
 
 LOGGER: Logger = logging.getLogger(__name__)
