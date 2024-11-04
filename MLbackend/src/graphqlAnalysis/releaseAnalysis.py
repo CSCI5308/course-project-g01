@@ -125,6 +125,7 @@ def releaseAnalysis(
             config.resultsPath,
             logger,
         )
+        return releaseCommitsCount
 
 
 def releaseRequest(

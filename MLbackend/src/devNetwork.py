@@ -5,7 +5,8 @@ import sentistrength
 from pathlib import Path
 from typing import Optional, List, Any
 from logging import Logger
-
+from datetime import datetime
+import pandas as pd
 import traceback
 from src.configuration import Configuration
 from src.repoLoader import getRepo
@@ -20,6 +21,89 @@ from src.graphqlAnalysis.issueAnalysis import issueAnalysis
 from src.smellDetection import smellDetection
 from src.politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+
+smells = {
+    "OSE": "Organizational Silo Effect: Isolated subgroups lead to poor communication, wasted resources, and duplicated code.",
+    "BCE": "Black-cloud Effect: Information overload due to limited collaboration and a lack of experts, causing knowledge gaps.",
+    "PDE": "Prima-donnas Effect: Resistance to external input due to ineffective collaboration, hindering team synergy.",
+    "SV": "Sharing Villainy: Poor-quality information exchange results in outdated or incorrect knowledge being shared.",
+    "OS": "Organizational Skirmish: Misaligned expertise and communication affect productivity, timelines, and costs.",
+    "SD": "Solution Defiance: Conflicting technical opinions within subgroups cause delays and uncooperative behavior.",
+    "RS": "Radio Silence: Formal, rigid procedures delay decision-making and waste time, leading to project delays.",
+    "TFS": "Truck Factor Smell: Concentration of knowledge in few individuals leads to risks if they leave the project.",
+    "UI": "Unhealthy Interaction: Weak, slow communication among developers, with low participation and long response times.",
+    "TC": "Toxic Communication: Negative, hostile interactions among developers, resulting in frustration, stress, and potential project abandonment.",
+}
+
+
+def create_community_smell_report(
+    pdf_file, metrics_results, meta_results, smell_abbreviations
+):
+    document = SimpleDocTemplate(pdf_file, pagesize=letter)
+    content = []
+
+    styles = getSampleStyleSheet()
+    title_style = styles["Title"]
+    title = Paragraph("Community Smell Definitions and Metric Analysis", title_style)
+    content.append(title)
+    content.append(
+        Paragraph("<br/><b>Community Smell Definitions:</b>", styles["Heading2"])
+    )
+
+    for smell_name in smell_abbreviations:
+        smell_definition = smells.get(smell_name)
+        if smell_definition:
+            definition = f"{smell_name}: {smell_definition}"
+            paragraph = Paragraph(definition, styles["Normal"])
+            content.append(paragraph)
+
+    commit_analysis_title = Paragraph("Commit Analysis:", styles["Heading2"])
+    content.append(commit_analysis_title)
+
+    commit_analysis_table = Table(meta_results)
+    commit_analysis_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ]
+        )
+    )
+
+    content.append(commit_analysis_table)
+
+    metrics_title = Paragraph(
+        "<br/><b>Commit and PR Analysis Metrics:</b>", styles["Heading2"]
+    )
+    content.append(metrics_title)
+
+    metrics_table = Table(metrics_results)
+    metrics_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ]
+        )
+    )
+
+    content.append(metrics_table)
+
+    document.build(content)
 
 
 def communitySmellsDetector(
@@ -34,6 +118,7 @@ def communitySmellsDetector(
 ) -> dict:  # Specify the return type
 
     results = {}  # Initialize a results dictionary
+    df = None
 
     try:
         # Parse args
@@ -84,17 +169,17 @@ def communitySmellsDetector(
         commits = list(replaceAliases(repo.iter_commits(), config, logger))
 
         # Run analysis
-        batchDates, authorInfoDict, daysActive = commitAnalysis(
-            senti, commits, delta, config, logger
+        batchDates, authorInfoDict, daysActive, results_meta, results_metrics = (
+            commitAnalysis(senti, commits, delta, config, logger)
         )
 
-        tagAnalysis(repo, delta, batchDates, daysActive, config, logger)
+        tagres = tagAnalysis(repo, delta, batchDates, daysActive, config, logger)
 
         coreDevs: List[List[Any]] = centrality.centralityAnalysis(
             commits, delta, batchDates, config, logger
         )
 
-        releaseAnalysis(commits, config, delta, batchDates, logger)
+        releaseres = releaseAnalysis(commits, config, delta, batchDates, logger)
 
         prParticipantBatches, prCommentBatches = prAnalysis(
             config,
@@ -112,7 +197,9 @@ def communitySmellsDetector(
             logger,
         )
 
-        politenessAnalysis(config, prCommentBatches, issueCommentBatches, logger)
+        politeness = politenessAnalysis(
+            config, prCommentBatches, issueCommentBatches, logger
+        )
 
         for batchIdx, batchDate in enumerate(batchDates):
             # Get combined author lists
@@ -161,10 +248,14 @@ def communitySmellsDetector(
                 "batch_date": batchDate.strftime("%Y-%m-%d"),
                 "smell_results": list(smell_results),
                 "core_devs": list(batchCoreDevs),
+                "meta": results_meta,
+                "metrics": results_metrics,
             }
 
-            # Add more relevant results as needed
-
+            df = pd.read_csv(
+                os.path.join(config.resultsPath, f"results_{batchIdx}.csv")
+            )
+            df.columns = ["Metric", "Value"]
     except Exception as e:
 
         # Return the detailed error
@@ -178,7 +269,7 @@ def communitySmellsDetector(
         if "repo" in locals():
             del repo
 
-    return results  # Return the collected results
+    return results, df  # Return the collected results
 
 
 def commitDate(tag):

@@ -3,7 +3,6 @@ import git
 import csv
 import datetime
 from logging import Logger
-
 from progress.bar import Bar
 from src.statsAnalysis import outputStatistics
 from typing import List
@@ -50,6 +49,7 @@ def tagAnalysis(
             lastTag = tag
 
     # output tag batches
+    res = []
     for idx, batchStartDate in enumerate(batchDates):
         batchEndDate = batchStartDate + delta
 
@@ -59,7 +59,9 @@ def tagAnalysis(
             if tag["rawDate"] >= batchStartDate and tag["rawDate"] < batchEndDate
         ]
 
-        outputTags(idx, batchTags, daysActive[idx], config, logger)
+        x = outputTags(idx, batchTags, daysActive[idx], config, logger)
+        res.append(x)
+    return res
 
 
 def outputTags(
@@ -108,6 +110,7 @@ def outputTags(
         config.resultsPath,
         logger,
     )
+    return [tag["commitCount"] for tag in tagInfo]
 
 
 def getTaggedDate(tag):

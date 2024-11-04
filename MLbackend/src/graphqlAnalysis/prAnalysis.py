@@ -348,6 +348,12 @@ def prRequest(
     return list(batches_pre.values())
 
 
+
+
+
+
+
+
 def buildPrRequestQuery(owner: str, name: str, cursor: str):
     return """{{
         repository(owner: "{0}", name: "{1}") {{

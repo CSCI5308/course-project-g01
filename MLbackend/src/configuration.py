@@ -1,4 +1,6 @@
 import os
+import argparse
+from typing import Sequence
 
 
 class Configuration:
@@ -35,3 +37,76 @@ class Configuration:
 
         # build metrics path
         self.metricsPath = os.path.join(self.resultsPath, "metrics")
+
+
+
+def parseDevNetworkArgs(args: Sequence[str]):
+
+    parser = argparse.ArgumentParser(
+        description="Perform network and statistical analysis on GitHub repositories.",
+        epilog="Check README file for more information on running this tool.",
+    )
+
+    parser.add_argument(
+        "-p",
+        "--pat",
+        help="GitHub PAT (personal access token) used for querying the GitHub API",
+        required=True,
+    )
+
+    parser.add_argument(
+        "-g",
+        "--googleKey",
+        help="Google Cloud API Key used for authentication with the Perspective API",
+        required=False,
+    )
+
+    parser.add_argument(
+        "-r",
+        "--repositoryUrl",
+        help="GitHub repository URL that you want to analyse",
+        required=True,
+    )
+
+    parser.add_argument(
+        "-m",
+        "--batchMonths",
+        help="Number of months to analyze per batch. Default=9999",
+        type=float,
+        default=9999,
+    )
+
+    parser.add_argument(
+        "-s",
+        "--sentiStrengthPath",
+        help="local directory path to the SentiStregth tool",
+        required=True,
+    )
+
+    parser.add_argument(
+        "-o",
+        "--outputPath",
+        help="Local directory path for analysis output",
+        required=True,
+    )
+
+    parser.add_argument(
+        "-sd",
+        "--startDate",
+        help="Start date of project life",
+        required=False,
+    )
+
+    args = parser.parse_args()
+    config = Configuration(
+        args.repositoryUrl,
+        args.batchMonths,
+        args.outputPath,
+        args.sentiStrengthPath,
+        0,
+        args.pat,
+        args.googleKey,
+        args.startDate
+    )
+
+    return config

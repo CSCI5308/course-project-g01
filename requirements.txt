@@ -52,6 +52,7 @@ python-dateutil==2.9.0.post0
 pytz==2024.2
 PyYAML==6.0.2
 regex==2024.9.11
+reportlab==4.2.5
 requests==2.32.3
 rich==13.9.2
 scikit-learn==1.5.2
@@ -81,3 +82,4 @@ wcwidth==0.2.13
 weasel==0.4.1
 wheel==0.44.0
 wrapt==1.16.0
+flake8==7.1.1

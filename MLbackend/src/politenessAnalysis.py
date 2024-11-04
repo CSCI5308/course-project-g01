@@ -14,20 +14,19 @@ def politenessAnalysis(
     logger: Logger,
 ) -> None:
 
-    calculateACCL(config, prCommentBatches, issueCommentBatches, logger)
+    accl = calculateACCL(config, prCommentBatches, issueCommentBatches, logger)
 
-    calculateRPC(config, "PR", prCommentBatches, logger)
-    calculateRPC(config, "Issue", prCommentBatches, logger)
+    rpc_pr = calculateRPC(config, "PR", prCommentBatches, logger)
+    rpc_issues = calculateRPC(config, "Issue", prCommentBatches, logger)
+    return (accl, rpc_pr, rpc_issues)
 
 
-def calculateACCL(
-    config, prCommentBatches, issueCommentBatches, logger: Logger
-) -> None:
-
+def calculateACCL(config, prCommentBatches, issueCommentBatches, logger) -> None:
     logger.info(
         "Calculating Average Comment Character Length based on comments in PRs and Issues batches."
     )
 
+    accls = []
     for batchIdx, batch in enumerate(prCommentBatches):
 
         prCommentLengths = list([len(c) for c in batch])
@@ -39,6 +38,7 @@ def calculateACCL(
         ]
 
         accl = prCommentLengthsMean + issueCommentLengthsMean / 2
+        accls.append(accl)
 
         # output results
         with open(
@@ -46,16 +46,17 @@ def calculateACCL(
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow(["ACCL", accl])
+    return accls
 
 
 def calculateRPC(config, outputPrefix, commentBatches, logger: Logger) -> None:
-
     logger.info(f"Calculating Relative positive count for {outputPrefix}s.")
-
+    rpcs = []
     for batchIdx, batch in enumerate(commentBatches):
 
         # analyze batch
         positiveMarkerCount = getResults(batch) if len(batch) > 0 else 0.0
+        rpcs.append((outputPrefix, positiveMarkerCount))
 
         # output results
         with open(
@@ -65,6 +66,7 @@ def calculateRPC(config, outputPrefix, commentBatches, logger: Logger) -> None:
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow([f"RPC{outputPrefix}", positiveMarkerCount])
+    return rpcs
 
 
 def getResults(comments: list) -> float:

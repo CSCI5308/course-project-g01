@@ -66,18 +66,23 @@ def commitAnalysis(
     # run analysis per batch
     authorInfoDict = {}
     daysActive = list()
+    meta_results = []
+    metric_results = []
     for idx, batch in enumerate(batches):
 
         # get batch authors
-        batchAuthorInfoDict, batchDaysActive = commitBatchAnalysis(
-            idx, senti, batch, config, logger
+
+        batchAuthorInfoDict, batchDaysActive, meta_res, metric_res = (
+            commitBatchAnalysis(idx, senti, batch, config, logger)
         )
+        meta_results.append(meta_res)
+        metric_results.append(metric_res)
 
         # combine with main lists
         authorInfoDict.update(batchAuthorInfoDict)
         daysActive.append(batchDaysActive)
 
-    return batchDates, authorInfoDict, daysActive
+    return batchDates, authorInfoDict, daysActive, meta_results[0], metric_results[0]
 
 
 def commitBatchAnalysis(
@@ -253,7 +258,20 @@ def commitBatchAnalysis(
         w.writerow(["PercentageSponsoredAuthors", percentageSponsoredAuthors])
         w.writerow(["TimezoneCount", len([*timezoneInfoDict])])
 
-    outputStatistics(
+    result_meta = [
+        ["CommitCount", realCommitCount],
+        ["DaysActive", daysActive],
+        ["FirstCommitDate", "{:%Y-%m-%d}".format(firstCommitDate)],
+        ["LastCommitDate", "{:%Y-%m-%d}".format(lastCommitDate)],
+        ["AuthorCount", len([*authorInfoDict])],
+        ["SponsoredAuthorCount", sponsoredAuthorCount],
+        ["PercentageSponsoredAuthors", percentageSponsoredAuthors],
+        ["TimezoneCount", len([*timezoneInfoDict])],
+    ]
+
+    metrics_data = [("Metric", "Count", "Mean", "Stdev")]
+
+    active = outputStatistics(
         idx,
         [author["activeDays"] for login, author in authorInfoDict.items()],
         "AuthorActiveDays",
@@ -261,7 +279,7 @@ def commitBatchAnalysis(
         logger,
     )
 
-    outputStatistics(
+    commit_author = outputStatistics(
         idx,
         [author["commitCount"] for login, author in authorInfoDict.items()],
         "AuthorCommitCount",
@@ -269,7 +287,7 @@ def commitBatchAnalysis(
         logger,
     )
 
-    outputStatistics(
+    times = outputStatistics(
         idx,
         [len(timezone["authors"]) for key, timezone in timezoneInfoDict.items()],
         "TimezoneAuthorCount",
@@ -277,7 +295,7 @@ def commitBatchAnalysis(
         logger,
     )
 
-    outputStatistics(
+    times_commit = outputStatistics(
         idx,
         [timezone["commitCount"] for key, timezone in timezoneInfoDict.items()],
         "TimezoneCommitCount",
@@ -285,11 +303,11 @@ def commitBatchAnalysis(
         logger,
     )
 
-    outputStatistics(
+    senti_msg = outputStatistics(
         idx, sentimentScores, "CommitMessageSentiment", config.resultsPath, logger
     )
 
-    outputStatistics(
+    positive = outputStatistics(
         idx,
         commitMessageSentimentsPositive,
         "CommitMessageSentimentsPositive",
@@ -297,12 +315,15 @@ def commitBatchAnalysis(
         logger,
     )
 
-    outputStatistics(
+    negative = outputStatistics(
         idx,
         commitMessageSentimentsNegative,
         "CommitMessageSentimentsNegative",
         config.resultsPath,
         logger,
     )
+    metrics_data.extend(
+        [active, commit_author, times, times_commit, senti_msg, positive, negative]
+    )
 
-    return authorInfoDict, daysActive
+    return authorInfoDict, daysActive, result_meta, metrics_data
