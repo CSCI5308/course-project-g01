@@ -2,7 +2,7 @@ import unittest
 from typing import List
 from unittest.mock import patch, MagicMock
 from src.graphqlAnalysis.issueAnalysis import issueRequest
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from dateutil.relativedelta import relativedelta
 
 
@@ -33,6 +33,54 @@ class TestIssueRequest(unittest.TestCase):
         self.mock_logger.error.assert_called_once_with(
             "There are no Issues for this repository"
         )
+
+        return None
+
+    @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    def test_issuesAvailableNumberOfBatches(self, mock_runGraphqlRequest) -> None:
+        # Generate the createdAt date as today's date minus some days
+        created_at_date = datetime.now() + timedelta(days=10)
+        closed_at_date = datetime.now() + timedelta(days=15)
+        created_at_iso = created_at_date.isoformat() + "Z"
+        closed_at_iso = closed_at_date.isoformat() + "Z"
+        mock_runGraphqlRequest.return_value = {
+            "repository": {
+                "issues": {
+                    "pageInfo": {"hasNextPage": False, "endCursor": None},
+                    "nodes": [
+                        {
+                            "number": 1,
+                            "createdAt": created_at_iso,
+                            "closedAt": closed_at_iso,
+                            "participants": {
+                                "nodes": [{"login": "user1"}, {"login": "user2"}]
+                            },
+                            "comments": {
+                                "nodes": [
+                                    {"bodyText": "This is a comment on the issue."}
+                                ]
+                            },
+                        }
+                    ],
+                }
+            }
+        }
+
+        batch_dates: List[datetime] = [datetime.now(timezone.utc) - timedelta(days=5)]
+
+        result = issueRequest(
+            pat="test_pat",
+            owner="test_owner",
+            name="test_name",
+            delta=self.delta,
+            batch_dates=batch_dates,
+            logger=self.mock_logger,
+        )
+
+        self.assertEqual(len(result), 1)
+
+        mock_runGraphqlRequest.assert_called_once()
+        self.mock_logger.assert_not_called()
 
         return None
 
