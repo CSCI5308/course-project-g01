@@ -9,8 +9,8 @@ import src.centralityAnalysis as centrality
 from logging import Logger
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import isoparse
-from typing import List, Any, Dict
-from datetime import datetime, timezone
+from typing import List, Any, Dict, Optional
+from datetime import datetime
 from src.configuration import Configuration
 import threading
 from src.perspectiveAnalysis import getToxicityPercentage
@@ -274,7 +274,6 @@ def issueRequest(
         date: [] for date in batch_dates
     }
     current_time: datetime = datetime.now(batch_dates[-1].tzinfo)
-    batches_pre[current_time] = []
 
     no_next_page: bool = False
 
@@ -284,7 +283,12 @@ def issueRequest(
         result = gql.runGraphqlRequest(pat=pat, query=query, logger=logger)
 
         # Get all the nodes in the result
-        nodes = result["repository"]["issues"]["nodes"]
+        try:
+            nodes = result["repository"]["issues"]["nodes"]
+        except TypeError:
+            # There are no PRs in this repository
+            logger.error("There are no Issues for this repository")
+            break
 
         # Add all nodes that are required
         for node in nodes:
@@ -310,7 +314,7 @@ def issueRequest(
                 "participants": authors,
             }
 
-            batch_date: datetime
+            batch_date: Optional[datetime] = None
 
             for date in batches_pre.keys():
                 batch_date = date
@@ -318,7 +322,12 @@ def issueRequest(
                     # This means we have exceeded the range by 1
                     break
 
-            batches_pre[batch_date].append(issue)
+            if batch_date is None:
+                batches_pre[batch_date].append(issue)
+            else:
+                if current_time not in batches_pre.keys():
+                    batches_pre[current_time] = []
+                batches_pre[current_time].append(issue)
 
         # Check for next page
         page_info = result["repository"]["issues"]["pageInfo"]
