@@ -74,6 +74,7 @@ def home():
 def generate_pdf1(
     metrics_results, meta_results, smell_abbreviations, smells, PDF_FILE_PATH
 ):
+    LOGGER.warning("Hey I reached here")
     document = SimpleDocTemplate(PDF_FILE_PATH, pagesize=letter)
     content = []
 
@@ -165,7 +166,7 @@ def detect_smells():
 
     try:
         # Call the function and save the result
-        result = communitySmellsDetector(
+        result, df = communitySmellsDetector(
             pat, repo_url, senti_strength_path, output_path, LOGGER
         )
 
@@ -259,7 +260,6 @@ def send_email(email):
     with app.open_resource(PDF_FILE_PATH) as fp:
         msg.attach("smell_report.pdf", "application/pdf", fp.read())
     mail.send(msg)
-    return "Message sent!"
 
 
 if __name__ == "__main__":
