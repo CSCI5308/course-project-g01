@@ -32,7 +32,11 @@
                     <h1>Results for {{ data.batch_date }}</h1>
                     
                     <h2>Smell Results</h2>
-                    
+                    <ul>
+                        {% for result in data.smell_results[1:] %}
+                            <li>{{ result }}</li>
+                        {% endfor %}
+                    </ul>
                     <h2>Download PDF Report</h2>
                     <a href="/api/v1/pdf" target="_blank">Download Smell Report</a>
                     <h2>Core Developers</h2>

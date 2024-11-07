@@ -120,7 +120,7 @@ def detect_smells():
         validate_url(url)
         validate_email(email)
         validate_pat(pat)
-        result = communitySmellsDetector(
+        result,df = communitySmellsDetector(
             pat, url, senti_strength_path, output_path, LOGGER
         )
         if not result:
