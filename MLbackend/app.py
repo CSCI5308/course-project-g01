@@ -27,6 +27,7 @@ app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USE_SSL"] = False
 mail = Mail(app)
 
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -134,6 +135,7 @@ def detect_smells():
         LOGGER.error(f"Unexpected error: {str(e)}")
         LOGGER.error(f"Stack trace:\n{traceback.format_exc()}")
         return jsonify({"status": "error", "message": "Something went wrong."}), 500
+
 
 @app.route("/api/v1/pdf", methods=["GET"])
 def generate_pdf():
