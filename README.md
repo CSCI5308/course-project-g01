@@ -9,6 +9,6 @@
 
 ## Branches
 - **main**: This branch contains the production-ready code.
-- **dev**: This branch is for ongoing development.
+- **development**: This branch is for ongoing development.
 
 ## Getting Started
