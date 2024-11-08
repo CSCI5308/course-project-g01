@@ -8,13 +8,14 @@ from logging import Logger
 from typing import Any, Dict, List, Optional
 
 import sentistrength
-import src.centralityAnalysis as centrality
-import src.graphqlAnalysis.graphqlAnalysisHelper as gql
-import src.statsAnalysis as stats
 from dateutil.parser import isoparse
 from dateutil.relativedelta import relativedelta
-from src.configuration import Configuration
-from src.perspectiveAnalysis import getToxicityPercentage
+
+import MLbackend.src.centralityAnalysis as centrality
+import MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper as gql
+import MLbackend.src.statsAnalysis as stats
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.perspectiveAnalysis import getToxicityPercentage
 
 
 def issueAnalysis(

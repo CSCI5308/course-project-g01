@@ -8,11 +8,11 @@ import git
 import pytz
 from dateutil.relativedelta import relativedelta
 from git.objects.commit import Commit
-from progress.bar import Bar
 from sentistrength import PySentiStr
-from src.configuration import Configuration
-from src.statsAnalysis import outputStatistics
-from src.utils import authorIdExtractor
+
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.statsAnalysis import outputStatistics
+from MLbackend.src.utils import authorIdExtractor
 
 
 def commitAnalysis(

@@ -5,11 +5,12 @@ from logging import Logger
 from typing import List
 
 import git
-import src.graphqlAnalysis.graphqlAnalysisHelper as gql
-import src.statsAnalysis as stats
 from dateutil.parser import isoparse
 from dateutil.relativedelta import relativedelta
-from src.configuration import Configuration
+
+import MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper as gql
+import MLbackend.src.statsAnalysis as stats
+from MLbackend.src.configuration import Configuration
 
 
 def releaseAnalysis(

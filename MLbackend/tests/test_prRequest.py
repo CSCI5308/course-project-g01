@@ -4,7 +4,8 @@ from typing import List
 from unittest.mock import MagicMock, patch
 
 from dateutil.relativedelta import relativedelta
-from src.graphqlAnalysis.prAnalysis import prRequest
+
+from MLbackend.src.graphqlAnalysis.prAnalysis import prRequest
 
 
 class TestPRRequest(unittest.TestCase):
@@ -16,7 +17,7 @@ class TestPRRequest(unittest.TestCase):
         cls.mock_logger = MagicMock()
         cls.mock_logger.return_value = cls.mock_logger
 
-    @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
     def test_noPRsAvailable(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {"repository": None}
         batch_dates: List[datetime] = [datetime.now(timezone.utc)]
@@ -37,7 +38,7 @@ class TestPRRequest(unittest.TestCase):
 
         return None
 
-    @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
     def test_prsAvailableNumberOfBatches(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {
             "repository": {
@@ -89,7 +90,7 @@ class TestPRRequest(unittest.TestCase):
 
         return None
 
-    @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
     def test_prsAvailableTwoOfBatches(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {
             "repository": {

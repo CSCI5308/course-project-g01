@@ -3,8 +3,9 @@ import os
 from logging import Logger
 
 import convokit
-import src.statsAnalysis as stats
-from src.configuration import Configuration
+
+import MLbackend.src.statsAnalysis as stats
+from MLbackend.src.configuration import Configuration
 
 
 def politenessAnalysis(

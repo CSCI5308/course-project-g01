@@ -6,7 +6,8 @@ from logging import Logger
 from typing import List
 
 import requests
-from src.configuration import Configuration
+
+from MLbackend.src.configuration import Configuration
 
 
 def getToxicityPercentage(config: Configuration, comments: List, logger: Logger):

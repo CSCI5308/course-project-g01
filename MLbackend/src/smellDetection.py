@@ -5,7 +5,8 @@ from logging import Logger
 from typing import List
 
 from joblib import load
-from src.configuration import Configuration
+
+from MLbackend.src.configuration import Configuration
 
 warnings.filterwarnings("ignore")
 
@@ -31,7 +32,7 @@ def smellDetection(config: Configuration, batchIdx: int, logger: Logger):
     all_models = {}
 
     for smell in smells:
-        modelPath = os.path.abspath("./models/{}.joblib".format(smell))
+        modelPath = os.path.abspath("MLbackend/models/{}.joblib".format(smell))
         all_models[smell] = load(modelPath)
 
     # detect smells

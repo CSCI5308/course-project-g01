@@ -8,10 +8,11 @@ from typing import Any, Dict, List
 import networkx as nx
 from dateutil.relativedelta import relativedelta
 from git.objects import Commit
-from MLBackend.src.configuration import Configuration
-from MLBackend.src.statsAnalysis import outputStatistics
-from MLBackend.src.utils import authorIdExtractor
 from networkx.algorithms.community import greedy_modularity_communities
+
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.statsAnalysis import outputStatistics
+from MLbackend.src.utils import authorIdExtractor
 
 
 def centralityAnalysis(

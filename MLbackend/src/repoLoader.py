@@ -2,8 +2,8 @@ import os
 from logging import Logger
 
 import git
-from src.configuration import Configuration
-from src.utils.progress import Progress
+
+from MLbackend.src.configuration import Configuration
 
 
 def getRepo(config: Configuration, logger: Logger):

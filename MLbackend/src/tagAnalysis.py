@@ -6,9 +6,9 @@ from typing import List
 
 import git
 from dateutil.relativedelta import relativedelta
-from progress.bar import Bar
-from src.configuration import Configuration
-from src.statsAnalysis import outputStatistics
+
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.statsAnalysis import outputStatistics
 
 
 def tagAnalysis(

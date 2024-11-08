@@ -1,7 +1,8 @@
 import re
 
 import validators
-from config import LOGGER
+
+from MLbackend.config import LOGGER
 
 
 class InvalidInputError(Exception):

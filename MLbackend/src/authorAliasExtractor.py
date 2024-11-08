@@ -6,10 +6,9 @@ import git
 import requests
 import yaml
 from progress.bar import Bar
-from strsimpy.metric_lcs import MetricLCS
-
 from src.configuration import Configuration, parseAliasArgs
 from src.repoLoader import getRepo
+from strsimpy.metric_lcs import MetricLCS
 from utils import authorIdExtractor
 
 

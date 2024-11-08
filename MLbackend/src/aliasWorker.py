@@ -4,8 +4,9 @@ from typing import Generator, List
 
 import git
 import yaml
-from src.configuration import Configuration
-from src.utils import authorIdExtractor
+
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.utils import authorIdExtractor
 
 
 def replaceAliases(

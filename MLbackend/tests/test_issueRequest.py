@@ -4,7 +4,8 @@ from typing import List
 from unittest.mock import MagicMock, patch
 
 from dateutil.relativedelta import relativedelta
-from src.graphqlAnalysis.issueAnalysis import issueRequest
+
+from MLbackend.src.graphqlAnalysis.issueAnalysis import issueRequest
 
 
 class TestIssueRequest(unittest.TestCase):
@@ -16,7 +17,7 @@ class TestIssueRequest(unittest.TestCase):
         cls.mock_logger = MagicMock()
         cls.mock_logger.return_value = cls.mock_logger
 
-    @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
     def test_noIssuesAvailable(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {"repository": None}
         batch_dates: List[datetime] = [datetime.now(timezone.utc)]
@@ -37,7 +38,7 @@ class TestIssueRequest(unittest.TestCase):
 
         return None
 
-    @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
     def test_issuesAvailableNumberOfBatches(self, mock_runGraphqlRequest) -> None:
         # Generate the createdAt date as today's date minus some days
         created_at_date = datetime.now() + timedelta(days=10)
@@ -85,7 +86,7 @@ class TestIssueRequest(unittest.TestCase):
 
         return None
 
-    @patch("src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
     def test_issuesAvailableTwoOfBatches(self, mock_runGraphqlRequest) -> None:
         created_at_date = datetime.now() - relativedelta(months=1, days=10)
         closed_at_date = datetime.now() - relativedelta(months=1, days=15)

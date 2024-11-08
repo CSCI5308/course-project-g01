@@ -1,6 +1,5 @@
 import csv
 import os
-import sys
 from logging import Logger
 from statistics import StatisticsError, mean, stdev
 
