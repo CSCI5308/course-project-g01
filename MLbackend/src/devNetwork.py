@@ -37,74 +37,65 @@ smells = {
     "RS": "Radio Silence: Formal, rigid procedures delay decision-making and waste time, leading to project delays.",
     "TFS": "Truck Factor Smell: Concentration of knowledge in few individuals leads to risks if they leave the project.",
     "UI": "Unhealthy Interaction: Weak, slow communication among developers, with low participation and long response times.",
-    "TC": "Toxic Communication: Negative, hostile interactions among developers, resulting in frustration, stress, and potential project abandonment.",
+    "TC": "Toxic Communication: Negative, hostile interactions among developers, resulting in frustration, stress, and potential project abandonment."
 }
 
 
-def create_community_smell_report(
-    pdf_file, metrics_results, meta_results, smell_abbreviations
-):
+
+def create_community_smell_report(pdf_results):
+    pdf_file = "smell_report.pdf"
     document = SimpleDocTemplate(pdf_file, pagesize=letter)
     content = []
 
     styles = getSampleStyleSheet()
-    title_style = styles["Title"]
+    title_style = styles['Title']
+    normal_style = styles['Normal']
+
     title = Paragraph("Community Smell Definitions and Metric Analysis", title_style)
     content.append(title)
-    content.append(
-        Paragraph("<br/><b>Community Smell Definitions:</b>", styles["Heading2"])
-    )
+    content.append(Paragraph("<br/><b>Detected Community Smell Definitions:</b>", styles['Heading2']))
 
-    for smell_name in smell_abbreviations:
-        smell_definition = smells.get(smell_name)
-        if smell_definition:
-            definition = f"{smell_name}: {smell_definition}"
-            paragraph = Paragraph(definition, styles["Normal"])
-            content.append(paragraph)
+    for smell_name, smell_definition in smells.items():
+        paragraph = Paragraph(f"<b>{smell_name}:</b> {smell_definition}", normal_style)
+        content.append(paragraph)
 
-    commit_analysis_title = Paragraph("Commit Analysis:", styles["Heading2"])
-    content.append(commit_analysis_title)
+    table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ])
+    
+    for i, result in pdf_results.items():
+        content.append(Paragraph(f"<br/><b>{i} Analysis:</b>", styles['Heading2']))
 
-    commit_analysis_table = Table(meta_results)
-    commit_analysis_table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-                ("GRID", (0, 0), (-1, -1), 1, colors.black),
-            ]
-        )
-    )
-
-    content.append(commit_analysis_table)
-
-    metrics_title = Paragraph(
-        "<br/><b>Commit and PR Analysis Metrics:</b>", styles["Heading2"]
-    )
-    content.append(metrics_title)
-
-    metrics_table = Table(metrics_results)
-    metrics_table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-                ("GRID", (0, 0), (-1, -1), 1, colors.black),
-            ]
-        )
-    )
-
-    content.append(metrics_table)
-
+        if len(result) == 2:
+            commit_data_1, commit_data_2 = result
+            commit_table_data_1 = [[row[0], row[1]] for row in commit_data_1]
+            commit_table_data_2 = [[row[0], row[1], row[2], row[3]] for row in commit_data_2]
+            commit_table_1 = Table(commit_table_data_1)
+            commit_table_1.setStyle(table_style)
+            commit_table_2 = Table(commit_table_data_2)
+            commit_table_2.setStyle(table_style)
+            content.append(commit_table_1)
+            content.append(Paragraph("<br/>", styles['Heading2']))
+            content.append(Paragraph("<br/>", styles['Heading2']))
+            content.append(commit_table_2)
+        else:
+            commit_data = result[0]
+            commit_table_data = [[row[0],row[1]] for row in commit_data]
+            commit_table = Table(commit_table_data)
+            commit_table.setStyle(table_style)
+            content.append(commit_table)
     document.build(content)
+    return pdf_file
+
+
+
+
 
 
 def communitySmellsDetector(
@@ -120,6 +111,7 @@ def communitySmellsDetector(
 
     results = {}  # Initialize a results dictionary
     df = None
+    pdf_results = {}
 
     try:
         # Parse args
@@ -173,8 +165,10 @@ def communitySmellsDetector(
         batchDates, authorInfoDict, daysActive, results_meta, results_metrics = (
             commitAnalysis(senti, commits, delta, config, logger)
         )
+        pdf_results["Commit Analysis"] = [results_meta,results_metrics]
 
         tagres = tagAnalysis(repo, delta, batchDates, daysActive, config, logger)
+
 
         coreDevs: List[List[Any]] = centrality.centralityAnalysis(
             commits, delta, batchDates, config, logger
@@ -182,7 +176,17 @@ def communitySmellsDetector(
 
         releaseres = releaseAnalysis(commits, config, delta, batchDates, logger)
 
-        prParticipantBatches, prCommentBatches = prAnalysis(
+        prParticipantBatches, prCommentBatches, results_meta2, results_metrics2, results_meta3, results_metric3 = prAnalysis(
+            config,
+            senti,
+            delta,
+            batchDates,
+            logger,
+        )
+        pdf_results["PR Analysis"] = [results_meta2,results_metrics2]
+        pdf_results["PR Comment Analysis"] = [results_meta3,results_metric3]
+
+        issueParticipantBatches, issueCommentBatches, results_meta4, results_metrics4, results_meta5, results_metric5 = issueAnalysis(
             config,
             senti,
             delta,
@@ -190,17 +194,17 @@ def communitySmellsDetector(
             logger,
         )
 
-        issueParticipantBatches, issueCommentBatches = issueAnalysis(
-            config,
-            senti,
-            delta,
-            batchDates,
-            logger,
-        )
+        pdf_results["Issue Analysis"] = [results_meta4,results_metrics4]
+        pdf_results["Issue Comment Analysis"] = [results_meta5,results_metric5]
 
         politeness = politenessAnalysis(
             config, prCommentBatches, issueCommentBatches, logger
         )
+        pdf_results["Politeness Analysis"] = [politeness]
+
+        dev_res = []
+        meta_cent = []
+        metrics_cent = []
 
         for batchIdx, batchDate in enumerate(batchDates):
             # Get combined author lists
@@ -209,13 +213,15 @@ def communitySmellsDetector(
             )
 
             # Build combined network
-            centrality.buildGraphQlNetwork(
+            authors, meta, metric = centrality.buildGraphQlNetwork(
                 batchIdx,
                 combinedAuthorsInBatch,
                 "issuesAndPRsCentrality",
                 config,
                 logger,
             )
+            meta_cent.append(meta)
+            metrics_cent.append(metric)
 
             # Get combined unique authors for both PRs and issues
             uniqueAuthorsInPrBatch = set(
@@ -234,7 +240,7 @@ def communitySmellsDetector(
             batchCoreDevs = coreDevs[batchIdx]
 
             # Run dev analysis
-            devAnalysis(
+            meta_res = devAnalysis(
                 authorInfoDict,
                 batchIdx,
                 uniqueAuthorsInBatch,
@@ -242,15 +248,18 @@ def communitySmellsDetector(
                 config,
                 logger,
             )
+            dev_res.append(meta_res)
+
 
             # Run smell detection and collect results
             smell_results = smellDetection(config, batchIdx, logger)
+            pdf_results["IssuesAndPRsCentrality Analysis"] = [meta_cent[0],metrics_cent[0]]
+            pdf_results["Dev Analysis"] =  dev_res
             results = {
                 "batch_date": batchDate.strftime("%Y-%m-%d"),
                 "smell_results": list(smell_results),
                 "core_devs": list(batchCoreDevs),
-                "meta": results_meta,
-                "metrics": results_metrics,
+                "pdf_results":pdf_results,
             }
 
             df = pd.read_csv(
@@ -270,7 +279,7 @@ def communitySmellsDetector(
         if "repo" in locals():
             del repo
 
-    return results, df  # Return the collected results
+    return results
 
 
 def commitDate(tag):

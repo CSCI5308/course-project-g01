@@ -39,6 +39,7 @@ class Configuration:
         self.metricsPath = os.path.join(self.resultsPath, "metrics")
 
 
+
 def parseDevNetworkArgs(args: Sequence[str]):
 
     parser = argparse.ArgumentParser(
@@ -105,7 +106,7 @@ def parseDevNetworkArgs(args: Sequence[str]):
         0,
         args.pat,
         args.googleKey,
-        args.startDate,
+        args.startDate
     )
 
     return config

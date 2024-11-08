@@ -259,6 +259,7 @@ def commitBatchAnalysis(
         w.writerow(["TimezoneCount", len([*timezoneInfoDict])])
 
     result_meta = [
+        ["Metrics", "Value"],
         ["CommitCount", realCommitCount],
         ["DaysActive", daysActive],
         ["FirstCommitDate", "{:%Y-%m-%d}".format(firstCommitDate)],

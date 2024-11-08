@@ -18,6 +18,7 @@ from MLbackend.src.configuration import Configuration
 from MLbackend.src.perspectiveAnalysis import getToxicityPercentage
 
 
+
 def issueAnalysis(
     config: Configuration,
     senti: sentistrength.PySentiStr,
@@ -38,6 +39,10 @@ def issueAnalysis(
 
     batchParticipants = list()
     batchComments = list()
+    results_meta = []
+    results_metrics = []
+    results_meta1 = []
+    results_metrics1 = []
 
     for batchIdx, batch in enumerate(batches):
         logger.info(f"Analyzing issue batch #{batchIdx}")
@@ -147,7 +152,7 @@ def issueAnalysis(
 
         toxicityPercentage = getToxicityPercentage(config, allComments, logger)
 
-        centrality.buildGraphQlNetwork(batchIdx, participants, "Issues", config, logger)
+        author, meta, metrics_data = centrality.buildGraphQlNetwork(batchIdx, participants, "Issues", config, logger)
 
         logger.info("Writing GraphQL analysis results")
         with open(
@@ -162,6 +167,12 @@ def issueAnalysis(
             w.writerow(["IssueCommentsNegative", commentSentimentsNegative])
             w.writerow(["IssueCommentsNegativeRatio", generallyNegativeRatio])
             w.writerow(["IssueCommentsToxicityPercentage", toxicityPercentage])
+
+
+        meta1 = [["Metrics","Issue"],["NumberIssues", len(batch)],["NumberIssueComments", len(allComments)],
+                 ["IssueCommentsPositive", commentSentimentsPositive],["IssueCommentsNegative", commentSentimentsNegative],
+                 ["IssueCommentsNegativeRatio", generallyNegativeRatio],["IssueCommentsToxicityPercentage", toxicityPercentage]]
+
 
         with open(
             os.path.join(config.metricsPath, f"issueCommentsCount_{batchIdx}.csv"),
@@ -184,15 +195,23 @@ def issueAnalysis(
                 w.writerow([issue["number"], len(set(issue["participants"]))])
 
         # output statistics
-        stats.outputStatistics(
-            batchIdx, commentLengths, "IssueCommentsLength", config.resultsPath, logger
+        issue_len = stats.outputStatistics(
+            batchIdx,
+            commentLengths,
+            "IssueCommentsLength",
+            config.resultsPath,
+            logger,
         )
 
-        stats.outputStatistics(
-            batchIdx, durations, "IssueDuration", config.resultsPath, logger
+        issue_dur = stats.outputStatistics(
+            batchIdx,
+            durations,
+            "IssueDuration",
+            config.resultsPath,
+            logger,
         )
 
-        stats.outputStatistics(
+        issue_com = stats.outputStatistics(
             batchIdx,
             [len(issue["comments"]) for issue in batch],
             "IssueCommentsCount",
@@ -200,7 +219,7 @@ def issueAnalysis(
             logger,
         )
 
-        stats.outputStatistics(
+        sent = stats.outputStatistics(
             batchIdx,
             commentSentiments,
             "IssueCommentSentiments",
@@ -208,7 +227,7 @@ def issueAnalysis(
             logger,
         )
 
-        stats.outputStatistics(
+        part = stats.outputStatistics(
             batchIdx,
             [len(set(issue["participants"])) for issue in batch],
             "IssueParticipantCount",
@@ -216,7 +235,7 @@ def issueAnalysis(
             logger,
         )
 
-        stats.outputStatistics(
+        pos = stats.outputStatistics(
             batchIdx,
             issuePositiveComments,
             "IssueCountPositiveComments",
@@ -224,15 +243,23 @@ def issueAnalysis(
             logger,
         )
 
-        stats.outputStatistics(
+        neg = stats.outputStatistics(
             batchIdx,
             issueNegativeComments,
             "IssueCountNegativeComments",
             config.resultsPath,
             logger,
         )
+        metrics_data1 = [("Metric", "Count", "Mean", "Stdev")]
+        metrics_data1.extend([issue_len,issue_dur,
+                              issue_com,sent,part,pos,neg])
+        results_meta.append(meta)
+        results_meta1.append(meta1)
+        results_metrics.append(metrics_data)
+        results_metrics1.append(metrics_data1)
+        
 
-    return batchParticipants, batchComments
+    return batchParticipants, batchComments, results_meta[0], results_metrics[0], results_meta1[0], results_metrics1[0]
 
 
 def analyzeSentiments(
