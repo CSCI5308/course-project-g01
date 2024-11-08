@@ -1,18 +1,18 @@
 import os
 import traceback
-from datetime import datetime
 from pathlib import Path
 
-from config import LOGGER
 from flask import Flask, jsonify, render_template, request, send_file
 from flask_mail import Mail, Message
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
-from src.devNetwork import communitySmellsDetector
-from validations import (InvalidInputError, validate_email, validate_pat,
-                         validate_url)
+
+from MLbackend.config import LOGGER
+from MLbackend.src.devNetwork import communitySmellsDetector
+from MLbackend.validations import (InvalidInputError, validate_email,
+                                   validate_pat, validate_url)
 
 app = Flask(
     __name__,
@@ -104,7 +104,7 @@ def generate_pdf1(
     document.build(content)
 
 
-output_path: Path = Path(".", "src", "results")
+output_path: Path = Path(".", "MLbackend", "src", "results")
 
 
 @app.route("/api/v1/smells", methods=["POST"])
@@ -113,8 +113,8 @@ def detect_smells():
     email = request.form["email"]
     pat = request.form["access-token"]
 
-    senti_strength_path: Path = Path(".", "data")
-    output_path: Path = Path(".", "src", "results")
+    senti_strength_path: Path = Path(".", "MLbackend", "data")
+    output_path: Path = Path(".", "MLbackend", "src", "results")
     global result
 
     try:
@@ -153,7 +153,7 @@ def generate_pdf():
         metrics_results = result["metrics"]
         meta_results = result["meta"]
         smell_abbreviations = result["smell_results"][1:]
-        PDF_FILE_PATH = os.path.join(output_path, "smell_report.pdf")
+        PDF_FILE_PATH = os.path.join(output_path, "..", "smell_report.pdf")
         smells = {
             "OSE": "Organizational Silo Effect: Isolated subgroups lead to poor communication, wasted resources, and duplicated code.",
             "BCE": "Black-cloud Effect: Information overload due to limited collaboration and a lack of experts, causing knowledge gaps.",
@@ -204,7 +204,7 @@ def send_email(email):
         recipients=[email],
     )
     msg.body = "Hey, PFA smells report"
-    with app.open_resource(PDF_FILE_PATH) as fp:
+    with app.open_resource(os.path.join("..", output_path, "smell_report.pdf")) as fp:
         msg.attach("smell_report.pdf", "application/pdf", fp.read())
     mail.send(msg)
 
