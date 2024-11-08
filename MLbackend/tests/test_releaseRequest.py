@@ -1,9 +1,10 @@
 import unittest
-from unittest.mock import patch, MagicMock
-from src.graphqlAnalysis.releaseAnalysis import releaseRequest
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 from dateutil.relativedelta import relativedelta
+from src.graphqlAnalysis.releaseAnalysis import releaseRequest
 
 
 class TestReleaseRequest(unittest.TestCase):

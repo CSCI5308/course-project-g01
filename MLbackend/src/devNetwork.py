@@ -1,30 +1,31 @@
 import os
 import shutil
 import stat
-import sentistrength
-from pathlib import Path
-from typing import Optional, List, Any
-from logging import Logger
-from datetime import datetime
-import pandas as pd
 import traceback
-from src.configuration import Configuration
-from src.repoLoader import getRepo
-from src.aliasWorker import replaceAliases
-from src.commitAnalysis import commitAnalysis
+from datetime import datetime
+from logging import Logger
+from pathlib import Path
+from typing import Any, List, Optional
+
+import pandas as pd
+import sentistrength
 import src.centralityAnalysis as centrality
-from src.tagAnalysis import tagAnalysis
-from src.devAnalysis import devAnalysis
-from src.graphqlAnalysis.releaseAnalysis import releaseAnalysis
-from src.graphqlAnalysis.prAnalysis import prAnalysis
-from src.graphqlAnalysis.issueAnalysis import issueAnalysis
-from src.smellDetection import smellDetection
-from src.politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
+from src.aliasWorker import replaceAliases
+from src.commitAnalysis import commitAnalysis
+from src.configuration import Configuration
+from src.devAnalysis import devAnalysis
+from src.graphqlAnalysis.issueAnalysis import issueAnalysis
+from src.graphqlAnalysis.prAnalysis import prAnalysis
+from src.graphqlAnalysis.releaseAnalysis import releaseAnalysis
+from src.politenessAnalysis import politenessAnalysis
+from src.repoLoader import getRepo
+from src.smellDetection import smellDetection
+from src.tagAnalysis import tagAnalysis
 
 smells = {
     "OSE": "Organizational Silo Effect: Isolated subgroups lead to poor communication, wasted resources, and duplicated code.",

@@ -1,13 +1,14 @@
-import os
-import git
 import csv
 import datetime
+import os
 from logging import Logger
-from progress.bar import Bar
-from src.statsAnalysis import outputStatistics
 from typing import List
+
+import git
 from dateutil.relativedelta import relativedelta
+from progress.bar import Bar
 from src.configuration import Configuration
+from src.statsAnalysis import outputStatistics
 
 
 def tagAnalysis(

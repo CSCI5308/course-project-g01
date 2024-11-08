@@ -1,11 +1,11 @@
-from datetime import datetime
 import json
-import time
-import requests
 import math
-
+import time
+from datetime import datetime
 from logging import Logger
 from typing import List
+
+import requests
 from src.configuration import Configuration
 
 

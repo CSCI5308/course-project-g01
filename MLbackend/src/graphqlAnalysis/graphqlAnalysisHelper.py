@@ -1,7 +1,8 @@
-import requests
 import random
 import time
 from logging import Logger
+
+import requests
 
 
 def buildNextPageQuery(cursor: str):
@@ -36,12 +37,12 @@ def runGraphqlRequest(pat: str, query: str, logger: Logger):
 def addLogin(node, authors: list):
     login = extractAuthorLogin(node)
 
-    if not login is None:
+    if login is not None:
         authors.append(login)
 
 
 def extractAuthorLogin(node):
-    if node is None or not "login" in node or node["login"] is None:
+    if node is None or "login" not in node or node["login"] is None:
         return None
 
     return node["login"]

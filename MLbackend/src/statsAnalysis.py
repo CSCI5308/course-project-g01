@@ -1,8 +1,8 @@
-from statistics import mean, stdev, StatisticsError
-from logging import Logger
+import csv
 import os
 import sys
-import csv
+from logging import Logger
+from statistics import StatisticsError, mean, stdev
 
 
 def outputStatistics(idx: int, data: list, metric: str, outputDir: str, logger: Logger):
@@ -14,15 +14,18 @@ def outputStatistics(idx: int, data: list, metric: str, outputDir: str, logger: 
     # calculate and output
     stats = calculateStats(data, logger)
 
-
     # output
     with open(os.path.join(outputDir, f"results_{idx}.csv"), "a", newline="") as f:
         w = csv.writer(f, delimiter=",")
 
         for key in stats:
             outputValue(w, metric, key, stats)
-    return metric, stats["count"], f"{stats['mean']:.4f}", f"{stats['stdev']:.4f}" if stats['stdev'] else "N/A"
-
+    return (
+        metric,
+        stats["count"],
+        f"{stats['mean']:.4f}",
+        f"{stats['stdev']:.4f}" if stats["stdev"] else "N/A",
+    )
 
 
 def calculateStats(data, logger: Logger):

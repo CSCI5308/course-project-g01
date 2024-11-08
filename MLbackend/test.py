@@ -1,27 +1,28 @@
+import argparse
 import os
 import shutil
 import stat
-import sentistrength
-import argparse
-from pathlib import Path
-from typing import Optional, List, Any
-from datetime import datetime
-import pandas as pd
 import sys
 import traceback
-from src.configuration import Configuration, parseDevNetworkArgs
-from src.repoLoader import getRepo
+from datetime import datetime
+from pathlib import Path
+from typing import Any, List, Optional
+
+import pandas as pd
+import sentistrength
+import src.centralityAnalysis as centrality
+from dateutil.relativedelta import relativedelta
 from src.aliasWorker import replaceAliases
 from src.commitAnalysis import commitAnalysis
-import src.centralityAnalysis as centrality
-from src.tagAnalysis import tagAnalysis
+from src.configuration import Configuration, parseDevNetworkArgs
 from src.devAnalysis import devAnalysis
-from src.graphqlAnalysis.releaseAnalysis import releaseAnalysis
-from src.graphqlAnalysis.prAnalysis import prAnalysis
 from src.graphqlAnalysis.issueAnalysis import issueAnalysis
-from src.smellDetection import smellDetection
+from src.graphqlAnalysis.prAnalysis import prAnalysis
+from src.graphqlAnalysis.releaseAnalysis import releaseAnalysis
 from src.politenessAnalysis import politenessAnalysis
-from dateutil.relativedelta import relativedelta
+from src.repoLoader import getRepo
+from src.smellDetection import smellDetection
+from src.tagAnalysis import tagAnalysis
 
 
 def communitySmellsDetector(config) -> dict:  # Specify the return type

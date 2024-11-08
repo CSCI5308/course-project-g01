@@ -1,9 +1,10 @@
 import unittest
-from typing import List
-from unittest.mock import patch, MagicMock
-from src.graphqlAnalysis.prAnalysis import prRequest
 from datetime import datetime, timezone
+from typing import List
+from unittest.mock import MagicMock, patch
+
 from dateutil.relativedelta import relativedelta
+from src.graphqlAnalysis.prAnalysis import prRequest
 
 
 class TestPRRequest(unittest.TestCase):

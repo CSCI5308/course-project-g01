@@ -1,10 +1,10 @@
 import csv
-from joblib import load
 import os
 import warnings
+from logging import Logger
 from typing import List
 
-from logging import Logger
+from joblib import load
 from src.configuration import Configuration
 
 warnings.filterwarnings("ignore")

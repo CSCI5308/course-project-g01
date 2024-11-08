@@ -1,17 +1,18 @@
-from datetime import datetime
-from flask import Flask, render_template, request, jsonify, send_file
-from pathlib import Path
-from src.devNetwork import communitySmellsDetector
-from reportlab.lib.pagesizes import letter
-from flask_mail import Mail, Message
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib import colors
 import os
-from config import LOGGER
-from validations import validate_url, validate_email, validate_pat,InvalidInputError
 import traceback
+from datetime import datetime
+from pathlib import Path
 
+from config import LOGGER
+from flask import Flask, jsonify, render_template, request, send_file
+from flask_mail import Mail, Message
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
+from src.devNetwork import communitySmellsDetector
+from validations import (InvalidInputError, validate_email, validate_pat,
+                         validate_url)
 
 app = Flask(
     __name__,
@@ -120,13 +121,21 @@ def detect_smells():
         validate_url(url)
         validate_email(email)
         validate_pat(pat)
-        result,df = communitySmellsDetector(
+        result, df = communitySmellsDetector(
             pat, url, senti_strength_path, output_path, LOGGER
         )
         if not result:
             LOGGER.warning("No community smells detected.")
-            return jsonify({"status": "error", "message": "No data found, Please try again later"}), 404
-        
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "No data found, Please try again later",
+                    }
+                ),
+                404,
+            )
+
         send_email(email=email)
         return render_template("results.html", data=result)
     except InvalidInputError as e:

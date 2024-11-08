@@ -1,7 +1,7 @@
-import os
 import csv
-
+import os
 from logging import Logger
+
 from src.configuration import Configuration
 
 

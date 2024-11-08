@@ -1,9 +1,10 @@
 import unittest
+from datetime import datetime, timedelta, timezone
 from typing import List
-from unittest.mock import patch, MagicMock
-from src.graphqlAnalysis.issueAnalysis import issueRequest
-from datetime import datetime, timezone, timedelta
+from unittest.mock import MagicMock, patch
+
 from dateutil.relativedelta import relativedelta
+from src.graphqlAnalysis.issueAnalysis import issueRequest
 
 
 class TestIssueRequest(unittest.TestCase):

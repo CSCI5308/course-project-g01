@@ -1,18 +1,19 @@
-import os
 import csv
 import math
+import os
 import sys
-import src.statsAnalysis as stats
-import sentistrength
-import src.graphqlAnalysis.graphqlAnalysisHelper as gql
-import src.centralityAnalysis as centrality
-from logging import Logger
-from dateutil.relativedelta import relativedelta
-from dateutil.parser import isoparse
-from typing import List, Any, Dict, Optional
-from datetime import datetime
-from src.configuration import Configuration
 import threading
+from datetime import datetime
+from logging import Logger
+from typing import Any, Dict, List, Optional
+
+import sentistrength
+import src.centralityAnalysis as centrality
+import src.graphqlAnalysis.graphqlAnalysisHelper as gql
+import src.statsAnalysis as stats
+from dateutil.parser import isoparse
+from dateutil.relativedelta import relativedelta
+from src.configuration import Configuration
 from src.perspectiveAnalysis import getToxicityPercentage
 
 

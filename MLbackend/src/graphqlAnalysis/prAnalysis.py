@@ -1,20 +1,20 @@
+import csv
 import math
 import os
-import csv
 import sys
-from logging import Logger
-from src.perspectiveAnalysis import getToxicityPercentage
-import src.statsAnalysis as stats
-import sentistrength
-import src.graphqlAnalysis.graphqlAnalysisHelper as gql
-import src.centralityAnalysis as centrality
-from dateutil.relativedelta import relativedelta
-from dateutil.parser import isoparse
-from typing import List, Dict, Any, Optional
-from datetime import datetime, timezone
-from src.configuration import Configuration
 import threading
-from typing import List, Tuple
+from datetime import datetime, timezone
+from logging import Logger
+from typing import Any, Dict, List, Optional, Tuple
+
+import sentistrength
+import src.centralityAnalysis as centrality
+import src.graphqlAnalysis.graphqlAnalysisHelper as gql
+import src.statsAnalysis as stats
+from dateutil.parser import isoparse
+from dateutil.relativedelta import relativedelta
+from src.configuration import Configuration
+from src.perspectiveAnalysis import getToxicityPercentage
 
 
 def prAnalysis(
@@ -346,12 +346,6 @@ def prRequest(
             query = buildPrRequestQuery(owner=owner, name=name, cursor=cursor)
 
     return list(batches_pre.values())
-
-
-
-
-
-
 
 
 def buildPrRequestQuery(owner: str, name: str, cursor: str):

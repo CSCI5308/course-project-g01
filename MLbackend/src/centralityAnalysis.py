@@ -1,18 +1,17 @@
-import os
-import networkx as nx
 import csv
-
-from logging import Logger
-from git.objects import Commit
-from typing import List, Dict, Any
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-from networkx.algorithms.community import greedy_modularity_communities
-from progress.bar import Bar
+import os
 from collections import Counter
-from src.utils import authorIdExtractor
-from src.statsAnalysis import outputStatistics
-from src.configuration import Configuration
+from datetime import datetime
+from logging import Logger
+from typing import Any, Dict, List
+
+import networkx as nx
+from dateutil.relativedelta import relativedelta
+from git.objects import Commit
+from MLBackend.src.configuration import Configuration
+from MLBackend.src.statsAnalysis import outputStatistics
+from MLBackend.src.utils import authorIdExtractor
+from networkx.algorithms.community import greedy_modularity_communities
 
 
 def centralityAnalysis(

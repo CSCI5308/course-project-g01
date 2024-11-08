@@ -1,11 +1,11 @@
 import os
+from logging import Logger
+from typing import Generator, List
+
 import git
 import yaml
-from logging import Logger
-
-from typing import List, Generator
-from src.utils import authorIdExtractor
 from src.configuration import Configuration
+from src.utils import authorIdExtractor
 
 
 def replaceAliases(

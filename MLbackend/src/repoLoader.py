@@ -1,7 +1,7 @@
 import os
-import git
 from logging import Logger
 
+import git
 from src.configuration import Configuration
 from src.utils.progress import Progress
 

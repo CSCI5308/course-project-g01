@@ -1,18 +1,18 @@
-import git
 import csv
 import os
-from logging import Logger
-
-from dateutil.relativedelta import relativedelta
-from typing import List, Tuple, Dict, Any
-from progress.bar import Bar
 from datetime import datetime
-from src.utils import authorIdExtractor
-from src.statsAnalysis import outputStatistics
-from sentistrength import PySentiStr
-from git.objects.commit import Commit
-from src.configuration import Configuration
+from logging import Logger
+from typing import Any, Dict, List, Tuple
+
+import git
 import pytz
+from dateutil.relativedelta import relativedelta
+from git.objects.commit import Commit
+from progress.bar import Bar
+from sentistrength import PySentiStr
+from src.configuration import Configuration
+from src.statsAnalysis import outputStatistics
+from src.utils import authorIdExtractor
 
 
 def commitAnalysis(

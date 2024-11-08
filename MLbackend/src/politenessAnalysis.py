@@ -1,8 +1,8 @@
-import os
 import csv
-import convokit
-
+import os
 from logging import Logger
+
+import convokit
 import src.statsAnalysis as stats
 from src.configuration import Configuration
 

@@ -1,13 +1,14 @@
-import os
 import csv
-import src.graphqlAnalysis.graphqlAnalysisHelper as gql
-import git
-import src.statsAnalysis as stats
+import os
+from datetime import datetime
 from logging import Logger
 from typing import List
-from dateutil.relativedelta import relativedelta
+
+import git
+import src.graphqlAnalysis.graphqlAnalysisHelper as gql
+import src.statsAnalysis as stats
 from dateutil.parser import isoparse
-from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from src.configuration import Configuration
 
 
