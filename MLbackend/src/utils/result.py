@@ -238,6 +238,14 @@ class Result:
     def addPercentageSponsoredAuthor(
         self, batch_idx: int, percentage_sponsored_author: float
     ) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and percentage_sponsored_author of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
+
         self._percentage_sponsored_authors.insert(
             batch_idx, percentage_sponsored_author
         )
