@@ -90,20 +90,18 @@ def test_addCommitCountFailsDueToLessBatchSize(
     commit_counts: List[Any],
 ) -> None:
 
-    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and commit counts of {len(commit_counts)}"
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and commit counts of {len(batch_dates) + 1}"
     result_instance.addBatchDates(batch_dates)
-    idx: int = 0
-    for idx in range(len(commit_counts) - 1):
-        result_instance.addCommitCount(batch_idx=idx, commit_count=commit_counts[idx])
 
     with pytest.raises(ValueError):
-        result_instance.addCommitCount(batch_idx=idx, commit_count=commit_counts[-1])
+        for idx, commit_count in enumerate(commit_counts):
+            result_instance.addCommitCount(batch_idx=idx, commit_count=commit_count)
 
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
     )
     result_instance.logger.error.assert_called_once_with(
-        f"Mismatch between batch size of {len(batch_dates)} and commit counts of {len(commit_counts)}"
+        f"Mismatch between batch size of {len(batch_dates)} and commit counts of {len(batch_dates) + 1}"
     )
 
     return None
