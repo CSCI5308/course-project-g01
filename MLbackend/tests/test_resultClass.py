@@ -369,7 +369,7 @@ def test_addFirstCommitDateFailsDueToLessBatchSize(
     first_commit_dates: List[datetime],
 ) -> None:
 
-    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and days active count of {len(batch_dates) + 1}"
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and first commit dates batch count of {len(batch_dates) + 1}"
     result_instance.logger.info.return_value = "All values of Result are being reset"
     result_instance.addBatchDates(batch_dates)
 
@@ -383,7 +383,7 @@ def test_addFirstCommitDateFailsDueToLessBatchSize(
         "All values of Result are being reset"
     )
     result_instance.logger.error.assert_called_once_with(
-        f"Mismatch between batch size of {len(batch_dates)} and days active count of {len(batch_dates) + 1}"
+        f"Mismatch between batch size of {len(batch_dates)} and first commit dates batch count of {len(batch_dates) + 1}"
     )
 
     return None
