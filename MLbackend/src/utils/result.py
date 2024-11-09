@@ -96,5 +96,11 @@ class Result:
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
             )
+        elif not isinstance(days_active, int):
+            self.logger.error("Incorrect value type for days active")
+            raise ValueError(
+                f"Incorrect value {days_active} was passed for days active. It is of type {type(days_active)}. It should be an integer"
+            )
+
         self._days_active.insert(batch_idx, days_active)
         return None
