@@ -10,6 +10,7 @@ class Result:
         self._batch_dates: List[datetime] = []
         self._commit_count: List[int] = []
         self._core_devs: List[str] = []
+        self._days_active: List[int] = []
         self.logger: Logger = logger
 
         return None
@@ -22,6 +23,16 @@ class Result:
     def commit_count(self, commit_counts: List[int]) -> None:
         raise AttributeError(
             "Direct assignment to 'commit_count' is not allowed. Use method addCommitCount to modify this property based on the requirement."
+        )
+
+    @property
+    def days_active(self) -> List[int]:
+        return self._days_active
+
+    @days_active.setter
+    def days_active(self, days_active_count: List[int]) -> None:
+        raise AttributeError(
+            "Direct assignment to 'days_active' is not allowed. Use method addDaysActive to modify this property based on the requirement."
         )
 
     @property
@@ -75,4 +86,8 @@ class Result:
             )
 
         self._core_devs.append(core_dev)
+        return None
+
+    def addDaysActive(self, batch_idx: int, days_active: List[int]) -> None:
+        self._days_active.insert(batch_idx, days_active)
         return None
