@@ -277,3 +277,67 @@ def test_addDaysActiveFailsDueToIncorrectDaysActiveValueType(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, first_commit_dates, expected_first_commit_dates",
+    [
+        (
+            [datetime.now()],
+            [
+                datetime.now() - relativedelta(days=10),
+            ],
+            [
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=10)),
+            ],
+        ),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5)],
+            [
+                datetime.now() - relativedelta(days=10),
+                datetime.now() - relativedelta(days=15),
+            ],
+            [
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=10)),
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=15)),
+            ],
+        ),
+        (
+            [
+                datetime.now(),
+                datetime.now() - relativedelta(days=5),
+                datetime.now() - relativedelta(days=10),
+            ],
+            [
+                datetime.now() - relativedelta(days=10),
+                datetime.now() - relativedelta(days=15),
+                datetime.now() - relativedelta(days=25),
+            ],
+            [
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=10)),
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=15)),
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=25)),
+            ],
+        ),
+    ],
+)
+def test_addFirstCommitDateCorrect(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    first_commit_dates: List[int],
+    expected_first_commit_dates: List[int],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, first_commit_date in enumerate(first_commit_dates):
+        result_instance.addFirstCommitDate(
+            batch_idx=idx, first_commit_date=first_commit_date
+        )
+
+    assert result_instance.first_commit_dates, expected_first_commit_dates
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
