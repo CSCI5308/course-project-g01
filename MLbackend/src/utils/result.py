@@ -34,13 +34,17 @@ class Result:
         )
 
     def addCommitCount(self, batch_idx: int, commit_count: int) -> None:
-        print(batch_idx, end=", ")
         if batch_idx >= len(self._batch_dates):
             self.logger.error(
                 f"Mismatch between batch size of {len(self._batch_dates)} and commit counts of {batch_idx + 1}"
             )
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
+        elif not isinstance(commit_count, int):
+            self.logger.error("Incorrect value type for commit count")
+            raise ValueError(
+                f"Incorrect value {commit_count} was passed for commit count. It is of type {type(commit_count)}. It should be an integer"
             )
         self._commit_count.insert(batch_idx, commit_count)
         return None
