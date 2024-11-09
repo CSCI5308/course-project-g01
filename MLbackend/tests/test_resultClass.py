@@ -435,3 +435,67 @@ def test_addFirstCommitDateFailsDueToIncorrectDaysActiveValueType(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, last_commit_dates, expected_last_commit_dates",
+    [
+        (
+            [datetime.now()],
+            [
+                datetime.now() - relativedelta(days=10),
+            ],
+            [
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=10)),
+            ],
+        ),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5)],
+            [
+                datetime.now() - relativedelta(days=10),
+                datetime.now() - relativedelta(days=15),
+            ],
+            [
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=10)),
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=15)),
+            ],
+        ),
+        (
+            [
+                datetime.now(),
+                datetime.now() - relativedelta(days=5),
+                datetime.now() - relativedelta(days=10),
+            ],
+            [
+                datetime.now() - relativedelta(days=10),
+                datetime.now() - relativedelta(days=15),
+                datetime.now() - relativedelta(days=25),
+            ],
+            [
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=10)),
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=15)),
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=25)),
+            ],
+        ),
+    ],
+)
+def test_addLastCommitDateCorrect(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    last_commit_dates: List[int],
+    expected_last_commit_dates: List[str],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, last_commit_date in enumerate(last_commit_dates):
+        result_instance.addLastCommitDate(
+            batch_idx=idx, last_commit_date=last_commit_date
+        )
+
+    assert result_instance.last_commit_dates == expected_last_commit_dates
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
