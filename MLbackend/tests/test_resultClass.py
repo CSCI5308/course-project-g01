@@ -545,3 +545,51 @@ def test_addLastCommitDateFailsDueToLessBatchSize(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, last_commit_dates",
+    [
+        (
+            [datetime.now(), datetime.now()],
+            [
+                datetime.now() - relativedelta(days=10),
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=15)),
+            ],
+        ),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5), datetime.now()],
+            [
+                datetime.now() - relativedelta(days=10),
+                "{:%Y-%m-%d}".format(datetime.now() - relativedelta(days=15)),
+                datetime.now() - relativedelta(days=18),
+            ],
+        ),
+    ],
+)
+def test_addLastCommitDateFailsDueToIncorrectDaysActiveValueType(
+    result_instance,
+    batch_dates: List[datetime],
+    last_commit_dates: List[datetime],
+) -> None:
+
+    result_instance.logger.error.return_value = (
+        "Incorrect value type for last commit date"
+    )
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, last_commit_date in enumerate(last_commit_dates):
+            result_instance.addLastCommitDate(
+                batch_idx=idx, last_commit_date=last_commit_date
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        "Incorrect value type for last commit date"
+    )
+
+    return None
