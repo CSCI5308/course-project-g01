@@ -42,7 +42,6 @@ def result_instance(logger_instance: Logger) -> Result:
 )
 def test_addCommitCountCorrect(
     result_instance,
-    logger_instance,
     batch_dates: List[datetime],
     commit_counts: List[int],
     expected_commit_count: List[int],
@@ -67,7 +66,6 @@ def test_addCommitCountCorrect(
 )
 def test_addCommitCountFailsDueToLessBatchSize(
     result_instance,
-    logger_instance,
     batch_dates: List[datetime],
     commit_counts: List[Any],
 ) -> None:
@@ -99,7 +97,6 @@ def test_addCommitCountFailsDueToLessBatchSize(
 )
 def test_addCommitCountFailsDueToIncorrectCommitValueType(
     result_instance,
-    logger_instance,
     batch_dates: List[datetime],
     commit_counts: List[Any],
 ) -> None:
@@ -132,7 +129,6 @@ def test_addCommitCountFailsDueToIncorrectCommitValueType(
 )
 def test_addCoreDevCorrect(
     result_instance,
-    logger_instance,
     core_devs: List[str],
     expected_core_devs: List[str],
 ) -> None:
@@ -147,6 +143,38 @@ def test_addCoreDevCorrect(
     assert result_instance.core_devs, expected_core_devs
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
+    )
+
+    return None
+
+
+@pytest.mark.parametrize(
+    "core_devs",
+    [
+        (["CoreDev1", 563],),
+        (["CoreDev1", 255, "CoreDev3"],),
+        ([635],),
+    ],
+)
+def test_addCoreDevIncorrectValueError(
+    result_instance,
+    core_devs: List[str],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.logger.error.return_value = "Incorrect value type for core devs"
+    batch_dates: List[datetime] = [datetime.now()]
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for core_dev in core_devs:
+            result_instance.addCoreDev(core_dev)
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        "Incorrect value type for core devs"
     )
 
     return None
