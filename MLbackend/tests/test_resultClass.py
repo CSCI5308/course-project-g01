@@ -692,3 +692,45 @@ def test_addAuthorCountFailsDueToIncorrectAuthorValueType(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, sponsored_author_counts, expected_sponsored_author_count",
+    [
+        (
+            [datetime.now()],
+            [
+                5,
+            ],
+            [
+                5,
+            ],
+        ),
+        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, 10], [5, 10]),
+        (
+            [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
+            [5, 10, 15],
+            [5, 10, 15],
+        ),
+    ],
+)
+def test_addSponsoredAuthorCountCorrect(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    sponsored_author_counts: List[int],
+    expected_sponsored_author_count: List[int],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, sponsored_author_count in enumerate(sponsored_author_counts):
+        result_instance.addSponsoredAuthorCount(
+            batch_idx=idx, sponsored_author_count=sponsored_author_count
+        )
+
+    assert result_instance.sponsored_author_count == expected_sponsored_author_count
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
