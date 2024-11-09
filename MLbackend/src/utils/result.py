@@ -16,6 +16,7 @@ class Result:
         self._first_commit_dates: List[str] = []
         self._last_commit_dates: List[str] = []
         self._author_counts: List[int] = []
+        self._sponsored_author_counts: List[int] = []
         self.logger: Logger = logger
 
         return None
@@ -38,6 +39,16 @@ class Result:
     def author_count(self, author_counts: List[int]) -> None:
         raise AttributeError(
             "Direct assignment to 'author_count' is not allowed. Use method addAuthorCount to modify this property based on the requirement."
+        )
+
+    @property
+    def sponsored_author_count(self) -> List[int]:
+        return self._sponsored_author_counts
+
+    @sponsored_author_count.setter
+    def sponsored_author_count(self, sponsored_author_counts: List[int]) -> None:
+        raise AttributeError(
+            "Direct assignment to 'sponsored_author_count' is not allowed. Use method addSponsoredAuthorCount to modify this property based on the requirement."
         )
 
     @property
@@ -190,4 +201,10 @@ class Result:
                 f"Incorrect value {author_count} was passed for author count. It is of type {type(author_count)}. It should be an integer"
             )
         self._author_counts.insert(batch_idx, author_count)
+        return None
+
+    def addSponsoredAuthorCount(
+        self, batch_idx: int, sponsored_author_count: int
+    ) -> None:
+        self._sponsored_author_counts.insert(batch_idx, sponsored_author_count)
         return None
