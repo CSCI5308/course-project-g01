@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List
+from unittest.mock import patch
 
 import pytest
 from dateutil.relativedelta import relativedelta
@@ -27,15 +28,19 @@ from MLbackend.src.utils.result import Result
         ),
     ],
 )
+@patch("logging.Logger")
 def test_addCommitCountCorrect(
+    mock_logger,
     batch_dates: List[datetime],
     commit_counts: List[int],
     expected_commit_count: List[int],
 ) -> None:
 
-    result = Result()
+    mock_logger.info.return_value = "All values of Result are being reset"
+    result = Result(logger=mock_logger)
     result.addBatchDates(batch_dates)
     for idx, commit_count in enumerate(commit_counts):
         result.addCommitCount(batch_idx=idx, commit_count=commit_count)
+    mock_logger.info.assert_called_once_with("All values of Result are being reset")
 
     assert result.commit_count, expected_commit_count
