@@ -41,7 +41,7 @@ def result_instance(logger_instance: Logger) -> Result:
     ],
 )
 def test_addCommitCountCorrect(
-    result_instance,
+    result_instance: Result,
     batch_dates: List[datetime],
     commit_counts: List[int],
     expected_commit_count: List[int],
@@ -65,7 +65,7 @@ def test_addCommitCountCorrect(
     [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
 )
 def test_addCommitCountFailsDueToLessBatchSize(
-    result_instance,
+    result_instance: Result,
     batch_dates: List[datetime],
     commit_counts: List[Any],
 ) -> None:
@@ -96,7 +96,7 @@ def test_addCommitCountFailsDueToLessBatchSize(
     ],
 )
 def test_addCommitCountFailsDueToIncorrectCommitValueType(
-    result_instance,
+    result_instance: Result,
     batch_dates: List[datetime],
     commit_counts: List[Any],
 ) -> None:
@@ -128,7 +128,7 @@ def test_addCommitCountFailsDueToIncorrectCommitValueType(
     ],
 )
 def test_addCoreDevCorrect(
-    result_instance,
+    result_instance: Result,
     core_devs: List[str],
     expected_core_devs: List[str],
 ) -> None:
@@ -157,7 +157,7 @@ def test_addCoreDevCorrect(
     ],
 )
 def test_addCoreDevIncorrectValueError(
-    result_instance,
+    result_instance: Result,
     core_devs: List[str],
 ) -> None:
 
@@ -201,7 +201,7 @@ def test_addCoreDevIncorrectValueError(
     ],
 )
 def test_addDaysActiveCorrect(
-    result_instance,
+    result_instance: Result,
     batch_dates: List[datetime],
     days_active: List[int],
     expected_days_active: List[int],
@@ -215,6 +215,34 @@ def test_addDaysActiveCorrect(
     assert result_instance.days_active, expected_days_active
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
+    )
+
+    return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, days_active",
+    [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
+)
+def test_addDaysActiveFailsDueToLessBatchSize(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    days_active: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and days active count of {len(batch_dates) + 1}"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, days_active in enumerate(days_active):
+            result_instance.addDaysActive(batch_idx=idx, days_active=days_active)
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        f"Mismatch between batch size of {len(batch_dates)} and days active count of {len(batch_dates) + 1}"
     )
 
     return None
