@@ -341,3 +341,49 @@ def test_addFirstCommitDateCorrect(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, first_commit_dates",
+    [
+        (
+            [datetime.now()],
+            [
+                datetime.now() - relativedelta(days=10),
+                datetime.now() - relativedelta(days=15),
+            ],
+        ),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5)],
+            [
+                datetime.now() - relativedelta(days=10),
+                datetime.now() - relativedelta(days=15),
+                datetime.now() - relativedelta(days=18),
+            ],
+        ),
+    ],
+)
+def test_addFirstCommitDateFailsDueToLessBatchSize(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    first_commit_dates: List[datetime],
+) -> None:
+
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and days active count of {len(batch_dates) + 1}"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, first_commit_date in enumerate(first_commit_dates):
+            result_instance.addFirstCommitDate(
+                batch_idx=idx, first_commit_date=first_commit_date
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        f"Mismatch between batch size of {len(batch_dates)} and days active count of {len(batch_dates) + 1}"
+    )
+
+    return None
