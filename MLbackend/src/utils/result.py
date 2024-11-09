@@ -17,6 +17,7 @@ class Result:
         self._last_commit_dates: List[str] = []
         self._author_counts: List[int] = []
         self._sponsored_author_counts: List[int] = []
+        self._percentage_sponsored_authors: List[int] = []
         self.logger: Logger = logger
 
         return None
@@ -49,6 +50,18 @@ class Result:
     def sponsored_author_count(self, sponsored_author_counts: List[int]) -> None:
         raise AttributeError(
             "Direct assignment to 'sponsored_author_count' is not allowed. Use method addSponsoredAuthorCount to modify this property based on the requirement."
+        )
+
+    @property
+    def percentage_sponsored_author(self) -> List[int]:
+        return self._percentage_sponsored_authors
+
+    @percentage_sponsored_author.setter
+    def percentage_sponsored_author(
+        self, percentage_sponsored_authors: List[int]
+    ) -> None:
+        raise AttributeError(
+            "Direct assignment to 'percentage_sponsored_author' is not allowed. Use method addPercentageSponsoredAuthor to modify this property based on the requirement."
         )
 
     @property
@@ -220,4 +233,12 @@ class Result:
             )
 
         self._sponsored_author_counts.insert(batch_idx, sponsored_author_count)
+        return None
+
+    def addPercentageSponsoredAuthor(
+        self, batch_idx: int, percentage_sponsored_author: float
+    ) -> None:
+        self._percentage_sponsored_authors.insert(
+            batch_idx, percentage_sponsored_author
+        )
         return None
