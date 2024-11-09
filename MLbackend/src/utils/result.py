@@ -1,13 +1,15 @@
 from datetime import datetime
+from logging import Logger
 from typing import List
 
 
 class Result:
 
-    def __init__(self) -> None:
+    def __init__(self, logger: Logger) -> None:
 
         self._batch_dates: List[datetime] = []
         self._commit_count: List[int] = []
+        self.logger: Logger = logger
 
         return None
 
@@ -32,11 +34,11 @@ class Result:
         )
 
     def addCommitCount(self, batch_idx: int, commit_count: int) -> None:
-
         self._commit_count.insert(batch_idx, commit_count)
         return None
 
     def addBatchDates(self, batch_dates: List[datetime]) -> None:
         self._batch_dates = batch_dates
+        self.logger.info("All values of Result are being reset")
         self._commit_count = []
         return None
