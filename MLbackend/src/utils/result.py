@@ -2,6 +2,8 @@ from datetime import datetime
 from logging import Logger
 from typing import List
 
+from dateutil.relativedelta import relativedelta
+
 
 class Result:
 
@@ -27,7 +29,7 @@ class Result:
         )
 
     @property
-    def first_commit_dates(self) -> List[int]:
+    def first_commit_dates(self) -> List[str]:
         return self._first_commit_dates
 
     @first_commit_dates.setter
@@ -124,5 +126,7 @@ class Result:
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
             )
-        self._first_commit_dates.insert(batch_idx, first_commit_date)
+        self._first_commit_dates.insert(
+            batch_idx, "{:%Y-%m-%d}".format(first_commit_date)
+        )
         return None
