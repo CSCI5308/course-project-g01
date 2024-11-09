@@ -178,3 +178,43 @@ def test_addCoreDevIncorrectValueError(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, days_active, expected_days_active",
+    [
+        (
+            [datetime.now()],
+            [
+                5,
+            ],
+            [
+                5,
+            ],
+        ),
+        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, 10], [5, 10]),
+        (
+            [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
+            [5, 10, 15],
+            [5, 10, 15],
+        ),
+    ],
+)
+def test_addDaysActiveCorrect(
+    result_instance,
+    batch_dates: List[datetime],
+    days_active: List[int],
+    expected_days_active: List[int],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, days_active in enumerate(days_active):
+        result_instance.addDaysActive(batch_idx=idx, days_active=days_active)
+
+    assert result_instance.days_active, expected_days_active
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
