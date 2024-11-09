@@ -15,6 +15,7 @@ class Result:
         self._days_active: List[int] = []
         self._first_commit_dates: List[str] = []
         self._last_commit_dates: List[str] = []
+        self._author_counts: List[int] = []
         self.logger: Logger = logger
 
         return None
@@ -27,6 +28,16 @@ class Result:
     def commit_count(self, commit_counts: List[int]) -> None:
         raise AttributeError(
             "Direct assignment to 'commit_count' is not allowed. Use method addCommitCount to modify this property based on the requirement."
+        )
+
+    @property
+    def author_count(self) -> List[int]:
+        return self._author_counts
+
+    @author_count.setter
+    def author_count(self, author_counts: List[int]) -> None:
+        raise AttributeError(
+            "Direct assignment to 'author_count' is not allowed. Use method addAuthorCount to modify this property based on the requirement."
         )
 
     @property
@@ -163,4 +174,8 @@ class Result:
         self._last_commit_dates.insert(
             batch_idx, "{:%Y-%m-%d}".format(last_commit_date)
         )
+        return None
+
+    def addAuthorCount(self, batch_idx: int, author_count: int) -> None:
+        self._author_counts.insert(batch_idx, author_count)
         return None
