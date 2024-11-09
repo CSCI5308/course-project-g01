@@ -148,6 +148,13 @@ class Result:
         return None
 
     def addLastCommitDate(self, batch_idx: int, last_commit_date: datetime) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and last commit dates batch count of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
         self._last_commit_dates.insert(
             batch_idx, "{:%Y-%m-%d}".format(last_commit_date)
         )
