@@ -246,3 +246,34 @@ def test_addDaysActiveFailsDueToLessBatchSize(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, days_active",
+    [
+        ([datetime.now(), datetime.now()], [5, "a"]),
+        ([datetime.now(), datetime.now(), datetime.now()], [5, "b", 6]),
+    ],
+)
+def test_addDaysActiveFailsDueToIncorrectDaysActiveValueType(
+    result_instance,
+    batch_dates: List[datetime],
+    days_active: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = "Incorrect value type for days active"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, days_active in enumerate(days_active):
+            result_instance.addDaysActive(batch_idx=idx, days_active=days_active)
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        "Incorrect value type for days active"
+    )
+
+    return None
