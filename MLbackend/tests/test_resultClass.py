@@ -1,4 +1,5 @@
 from datetime import datetime
+from logging import Logger
 from typing import List
 from unittest.mock import patch
 
@@ -6,6 +7,17 @@ import pytest
 from dateutil.relativedelta import relativedelta
 
 from MLbackend.src.utils.result import Result
+
+
+@pytest.fixture
+@patch("logging.Logger")
+def logger_instance(mock_logger) -> Logger:
+    return mock_logger
+
+
+@pytest.fixture
+def result_instance(logger_instance: Logger) -> Result:
+    return Result(logger=logger_instance)
 
 
 @pytest.mark.parametrize(
@@ -28,19 +40,22 @@ from MLbackend.src.utils.result import Result
         ),
     ],
 )
-@patch("logging.Logger")
 def test_addCommitCountCorrect(
-    mock_logger,
+    result_instance,
+    logger_instance,
     batch_dates: List[datetime],
     commit_counts: List[int],
     expected_commit_count: List[int],
 ) -> None:
 
-    mock_logger.info.return_value = "All values of Result are being reset"
-    result = Result(logger=mock_logger)
-    result.addBatchDates(batch_dates)
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
     for idx, commit_count in enumerate(commit_counts):
-        result.addCommitCount(batch_idx=idx, commit_count=commit_count)
-    mock_logger.info.assert_called_once_with("All values of Result are being reset")
+        result_instance.addCommitCount(batch_idx=idx, commit_count=commit_count)
 
-    assert result.commit_count, expected_commit_count
+    assert result_instance.commit_count, expected_commit_count
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
