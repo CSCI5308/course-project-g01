@@ -68,5 +68,11 @@ class Result:
         return None
 
     def addCoreDev(self, core_dev: str) -> None:
+        if not isinstance(core_dev, str):
+            self.logger.error("Incorrect value type for core devs")
+            raise ValueError(
+                f"Incorrect value for core dev is passed. The value is {core_dev} and it's type is {type(core_dev)}, but it should be string."
+            )
+
         self._core_devs.append(core_dev)
         return None
