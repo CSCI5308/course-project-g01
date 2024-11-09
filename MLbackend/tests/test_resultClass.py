@@ -734,3 +734,33 @@ def test_addSponsoredAuthorCountCorrect(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, sponsored_author_counts",
+    [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
+)
+def test_addSponsoredAuthorCountFailsDueToLessBatchSize(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    sponsored_author_counts: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and sponsored_author counts of {len(batch_dates) + 1}"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, sponsored_author_count in enumerate(sponsored_author_counts):
+            result_instance.addSponsoredAuthorCount(
+                batch_idx=idx, sponsored_author_count=sponsored_author_count
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        f"Mismatch between batch size of {len(batch_dates)} and sponsored_author counts of {len(batch_dates) + 1}"
+    )
+
+    return None
