@@ -593,3 +593,43 @@ def test_addLastCommitDateFailsDueToIncorrectDaysActiveValueType(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, author_counts, expected_author_count",
+    [
+        (
+            [datetime.now()],
+            [
+                5,
+            ],
+            [
+                5,
+            ],
+        ),
+        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, 10], [5, 10]),
+        (
+            [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
+            [5, 10, 15],
+            [5, 10, 15],
+        ),
+    ],
+)
+def test_addAuthorCountCorrect(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    author_counts: List[int],
+    expected_author_count: List[int],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, author_count in enumerate(author_counts):
+        result_instance.addAuthorCount(batch_idx=idx, author_count=author_count)
+
+    assert result_instance.author_count == expected_author_count
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
