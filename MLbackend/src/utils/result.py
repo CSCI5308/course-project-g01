@@ -14,6 +14,7 @@ class Result:
         self._core_devs: List[str] = []
         self._days_active: List[int] = []
         self._first_commit_dates: List[str] = []
+        self._last_commit_dates: List[str] = []
         self.logger: Logger = logger
 
         return None
@@ -36,6 +37,16 @@ class Result:
     def first_commit_dates(self, first_commit_dates: List[str]) -> None:
         raise AttributeError(
             "Direct assignment to 'first_commit_dates' is not allowed. Use method addFirstCommitDate to modify this property based on the requirement."
+        )
+
+    @property
+    def last_commit_dates(self) -> List[str]:
+        return self._last_commit_dates
+
+    @last_commit_dates.setter
+    def last_commit_dates(self, last_commit_dates: List[str]) -> None:
+        raise AttributeError(
+            "Direct assignment to 'last_commit_dates' is not allowed. Use method addLastCommitDate to modify this property based on the requirement."
         )
 
     @property
@@ -133,5 +144,11 @@ class Result:
             )
         self._first_commit_dates.insert(
             batch_idx, "{:%Y-%m-%d}".format(first_commit_date)
+        )
+        return None
+
+    def addLastCommitDate(self, batch_idx: int, last_commit_date: datetime) -> None:
+        self._last_commit_dates.insert(
+            batch_idx, "{:%Y-%m-%d}".format(last_commit_date)
         )
         return None
