@@ -1,6 +1,6 @@
 from datetime import datetime
 from logging import Logger
-from typing import List
+from typing import Any, List
 from unittest.mock import patch
 
 import pytest
@@ -56,6 +56,54 @@ def test_addCommitCountCorrect(
     assert result_instance.commit_count, expected_commit_count
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
+    )
+
+    return None
+
+
+# @pytest.mark.parametrize(
+#     "batch_dates, commit_counts, expected_commit_count",
+#     [
+#         (
+#             [datetime.now()],
+#             [5, 5],
+#             [
+#                 5,
+#             ],
+#         ),
+#         ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, "a"], None),
+#         (
+#             [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
+#             [5, "a"],
+#             None,
+#         ),
+#     ],
+# )
+@pytest.mark.parametrize(
+    "batch_dates, commit_counts",
+    [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
+)
+def test_addCommitCountFailsDueToLessBatchSize(
+    result_instance,
+    logger_instance,
+    batch_dates: List[datetime],
+    commit_counts: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and commit counts of {len(commit_counts)}"
+    result_instance.addBatchDates(batch_dates)
+    idx: int = 0
+    for idx in range(len(commit_counts) - 1):
+        result_instance.addCommitCount(batch_idx=idx, commit_count=commit_counts[idx])
+
+    with pytest.raises(ValueError):
+        result_instance.addCommitCount(batch_idx=idx, commit_count=commit_counts[-1])
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        f"Mismatch between batch size of {len(batch_dates)} and commit counts of {len(commit_counts)}"
     )
 
     return None
