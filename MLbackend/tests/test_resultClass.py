@@ -61,24 +61,6 @@ def test_addCommitCountCorrect(
     return None
 
 
-# @pytest.mark.parametrize(
-#     "batch_dates, commit_counts, expected_commit_count",
-#     [
-#         (
-#             [datetime.now()],
-#             [5, 5],
-#             [
-#                 5,
-#             ],
-#         ),
-#         ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, "a"], None),
-#         (
-#             [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
-#             [5, "a"],
-#             None,
-#         ),
-#     ],
-# )
 @pytest.mark.parametrize(
     "batch_dates, commit_counts",
     [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
@@ -91,6 +73,7 @@ def test_addCommitCountFailsDueToLessBatchSize(
 ) -> None:
 
     result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and commit counts of {len(batch_dates) + 1}"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
     result_instance.addBatchDates(batch_dates)
 
     with pytest.raises(ValueError):
@@ -122,6 +105,7 @@ def test_addCommitCountFailsDueToIncorrectCommitValueType(
 ) -> None:
 
     result_instance.logger.error.return_value = "Incorrect value type for commit count"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
     result_instance.addBatchDates(batch_dates)
 
     with pytest.raises(ValueError):
@@ -133,6 +117,36 @@ def test_addCommitCountFailsDueToIncorrectCommitValueType(
     )
     result_instance.logger.error.assert_called_once_with(
         "Incorrect value type for commit count"
+    )
+
+    return None
+
+
+@pytest.mark.parametrize(
+    "core_devs, expected_core_devs",
+    [
+        (["CoreDev1", "CoreDev2"], ["CoreDev1", "CoreDev2"]),
+        (["CoreDev1", "CoreDev2", "CoreDev3"], ["CoreDev1", "CoreDev2", "CoreDev3"]),
+        (["CoreDev1"], ["CoreDev1"]),
+    ],
+)
+def test_addCoreDevCorrect(
+    result_instance,
+    logger_instance,
+    core_devs: List[str],
+    expected_core_devs: List[str],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    batch_dates: List[datetime] = [datetime.now()]
+    result_instance.addBatchDates(batch_dates)
+
+    for core_dev in core_devs:
+        result_instance.addCoreDev(core_dev)
+
+    assert result_instance.core_devs, expected_core_devs
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
     )
 
     return None
