@@ -9,6 +9,7 @@ class Result:
 
         self._batch_dates: List[datetime] = []
         self._commit_count: List[int] = []
+        self._core_devs: List[str] = []
         self.logger: Logger = logger
 
         return None
@@ -25,12 +26,22 @@ class Result:
 
     @property
     def batch_dates(self) -> List[datetime]:
-        return self.batch_dates
+        return self._batch_dates
 
     @batch_dates.setter
-    def batch_dates(self, commit_counts: List[int]) -> None:
+    def batch_dates(self, batch_dates: List[datetime]) -> None:
         raise AttributeError(
             "Direct assignment to 'batch_dates' is not allowed. Use method setBatchDates  to modify this property based on the requirement."
+        )
+
+    @property
+    def core_devs(self) -> List[datetime]:
+        return self._core_devs
+
+    @core_devs.setter
+    def core_devs(self, core_devs: List[int]) -> None:
+        raise AttributeError(
+            "Direct assignment to 'core_devs' is not allowed. Use method addCoreDev to modify this property based on the requirement."
         )
 
     def addCommitCount(self, batch_idx: int, commit_count: int) -> None:
@@ -53,4 +64,9 @@ class Result:
         self._batch_dates = batch_dates
         self.logger.info("All values of Result are being reset")
         self._commit_count = []
+        self._core_devs = []
+        return None
+
+    def addCoreDev(self, core_dev: str) -> None:
+        self._core_devs.append(core_dev)
         return None
