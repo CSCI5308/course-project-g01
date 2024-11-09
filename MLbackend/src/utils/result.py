@@ -89,5 +89,12 @@ class Result:
         return None
 
     def addDaysActive(self, batch_idx: int, days_active: List[int]) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and days active count of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
         self._days_active.insert(batch_idx, days_active)
         return None
