@@ -52,7 +52,7 @@ def test_addCommitCountCorrect(
     for idx, commit_count in enumerate(commit_counts):
         result_instance.addCommitCount(batch_idx=idx, commit_count=commit_count)
 
-    assert result_instance.commit_count, expected_commit_count
+    assert result_instance.commit_count == expected_commit_count
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
     )
@@ -140,7 +140,7 @@ def test_addCoreDevCorrect(
     for core_dev in core_devs:
         result_instance.addCoreDev(core_dev)
 
-    assert result_instance.core_devs, expected_core_devs
+    assert result_instance.core_devs == expected_core_devs
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
     )
@@ -212,7 +212,7 @@ def test_addDaysActiveCorrect(
     for idx, days_active in enumerate(days_active):
         result_instance.addDaysActive(batch_idx=idx, days_active=days_active)
 
-    assert result_instance.days_active, expected_days_active
+    assert result_instance.days_active == expected_days_active
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
     )
@@ -325,7 +325,7 @@ def test_addFirstCommitDateCorrect(
     result_instance: Result,
     batch_dates: List[datetime],
     first_commit_dates: List[int],
-    expected_first_commit_dates: List[int],
+    expected_first_commit_dates: List[str],
 ) -> None:
 
     result_instance.logger.info.return_value = "All values of Result are being reset"
@@ -335,7 +335,7 @@ def test_addFirstCommitDateCorrect(
             batch_idx=idx, first_commit_date=first_commit_date
         )
 
-    assert result_instance.first_commit_dates, expected_first_commit_dates
+    assert result_instance.first_commit_dates == expected_first_commit_dates
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
     )
