@@ -155,6 +155,11 @@ class Result:
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
             )
+        elif not isinstance(last_commit_date, datetime):
+            self.logger.error("Incorrect value type for last commit date")
+            raise ValueError(
+                f"Incorrect value {last_commit_date} was passed for last commit date. It is of type {type(last_commit_date)}. It should be of type datetime."
+            )
         self._last_commit_dates.insert(
             batch_idx, "{:%Y-%m-%d}".format(last_commit_date)
         )
