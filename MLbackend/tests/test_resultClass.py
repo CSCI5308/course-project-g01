@@ -35,7 +35,7 @@ def test_addCommitCountCorrect(
 
     result = Result()
     result.addBatchDates(batch_dates)
-    for idx, batch_date in enumerate(batch_dates):
-        result.addCommitCount(batch_date, commit_counts[idx])
+    for idx, commit_count in enumerate(commit_counts):
+        result.addCommitCount(batch_idx=idx, commit_count=commit_count)
 
-    assert result.getCommitCount(), expected_commit_count
+    assert result.commit_count, expected_commit_count
