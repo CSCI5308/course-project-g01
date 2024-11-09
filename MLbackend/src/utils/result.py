@@ -117,5 +117,12 @@ class Result:
         return None
 
     def addFirstCommitDate(self, batch_idx: int, first_commit_date: datetime) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and first commit dates batch count of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
         self._first_commit_dates.insert(batch_idx, first_commit_date)
         return None
