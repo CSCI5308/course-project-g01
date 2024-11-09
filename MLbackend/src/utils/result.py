@@ -177,5 +177,13 @@ class Result:
         return None
 
     def addAuthorCount(self, batch_idx: int, author_count: int) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and author counts of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
+
         self._author_counts.insert(batch_idx, author_count)
         return None
