@@ -1,6 +1,6 @@
 from datetime import datetime
 from logging import Logger
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 
 
 class Result:
@@ -162,7 +162,8 @@ class Result:
         return None
 
     def addBatchDates(self, batch_dates: List[datetime]) -> None:
-        self._batch_dates = batch_dates
+        for batch_date in batch_dates:
+            self._batch_dates.append(batch_date)
         self.logger.info("All values of Result are being reset")
         self._commit_count = []
         self._core_devs = []
@@ -288,10 +289,10 @@ class Result:
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
             )
-        elif not isinstance(percentage_sponsored_author, int):
+        elif not isinstance(percentage_sponsored_author, float):
             self.logger.error("Incorrect value type for percentage_sponsored_author")
             raise ValueError(
-                f"Incorrect value {percentage_sponsored_author} was passed for percentage_sponsored_author count. It is of type {type(percentage_sponsored_author)}. It should be an integer"
+                f"Incorrect value {percentage_sponsored_author} was passed for percentage_sponsored_author count. It is of type {type(percentage_sponsored_author)}. It should be an float"
             )
 
         self._percentage_sponsored_authors.insert(

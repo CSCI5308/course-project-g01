@@ -807,17 +807,17 @@ def test_addSponsoredAuthorCountFailsDueToIncorrectAuthorValueType(
         (
             [datetime.now()],
             [
-                5,
+                5.,
             ],
             [
-                5,
+                5.,
             ],
         ),
-        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, 10], [5, 10]),
+        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5., 10.], [5., 10.]),
         (
             [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
-            [5, 10, 15],
-            [5, 10, 15],
+            [5., 10., 15.],
+            [5., 10., 15.],
         ),
     ],
 )
@@ -848,7 +848,7 @@ def test_addPercentageSponsoredAuthorCorrect(
 
 @pytest.mark.parametrize(
     "batch_dates, percentage_sponsored_authors",
-    [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
+    [([datetime.now()], [5., 5.]), ([datetime.now(), datetime.now()], [5., 1., 6.])],
 )
 def test_addPercentageSponsoredAuthorFailsDueToLessBatchSize(
     result_instance: Result,
@@ -879,8 +879,8 @@ def test_addPercentageSponsoredAuthorFailsDueToLessBatchSize(
 @pytest.mark.parametrize(
     "batch_dates, percentage_sponsored_authors",
     [
-        ([datetime.now(), datetime.now()], [5, "a"]),
-        ([datetime.now(), datetime.now(), datetime.now()], [5, "b", 6]),
+        ([datetime.now(), datetime.now()], [5., "a"]),
+        ([datetime.now(), datetime.now(), datetime.now()], [5., "b", 6.]),
     ],
 )
 def test_addPercentageSponsoredAuthorFailsDueToIncorrectAuthorValueType(
