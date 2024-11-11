@@ -349,6 +349,11 @@ class Result:
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
             )
+        elif not isinstance(smell, str):
+            self.logger.error("Incorrect value type for smell")
+            raise ValueError(
+                f"Incorrect arguments passed for addSmell function. The expected value type is str but got {type(smell)}"
+            )
         if batch_idx >= len(self._smells):
             self._smells.insert(batch_idx, [])
         self._smells[batch_idx].append(smell)
