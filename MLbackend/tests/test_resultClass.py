@@ -1366,3 +1366,34 @@ def test_addSmellFailsDueToIncorrectSmellValueType(
     return None
 
 
+@pytest.mark.parametrize(
+    "batch_dates, smells",
+    [
+        ([datetime.now(),], [["OSE", "MNP"],]),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5)],
+            [["OSE", "BCE"], ["XYZ",]],
+        ),
+    ],
+)
+def test_addSmellFailsDueToIncorrectAuthorValueType(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    smells: List[List[str]],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.logger.error.return_value = "Incorrect smell type passed"
+    result_instance.addBatchDates(batch_dates)
+    with pytest.raises(ValueError):
+        for idx, smell in enumerate(smells):
+            for detected_smell in smell:
+                result_instance.addSmell(batch_idx=idx, smell=detected_smell)
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+         "Incorrect smell type passed"
+    )
+    return None
