@@ -354,6 +354,33 @@ class Result:
             raise ValueError(
                 f"Incorrect arguments passed for addSmell function. The expected value type is str but got {type(smell)}"
             )
+        elif smell not in [
+            "OSE",
+            "BCE",
+            "PDE",
+            "SV",
+            "OS",
+            "SD",
+            "RS",
+            "TF",
+            "UI",
+            "TC",
+        ]:
+            self.logger.error("Incorrect smell type passed")
+            raise ValueError(
+                f"Incorrect smell type passed. It should be one of these {[
+                    'OSE',
+                    'BCE',
+                    'PDE',
+                    'SV',
+                    'OS',
+                    'SD',
+                    'RS',
+                    'TF',
+                    'UI',
+                    'TC',
+                ]}"
+            )
         if batch_idx >= len(self._smells):
             self._smells.insert(batch_idx, [])
         self._smells[batch_idx].append(smell)
