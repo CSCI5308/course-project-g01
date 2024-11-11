@@ -979,3 +979,38 @@ def test_addTimeZoneCountFailsDueToLessBatchSize(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, timezone_counts",
+    [
+        ([datetime.now(), datetime.now()], [5, "a"]),
+        ([datetime.now(), datetime.now(), datetime.now()], [5, "b", 6]),
+    ],
+)
+def test_addTimeZoneCountFailsDueToIncorrectAuthorValueType(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    timezone_counts: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = (
+        "Incorrect value type for timezone_count"
+    )
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, timezone_count in enumerate(timezone_counts):
+            result_instance.addTimeZoneCount(
+                batch_idx=idx, timezone_count=timezone_count
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        "Incorrect value type for timezone_count"
+    )
+
+    return None
