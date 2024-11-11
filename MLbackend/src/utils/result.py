@@ -1,8 +1,6 @@
 from datetime import datetime
 from logging import Logger
-from typing import List
-
-from dateutil.relativedelta import relativedelta
+from typing import List, Tuple
 
 
 class Result:
@@ -19,6 +17,7 @@ class Result:
         self._sponsored_author_counts: List[int] = []
         self._percentage_sponsored_authors: List[int] = []
         self._timezone_counts: List[int] = []
+        self._metric_datas: List[Tuple[str, int, float, float]] = []
         self.logger: Logger = logger
 
         return None
@@ -73,6 +72,16 @@ class Result:
     def timezone_counts(self, timezone_counts: List[int]) -> None:
         raise AttributeError(
             "Direct assignment to 'timezone_count' is not allowed. Use method addTimeZoneCount to modify this property based on the requirement."
+        )
+
+    @property
+    def metric_datas(self) -> List[int]:
+        return self._metric_datas
+
+    @metric_datas.setter
+    def metric_datas(self, metric_datas: List[int]) -> None:
+        raise AttributeError(
+            "Direct assignment to 'metric_data' is not allowed. Use method addMetricData to modify this property based on the requirement."
         )
 
     @property
@@ -282,4 +291,12 @@ class Result:
             )
 
         self._timezone_counts.insert(batch_idx, timezone_count)
+        return None
+
+    def addMetricData(
+        self, batch_idx: int, metric: str, count: int, mean: float, std_dev: float
+    ) -> None:
+        if batch_idx >= len(self._metric_datas):
+            self._metric_datas.insert(batch_idx, [])
+        self._metric_datas[batch_idx].append((metric, count, mean, std_dev))
         return None
