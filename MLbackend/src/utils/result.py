@@ -275,5 +275,11 @@ class Result:
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
             )
+        elif not isinstance(timezone_count, int):
+            self.logger.error("Incorrect value type for timezone_count")
+            raise ValueError(
+                f"Incorrect value {timezone_count} was passed for timezone_count. It is of type {type(timezone_count)}. It should be an integer"
+            )
+
         self._timezone_counts.insert(batch_idx, timezone_count)
         return None
