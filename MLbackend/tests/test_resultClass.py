@@ -949,3 +949,33 @@ def test_addTimeZoneCountCorrect(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, timezone_counts",
+    [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
+)
+def test_addTimeZoneCountFailsDueToLessBatchSize(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    timezone_counts: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and timezone_count of {len(batch_dates) + 1}"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, timezone_count in enumerate(timezone_counts):
+            result_instance.addTimeZoneCount(
+                batch_idx=idx, timezone_count=timezone_count
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        f"Mismatch between batch size of {len(batch_dates)} and timezone_count of {len(batch_dates) + 1}"
+    )
+
+    return None
