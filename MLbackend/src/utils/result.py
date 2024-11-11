@@ -385,3 +385,37 @@ class Result:
         if batch_idx >= len(self._smells):
             self._smells.insert(batch_idx, [])
         self._smells[batch_idx].append(smell)
+
+    def getMetaResults(self) -> List[List[List[Any]]] | List[List[Any]]:
+        result: List[List[List[Any]]] = []
+        for idx in range(len(self._batch_dates)):
+            result.append(
+                [
+                    ["CommitCount", self._commit_count[idx]],
+                    ["DaysActive", self._days_active[idx]],
+                    ["FirstCommitDate", self._first_commit_dates[idx]],
+                    ["LastCommitDate", self._last_commit_dates[idx]],
+                    ["AuthorCount", self._author_counts[idx]],
+                    ["SponsoredAuthorCount", self._sponsored_author_counts[idx]],
+                    [
+                        "PercentageSponsoredAuthors",
+                        self._percentage_sponsored_authors[idx],
+                    ],
+                    ["TimezoneCount", self._timezone_counts[idx]],
+                ]
+            )
+
+        if len(self._batch_dates) == 1:
+            return result[0]
+        else:
+            return result
+
+    def getWebResult(self) -> Dict[str, Any]:
+        if len(self._batch_dates) == 1:
+            return dict(
+                batch_date=self._batch_dates[0].strftime("%Y-%m-%d"),
+                smell_results=self.smells,
+                core_devs=self._core_devs,
+                meta=self.getMetaResults(),
+                metrics=self._metric_datas,
+            )

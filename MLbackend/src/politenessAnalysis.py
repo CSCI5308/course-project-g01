@@ -6,6 +6,7 @@ import convokit
 
 import MLbackend.src.statsAnalysis as stats
 from MLbackend.src.configuration import Configuration
+from MLbackend.src.utils.result import Result
 
 
 def politenessAnalysis(
@@ -13,6 +14,7 @@ def politenessAnalysis(
     prCommentBatches: list,
     issueCommentBatches: list,
     logger: Logger,
+    result: Result,
 ) -> None:
 
     accl = calculateACCL(config, prCommentBatches, issueCommentBatches, logger)

@@ -26,6 +26,7 @@ from MLbackend.src.politenessAnalysis import politenessAnalysis
 from MLbackend.src.repoLoader import getRepo
 from MLbackend.src.smellDetection import smellDetection
 from MLbackend.src.tagAnalysis import tagAnalysis
+from MLbackend.src.utils.result import Result
 
 smells = {
     "OSE": "Organizational Silo Effect: Isolated subgroups lead to poor communication, wasted resources, and duplicated code.",
@@ -113,13 +114,11 @@ def communitySmellsDetector(
     senti_strength_path: Path,
     output_path: Path,
     logger: Logger,
+    result: Result,
     google_api_key: Optional[str] = None,
     batch_months: float = 9999,
     start_date: Optional[str] = None,
 ) -> dict:  # Specify the return type
-
-    results = {}  # Initialize a results dictionary
-    df = None
 
     try:
         # Parse args
@@ -171,35 +170,27 @@ def communitySmellsDetector(
 
         # Run analysis
         batchDates, authorInfoDict, daysActive, results_meta, results_metrics = (
-            commitAnalysis(senti, commits, delta, config, logger)
+            commitAnalysis(senti, commits, delta, config, logger, result)
         )
 
         tagres = tagAnalysis(repo, delta, batchDates, daysActive, config, logger)
 
         coreDevs: List[List[Any]] = centrality.centralityAnalysis(
-            commits, delta, batchDates, config, logger
+            commits, delta, batchDates, config, logger, result
         )
 
         releaseres = releaseAnalysis(commits, config, delta, batchDates, logger)
 
         prParticipantBatches, prCommentBatches = prAnalysis(
-            config,
-            senti,
-            delta,
-            batchDates,
-            logger,
+            config, senti, delta, batchDates, logger, None
         )
 
         issueParticipantBatches, issueCommentBatches = issueAnalysis(
-            config,
-            senti,
-            delta,
-            batchDates,
-            logger,
+            config, senti, delta, batchDates, logger, None
         )
 
         politeness = politenessAnalysis(
-            config, prCommentBatches, issueCommentBatches, logger
+            config, prCommentBatches, issueCommentBatches, logger, result
         )
 
         for batchIdx, batchDate in enumerate(batchDates):
@@ -215,6 +206,7 @@ def communitySmellsDetector(
                 "issuesAndPRsCentrality",
                 config,
                 logger,
+                None,
             )
 
             # Get combined unique authors for both PRs and issues
@@ -244,7 +236,7 @@ def communitySmellsDetector(
             )
 
             # Run smell detection and collect results
-            smell_results = smellDetection(config, batchIdx, logger)
+            smell_results = smellDetection(config, batchIdx, logger, result)
             results = {
                 "batch_date": batchDate.strftime("%Y-%m-%d"),
                 "smell_results": list(smell_results),
@@ -270,7 +262,7 @@ def communitySmellsDetector(
         if "repo" in locals():
             del repo
 
-    return results, df  # Return the collected results
+    return results, None  # Return the collected results
 
 
 def commitDate(tag):

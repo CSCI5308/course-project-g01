@@ -11,6 +11,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
 
 from MLbackend.config import LOGGER
 from MLbackend.src.devNetwork import communitySmellsDetector
+from MLbackend.src.utils.result import Result
 from MLbackend.validations import (InvalidInputError, validate_email,
                                    validate_pat, validate_url)
 
@@ -115,15 +116,23 @@ def detect_smells():
 
     senti_strength_path: Path = Path(".", "MLbackend", "data")
     output_path: Path = Path(".", "MLbackend", "src", "results")
-    global result
+    result_ins: Result = Result(logger=LOGGER)
 
     try:
         validate_url(url)
         validate_email(email)
         validate_pat(pat)
+        global result
         result, df = communitySmellsDetector(
-            pat, url, senti_strength_path, output_path, LOGGER
+            pat=pat,
+            repo_url=url,
+            senti_strength_path=senti_strength_path,
+            output_path=output_path,
+            logger=LOGGER,
+            result=result_ins,
         )
+        print(result)
+        print(result_ins.getWebResult())
         if not result:
             LOGGER.warning("No community smells detected.")
             return (
