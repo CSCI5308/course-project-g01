@@ -18,6 +18,7 @@ class Result:
         self._author_counts: List[int] = []
         self._sponsored_author_counts: List[int] = []
         self._percentage_sponsored_authors: List[int] = []
+        self._timezone_counts: List[int] = []
         self.logger: Logger = logger
 
         return None
@@ -62,6 +63,16 @@ class Result:
     ) -> None:
         raise AttributeError(
             "Direct assignment to 'percentage_sponsored_author' is not allowed. Use method addPercentageSponsoredAuthor to modify this property based on the requirement."
+        )
+
+    @property
+    def timezone_counts(self) -> List[int]:
+        return self._timezone_counts
+
+    @timezone_counts.setter
+    def timezone_counts(self, timezone_counts: List[int]) -> None:
+        raise AttributeError(
+            "Direct assignment to 'timezone_count' is not allowed. Use method addTimeZoneCount to modify this property based on the requirement."
         )
 
     @property
@@ -254,4 +265,8 @@ class Result:
         self._percentage_sponsored_authors.insert(
             batch_idx, percentage_sponsored_author
         )
+        return None
+
+    def addTimeZoneCount(self, batch_idx: int, timezone_count: int) -> None:
+        self._timezone_counts.insert(batch_idx, timezone_count)
         return None
