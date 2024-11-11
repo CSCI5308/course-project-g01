@@ -1122,6 +1122,74 @@ def test_addMetricDataCorrect(
 
 
 @pytest.mark.parametrize(
+    "batch_dates, metric_data, expected_metric_data",
+    [
+        (
+            [datetime.now()],
+            [
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, None),
+                ]
+            ],
+            [
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, None),
+                ]
+            ],
+        ),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5)],
+            [
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, None),
+                    ("CommitMessageSentiment", 5, 1.6, 3.05),
+                ],
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, 0.707),
+                    ("CommitMessageSentimentPositive", 3, 3.67, None),
+                ]
+            ],
+            [
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, None),
+                    ("CommitMessageSentiment", 5, 1.6, 3.05),
+                ],
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, 0.707),
+                    ("CommitMessageSentimentPositive", 3, 3.67, None),
+                ]
+            ]
+        ),
+    ],
+)
+def test_addMetricDataNoneStdDev(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    metric_data: List[int],
+    expected_metric_data: List[int],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, metric_data in enumerate(metric_data):
+        for (metric, count, mean, std_dev) in metric_data:
+            result_instance.addMetricData(batch_idx=idx, metric=metric, count=count, mean=mean, std_dev=std_dev)
+
+    assert result_instance.metric_datas == expected_metric_data
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
+
+
+@pytest.mark.parametrize(
     "batch_dates, metric_data",
     [
         (
