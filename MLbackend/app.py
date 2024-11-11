@@ -1,6 +1,7 @@
 import os
 import traceback
 from pathlib import Path
+from typing import Any, List, Tuple
 
 from flask import Flask, jsonify, render_template, request, send_file
 from flask_mail import Mail, Message
@@ -131,9 +132,7 @@ def detect_smells():
             logger=LOGGER,
             result=result_ins,
         )
-        print(result)
-        print(result_ins.getWebResult())
-        if not result:
+        if len(result_ins.smells) == 0:
             LOGGER.warning("No community smells detected.")
             return (
                 jsonify(
@@ -145,8 +144,13 @@ def detect_smells():
                 404,
             )
 
-        send_email(email=email)
-        return render_template("results.html", data=result)
+        send_email(
+            email=email,
+            meta_results=result_ins.getMetaResults(),
+            metrics_results=result_ins.metric_datas,
+            smell_abbreviations=result_ins.smells,
+        )
+        return render_template("results.html", data=result_ins.getWebResult())
     except InvalidInputError as e:
         return jsonify({"status": "error", "message": str(e)}), 400
     except Exception as e:
@@ -187,11 +191,15 @@ def generate_pdf():
         return jsonify({"error": str(e)}), 500
 
 
-def send_email(email):
+def send_email(
+    email: str,
+    meta_results: List[List[List[Any]]] | List[List[Any]],
+    metrics_results: (
+        List[List[Tuple[str, int, float, float]]] | List[Tuple[str, int, float, float]]
+    ),
+    smell_abbreviations: List[List[str]] | List[str],
+) -> None:
     PDF_FILE_PATH = os.path.join(output_path, "smell_report.pdf")
-    metrics_results = result["metrics"]
-    meta_results = result["meta"]
-    smell_abbreviations = result["smell_results"][1:]
     smells = {
         "OSE": "Organizational Silo Effect: Isolated subgroups lead to poor communication, wasted resources, and duplicated code.",
         "BCE": "Black-cloud Effect: Information overload due to limited collaboration and a lack of experts, causing knowledge gaps.",
@@ -204,8 +212,14 @@ def send_email(email):
         "UI": "Unhealthy Interaction: Weak, slow communication among developers, with low participation and long response times.",
         "TC": "Toxic Communication: Negative, hostile interactions among developers, resulting in frustration, stress, and potential project abandonment.",
     }
+
+    # We are taking smell_abbreviations[0] because the result class is handling single and multi batch working. But here we are just considering single batch process
     generate_pdf1(
-        metrics_results, meta_results, smell_abbreviations, smells, PDF_FILE_PATH
+        metrics_results[0],
+        meta_results,
+        smell_abbreviations[0],
+        smells,
+        PDF_FILE_PATH,
     )
     msg = Message(
         subject="Community Smells Detector",
