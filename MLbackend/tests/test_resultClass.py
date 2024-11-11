@@ -1262,3 +1262,39 @@ def test_addMetricDataFailsDueToIncorrectAuthorValueType(
     )
     return None
 
+
+@pytest.mark.parametrize(
+    "batch_dates, smells, expected_smells",
+    [
+        ([datetime.now(),], [["OSE", "BCE"]], [["OSE", "BCE"]],),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5)],
+            [["OSE", "BCE"], ["PDE",]],
+            [["OSE", "BCE"], ["PDE",]],
+        ),
+        (
+            [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
+            [["OSE", "BCE"], ["PDE",], ["RS", "TF"]],
+            [["OSE", "BCE"], ["PDE",], ["RS", "TF"]],
+        ),
+    ],
+)
+def test_addSmellCorrect(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    smells: List[int],
+    expected_smells: List[int],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, smell in enumerate(smells):
+        for detected_smell in smell:
+            result_instance.addSmell(batch_idx=idx, smell=detected_smell)
+
+    assert result_instance.smells == expected_smells
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
