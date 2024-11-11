@@ -342,6 +342,13 @@ class Result:
         return None
 
     def addSmell(self, batch_idx: int, smell: str) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and smells of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
         if batch_idx >= len(self._smells):
             self._smells.insert(batch_idx, [])
         self._smells[batch_idx].append(smell)
