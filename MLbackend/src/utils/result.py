@@ -296,6 +296,13 @@ class Result:
     def addMetricData(
         self, batch_idx: int, metric: str, count: int, mean: float, std_dev: float
     ) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and metric data of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
         if batch_idx >= len(self._metric_datas):
             self._metric_datas.insert(batch_idx, [])
         self._metric_datas[batch_idx].append((metric, count, mean, std_dev))
