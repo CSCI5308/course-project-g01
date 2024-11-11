@@ -874,3 +874,38 @@ def test_addPercentageSponsoredAuthorFailsDueToLessBatchSize(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, percentage_sponsored_authors",
+    [
+        ([datetime.now(), datetime.now()], [5, "a"]),
+        ([datetime.now(), datetime.now(), datetime.now()], [5, "b", 6]),
+    ],
+)
+def test_addPercentageSponsoredAuthorFailsDueToIncorrectAuthorValueType(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    percentage_sponsored_authors: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = (
+        "Incorrect value type for percentage_sponsored_author"
+    )
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, percentage_sponsored_author in enumerate(percentage_sponsored_authors):
+            result_instance.addPercentageSponsoredAuthor(
+                batch_idx=idx, percentage_sponsored_author=percentage_sponsored_author
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        "Incorrect value type for percentage_sponsored_author"
+    )
+
+    return None
