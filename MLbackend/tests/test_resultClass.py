@@ -909,3 +909,43 @@ def test_addPercentageSponsoredAuthorFailsDueToIncorrectAuthorValueType(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, timezone_counts, expected_timezone_count",
+    [
+        (
+            [datetime.now()],
+            [
+                5,
+            ],
+            [
+                5,
+            ],
+        ),
+        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, 10], [5, 10]),
+        (
+            [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
+            [5, 10, 15],
+            [5, 10, 15],
+        ),
+    ],
+)
+def test_addTimeZoneCountCorrect(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    timezone_counts: List[int],
+    expected_timezone_count: List[int],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, timezone_count in enumerate(timezone_counts):
+        result_instance.addTimeZoneCount(batch_idx=idx, timezone_count=timezone_count)
+
+    assert result_instance.timezone_counts == expected_timezone_count
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
