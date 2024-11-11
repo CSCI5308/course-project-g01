@@ -331,7 +331,7 @@ class Result:
             not isinstance(metric, str)
             or not isinstance(count, int)
             or not isinstance(mean, float)
-            or not isinstance(std_dev, float)
+            or not (isinstance(std_dev, float) or std_dev is None)
         ):
             self.logger.error("Incorrect value type for metric data")
             raise ValueError(
