@@ -18,6 +18,7 @@ class Result:
         self._percentage_sponsored_authors: List[int] = []
         self._timezone_counts: List[int] = []
         self._metric_datas: List[Tuple[str, int, float, float]] = []
+        self._smells: List[List[str]] = []
         self.logger: Logger = logger
 
         return None
@@ -30,6 +31,16 @@ class Result:
     def commit_count(self, commit_counts: List[int]) -> None:
         raise AttributeError(
             "Direct assignment to 'commit_count' is not allowed. Use method addCommitCount to modify this property based on the requirement."
+        )
+
+    @property
+    def smells(self) -> List[int]:
+        return self._smells
+
+    @smells.setter
+    def smells(self, smells: List[List[str]]) -> None:
+        raise AttributeError(
+            "Direct assignment to 'smells' is not allowed. Use method addSmell to modify this property based on the requirement."
         )
 
     @property
@@ -155,6 +166,18 @@ class Result:
         self.logger.info("All values of Result are being reset")
         self._commit_count = []
         self._core_devs = []
+        self._commit_count = []
+        self._core_devs = []
+        self._days_active = []
+        self._first_commit_dates = []
+        self._last_commit_dates = []
+        self._author_counts = []
+        self._sponsored_author_counts = []
+        self._percentage_sponsored_authors = []
+        self._timezone_counts = []
+        self._metric_datas = []
+        self._smells = []
+
         return None
 
     def addCoreDev(self, core_dev: str) -> None:
@@ -317,3 +340,8 @@ class Result:
             self._metric_datas.insert(batch_idx, [])
         self._metric_datas[batch_idx].append((metric, count, mean, std_dev))
         return None
+
+    def addSmell(self, batch_idx: int, smell: str) -> None:
+        if batch_idx >= len(self._smells):
+            self._smells.insert(batch_idx, [])
+        self._smells[batch_idx].append(smell)
