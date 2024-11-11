@@ -63,7 +63,6 @@ def commitAnalysis(
         # populate current batch
         batch.append(commit)
 
-    print("Batch Dates: ", result.batch_dates)
     # complete batch list and perform clean up
     batches.append(batch)
     del batch, commits
