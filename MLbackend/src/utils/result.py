@@ -338,7 +338,7 @@ class Result:
                 f"Incorrect arguments passed for addMetricData function. The expected value type and passed value type are as follows\nArgument\tExpected\tReceived\nmetric\tstr\t{type(metric)}\ncount\tint\t{type(count)}\nmean\tfloat\t{type(mean)}\nstd_dev\tfloat\t{type(std_dev)}"
             )
         if batch_idx >= len(self._metric_datas):
-            self._metric_datas.insert(batch_idx, [])
+            self._metric_datas.insert(batch_idx, [("Metric", "Count", "Mean", "Stdev")])
         self._metric_datas[batch_idx].append((metric, count, mean, std_dev))
         return None
 
@@ -414,8 +414,8 @@ class Result:
         if len(self._batch_dates) == 1:
             return dict(
                 batch_date=self._batch_dates[0].strftime("%Y-%m-%d"),
-                smell_results=self.smells,
+                smell_results=self.smells[0],
                 core_devs=self._core_devs,
                 meta=self.getMetaResults(),
-                metrics=self._metric_datas,
+                metrics=self._metric_datas[0],
             )
