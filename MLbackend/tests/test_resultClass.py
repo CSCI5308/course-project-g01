@@ -1282,8 +1282,8 @@ def test_addMetricDataFailsDueToIncorrectAuthorValueType(
 def test_addSmellCorrect(
     result_instance: Result,
     batch_dates: List[datetime],
-    smells: List[int],
-    expected_smells: List[int],
+    smells: List[List[str]],
+    expected_smells: List[List[str]],
 ) -> None:
 
     result_instance.logger.info.return_value = "All values of Result are being reset"
@@ -1298,3 +1298,37 @@ def test_addSmellCorrect(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, smells",
+    [
+        ([datetime.now(),], [["OSE", "BCE"], ["PDE",]]),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5)],
+            [["OSE", "BCE"], ["PDE",], ["RS", "TF"]],
+        ),
+    ],
+)
+def test_addSmellFailsDueToLessBatchSize(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    smells: List[List[str]],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and smells of {len(batch_dates) + 1}"
+    result_instance.addBatchDates(batch_dates)
+    with pytest.raises(ValueError):
+        for idx, smell in enumerate(smells):
+            for detected_smell in smell:
+                result_instance.addSmell(batch_idx=idx, smell=detected_smell)
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        f"Mismatch between batch size of {len(batch_dates)} and smells of {len(batch_dates) + 1}"
+    )
+    return None
+
