@@ -303,6 +303,16 @@ class Result:
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
             )
+        elif (
+            not isinstance(metric, str)
+            or not isinstance(count, int)
+            or not isinstance(mean, float)
+            or not isinstance(std_dev, float)
+        ):
+            self.logger.error("Incorrect value type for metric data")
+            raise ValueError(
+                f"Incorrect arguments passed for addMetricData function. The expected value type and passed value type are as follows\nArgument\tExpected\tReceived\nmetric\tstr\t{type(metric)}\ncount\tint\t{type(count)}\nmean\tfloat\t{type(mean)}\nstd_dev\tfloat\t{type(std_dev)}"
+            )
         if batch_idx >= len(self._metric_datas):
             self._metric_datas.insert(batch_idx, [])
         self._metric_datas[batch_idx].append((metric, count, mean, std_dev))
