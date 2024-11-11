@@ -268,5 +268,12 @@ class Result:
         return None
 
     def addTimeZoneCount(self, batch_idx: int, timezone_count: int) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and timezone_count of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
         self._timezone_counts.insert(batch_idx, timezone_count)
         return None
