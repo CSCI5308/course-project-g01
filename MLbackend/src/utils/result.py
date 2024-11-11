@@ -245,6 +245,11 @@ class Result:
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
             )
+        elif not isinstance(percentage_sponsored_author, int):
+            self.logger.error("Incorrect value type for percentage_sponsored_author")
+            raise ValueError(
+                f"Incorrect value {percentage_sponsored_author} was passed for percentage_sponsored_author count. It is of type {type(percentage_sponsored_author)}. It should be an integer"
+            )
 
         self._percentage_sponsored_authors.insert(
             batch_idx, percentage_sponsored_author
