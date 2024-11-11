@@ -1,6 +1,6 @@
 from datetime import datetime
 from logging import Logger
-from typing import Any, List
+from typing import Any, List, Tuple
 from unittest.mock import patch
 
 import pytest
@@ -1120,3 +1120,63 @@ def test_addMetricDataCorrect(
 
     return None
 
+
+@pytest.mark.parametrize(
+    "batch_dates, metric_data",
+    [
+        (
+            [datetime.now()],
+            [
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, 0.707),
+                ],
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, 0.707),
+                ]
+            ],
+        ),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5)],
+            [
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, 0.707),
+                    ("CommitMessageSentiment", 5, 1.6, 3.05),
+                ],
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, 0.707),
+                    ("CommitMessageSentimentPositive", 3, 3.67, 1.53),
+                ],
+                [
+                    ("AuthorActiveDays", 2, 12.5, 10.61),
+                    ("AuthorCommitCount", 5, 2.5, 0.707),
+                    ("CommitMessageSentimentPositive", 3, 3.67, 1.53),
+                ]
+            ]
+        ),
+    ],
+)
+def test_addMetricDataFailsDueToLessBatchSize(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    metric_data: List[Tuple[str, int, float, float]],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and metric data of {len(batch_dates) + 1}"
+    result_instance.addBatchDates(batch_dates)
+    with pytest.raises(ValueError):
+        for idx, metric_data in enumerate(metric_data):
+            for (metric, count, mean, std_dev) in metric_data:
+                result_instance.addMetricData(batch_idx=idx, metric=metric, count=count, mean=mean, std_dev=std_dev)
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        f"Mismatch between batch size of {len(batch_dates)} and metric data of {len(batch_dates) + 1}"
+    )
+    return None
