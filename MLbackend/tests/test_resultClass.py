@@ -1332,3 +1332,37 @@ def test_addSmellFailsDueToLessBatchSize(
     )
     return None
 
+
+@pytest.mark.parametrize(
+    "batch_dates, smells",
+    [
+        ([datetime.now(),], [["OSE", 58],]),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5)],
+            [["OSE", "BCE"], [56,]],
+        ),
+    ],
+)
+def test_addSmellFailsDueToIncorrectSmellValueType(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    smells: List[List[str]],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.logger.error.return_value = "Incorrect value type for smell"
+    result_instance.addBatchDates(batch_dates)
+    with pytest.raises(ValueError):
+        for idx, smell in enumerate(smells):
+            for detected_smell in smell:
+                result_instance.addSmell(batch_idx=idx, smell=detected_smell)
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+         "Incorrect value type for smell"
+    )
+    return None
+
+
