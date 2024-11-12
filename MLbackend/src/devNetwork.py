@@ -6,13 +6,8 @@ from logging import Logger
 from pathlib import Path
 from typing import Any, List, Optional
 
-import pandas as pd
 import sentistrength
 from dateutil.relativedelta import relativedelta
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
 
 import MLbackend.src.centralityAnalysis as centrality
 from MLbackend.src.aliasWorker import replaceAliases
@@ -22,90 +17,12 @@ from MLbackend.src.devAnalysis import devAnalysis
 from MLbackend.src.graphqlAnalysis.issueAnalysis import issueAnalysis
 from MLbackend.src.graphqlAnalysis.prAnalysis import prAnalysis
 from MLbackend.src.graphqlAnalysis.releaseAnalysis import releaseAnalysis
+from MLbackend.src.pdfGeneration import generate_pdf
 from MLbackend.src.politenessAnalysis import politenessAnalysis
 from MLbackend.src.repoLoader import getRepo
 from MLbackend.src.smellDetection import smellDetection
 from MLbackend.src.tagAnalysis import tagAnalysis
 from MLbackend.src.utils.result import Result
-
-smells = {
-    "OSE": "Organizational Silo Effect: Isolated subgroups lead to poor communication, wasted resources, and duplicated code.",
-    "BCE": "Black-cloud Effect: Information overload due to limited collaboration and a lack of experts, causing knowledge gaps.",
-    "PDE": "Prima-donnas Effect: Resistance to external input due to ineffective collaboration, hindering team synergy.",
-    "SV": "Sharing Villainy: Poor-quality information exchange results in outdated or incorrect knowledge being shared.",
-    "OS": "Organizational Skirmish: Misaligned expertise and communication affect productivity, timelines, and costs.",
-    "SD": "Solution Defiance: Conflicting technical opinions within subgroups cause delays and uncooperative behavior.",
-    "RS": "Radio Silence: Formal, rigid procedures delay decision-making and waste time, leading to project delays.",
-    "TFS": "Truck Factor Smell: Concentration of knowledge in few individuals leads to risks if they leave the project.",
-    "UI": "Unhealthy Interaction: Weak, slow communication among developers, with low participation and long response times.",
-    "TC": "Toxic Communication: Negative, hostile interactions among developers, resulting in frustration, stress, and potential project abandonment.",
-}
-
-
-def create_community_smell_report(
-    pdf_file, metrics_results, meta_results, smell_abbreviations
-):
-    document = SimpleDocTemplate(pdf_file, pagesize=letter)
-    content = []
-
-    styles = getSampleStyleSheet()
-    title_style = styles["Title"]
-    title = Paragraph("Community Smell Definitions and Metric Analysis", title_style)
-    content.append(title)
-    content.append(
-        Paragraph("<br/><b>Community Smell Definitions:</b>", styles["Heading2"])
-    )
-
-    for smell_name in smell_abbreviations:
-        smell_definition = smells.get(smell_name)
-        if smell_definition:
-            definition = f"{smell_name}: {smell_definition}"
-            paragraph = Paragraph(definition, styles["Normal"])
-            content.append(paragraph)
-
-    commit_analysis_title = Paragraph("Commit Analysis:", styles["Heading2"])
-    content.append(commit_analysis_title)
-
-    commit_analysis_table = Table(meta_results)
-    commit_analysis_table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-                ("GRID", (0, 0), (-1, -1), 1, colors.black),
-            ]
-        )
-    )
-
-    content.append(commit_analysis_table)
-
-    metrics_title = Paragraph(
-        "<br/><b>Commit and PR Analysis Metrics:</b>", styles["Heading2"]
-    )
-    content.append(metrics_title)
-
-    metrics_table = Table(metrics_results)
-    metrics_table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-                ("GRID", (0, 0), (-1, -1), 1, colors.black),
-            ]
-        )
-    )
-
-    content.append(metrics_table)
-
-    document.build(content)
 
 
 def communitySmellsDetector(
@@ -118,7 +35,7 @@ def communitySmellsDetector(
     google_api_key: Optional[str] = None,
     batch_months: float = 9999,
     start_date: Optional[str] = None,
-) -> dict:  # Specify the return type
+) -> None:  # Specify the return type
 
     try:
         # Parse args
@@ -237,18 +154,16 @@ def communitySmellsDetector(
 
             # Run smell detection and collect results
             smell_results = smellDetection(config, batchIdx, logger, result)
-            results = {
-                "batch_date": batchDate.strftime("%Y-%m-%d"),
-                "smell_results": list(smell_results),
-                "core_devs": list(batchCoreDevs),
-                "meta": results_meta,
-                "metrics": results_metrics,
-            }
-
-            df = pd.read_csv(
-                os.path.join(config.resultsPath, f"results_{batchIdx}.csv")
+            result.setPDFFilePath(
+                pdf_file_path=os.path.join(".", config.resultsPath, "smell_report.pdf")
             )
-            df.columns = ["Metric", "Value"]
+            generate_pdf(
+                metrics_results=result.metric_datas[0],
+                meta_results=result.getMetaResults(),
+                smell_abbreviations=result.smells[0],
+                pdf_file_path=result.pdf_file_path,
+                logger=logger,
+            )
     except Exception as e:
 
         # Return the detailed error
@@ -262,11 +177,7 @@ def communitySmellsDetector(
         if "repo" in locals():
             del repo
 
-    return results, None  # Return the collected results
-
-
-def commitDate(tag):
-    return tag.commit.committed_date
+    return None
 
 
 def remove_readonly(fn, path, excinfo):
