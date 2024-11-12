@@ -1,5 +1,6 @@
 from datetime import datetime
 from logging import Logger
+from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 
@@ -20,8 +21,12 @@ class Result:
         self._metric_datas: List[Tuple[str, int, float, float]] = []
         self._smells: List[List[str]] = []
         self.logger: Logger = logger
+        self.pdf_file_path: Path
 
         return None
+
+    def setPDFFilePath(self, pdf_file_path: Path) -> None:
+        self.pdf_file_path = pdf_file_path
 
     @property
     def commit_count(self) -> List[int]:
