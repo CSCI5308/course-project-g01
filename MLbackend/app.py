@@ -31,9 +31,6 @@ def home():
     return render_template("index.html")
 
 
-output_path: Path = Path(".", "MLbackend", "src", "results")
-
-
 @app.route("/api/v1/smells", methods=["POST"])
 def detect_smells():
     url = request.form["repo-url"]
@@ -41,7 +38,7 @@ def detect_smells():
     pat = request.form["access-token"]
 
     senti_strength_path: Path = Path(".", "MLbackend", "data")
-    output_path: Path = Path(".", "MLbackend", "src", "results")
+    output_path: Path = Path(".", "MLbackend", "results")
     result_ins: Result = Result(logger=LOGGER)
 
     try:
