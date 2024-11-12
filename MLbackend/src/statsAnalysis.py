@@ -20,7 +20,7 @@ def outputStatistics(idx: int, data: list, metric: str, outputDir: str, logger: 
 
         for key in stats:
             outputValue(w, metric, key, stats)
-    return metric, stats["count"], f"{stats['mean']:.4f}", f"{stats['stdev']:.4f}" if stats['stdev'] else "N/A"
+    return metric, stats["count"], f"{stats['mean']:.4f}", f"{stats['stdev']:.4f}" if stats['stdev'] else "0.0"
     
 
 

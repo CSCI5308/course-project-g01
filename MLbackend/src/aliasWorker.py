@@ -28,6 +28,8 @@ def replaceAliases(
         content = file.read()
 
     aliases = yaml.load(content, Loader=yaml.FullLoader)
+    if aliases is None:
+        return commits
 
     # transpose for easy replacements
     transposesAliases = {}

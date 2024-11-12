@@ -200,7 +200,12 @@ def commitBatchAnalysis(
             author["experienced"] = True
 
     # calculate percentage sponsored authors
-    percentageSponsoredAuthors = sponsoredAuthorCount / len([*authorInfoDict])
+    # In real world scenario it's not possible but for testing purpose.
+    try:
+        percentageSponsoredAuthors = sponsoredAuthorCount / len([*authorInfoDict])
+    except:
+        percentageSponsoredAuthors = 0
+
 
     # calculate active project days
     firstCommitDate = None
