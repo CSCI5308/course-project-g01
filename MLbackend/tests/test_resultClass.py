@@ -807,17 +807,21 @@ def test_addSponsoredAuthorCountFailsDueToIncorrectAuthorValueType(
         (
             [datetime.now()],
             [
-                5.,
+                5.0,
             ],
             [
-                5.,
+                5.0,
             ],
         ),
-        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5., 10.], [5., 10.]),
+        (
+            [datetime.now(), datetime.now() - relativedelta(days=5)],
+            [5.0, 10.0],
+            [5.0, 10.0],
+        ),
         (
             [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
-            [5., 10., 15.],
-            [5., 10., 15.],
+            [5.0, 10.0, 15.0],
+            [5.0, 10.0, 15.0],
         ),
     ],
 )
@@ -848,7 +852,10 @@ def test_addPercentageSponsoredAuthorCorrect(
 
 @pytest.mark.parametrize(
     "batch_dates, percentage_sponsored_authors",
-    [([datetime.now()], [5., 5.]), ([datetime.now(), datetime.now()], [5., 1., 6.])],
+    [
+        ([datetime.now()], [5.0, 5.0]),
+        ([datetime.now(), datetime.now()], [5.0, 1.0, 6.0]),
+    ],
 )
 def test_addPercentageSponsoredAuthorFailsDueToLessBatchSize(
     result_instance: Result,
@@ -879,8 +886,8 @@ def test_addPercentageSponsoredAuthorFailsDueToLessBatchSize(
 @pytest.mark.parametrize(
     "batch_dates, percentage_sponsored_authors",
     [
-        ([datetime.now(), datetime.now()], [5., "a"]),
-        ([datetime.now(), datetime.now(), datetime.now()], [5., "b", 6.]),
+        ([datetime.now(), datetime.now()], [5.0, "a"]),
+        ([datetime.now(), datetime.now(), datetime.now()], [5.0, "b", 6.0]),
     ],
 )
 def test_addPercentageSponsoredAuthorFailsDueToIncorrectAuthorValueType(
@@ -1046,7 +1053,7 @@ def test_addTimeZoneCountFailsDueToIncorrectAuthorValueType(
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentPositive", 3, 3.67, 1.53),
-                ]
+                ],
             ],
             [
                 [
@@ -1058,8 +1065,8 @@ def test_addTimeZoneCountFailsDueToIncorrectAuthorValueType(
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentPositive", 3, 3.67, 1.53),
-                ]
-            ]
+                ],
+            ],
         ),
         (
             [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
@@ -1078,7 +1085,7 @@ def test_addTimeZoneCountFailsDueToIncorrectAuthorValueType(
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentNegative", 2, -1.5, 0.707),
-                ]
+                ],
             ],
             [
                 [
@@ -1095,8 +1102,8 @@ def test_addTimeZoneCountFailsDueToIncorrectAuthorValueType(
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentNegative", 2, -1.5, 0.707),
-                ]
-            ]
+                ],
+            ],
         ),
     ],
 )
@@ -1110,8 +1117,10 @@ def test_addMetricDataCorrect(
     result_instance.logger.info.return_value = "All values of Result are being reset"
     result_instance.addBatchDates(batch_dates)
     for idx, metric_data in enumerate(metric_data):
-        for (metric, count, mean, std_dev) in metric_data:
-            result_instance.addMetricData(batch_idx=idx, metric=metric, count=count, mean=mean, std_dev=std_dev)
+        for metric, count, mean, std_dev in metric_data:
+            result_instance.addMetricData(
+                batch_idx=idx, metric=metric, count=count, mean=mean, std_dev=std_dev
+            )
 
     assert result_instance.metric_datas == expected_metric_data
     result_instance.logger.info.assert_called_once_with(
@@ -1151,7 +1160,7 @@ def test_addMetricDataCorrect(
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentPositive", 3, 3.67, None),
-                ]
+                ],
             ],
             [
                 [
@@ -1163,8 +1172,8 @@ def test_addMetricDataCorrect(
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentPositive", 3, 3.67, None),
-                ]
-            ]
+                ],
+            ],
         ),
     ],
 )
@@ -1178,8 +1187,10 @@ def test_addMetricDataNoneStdDev(
     result_instance.logger.info.return_value = "All values of Result are being reset"
     result_instance.addBatchDates(batch_dates)
     for idx, metric_data in enumerate(metric_data):
-        for (metric, count, mean, std_dev) in metric_data:
-            result_instance.addMetricData(batch_idx=idx, metric=metric, count=count, mean=mean, std_dev=std_dev)
+        for metric, count, mean, std_dev in metric_data:
+            result_instance.addMetricData(
+                batch_idx=idx, metric=metric, count=count, mean=mean, std_dev=std_dev
+            )
 
     assert result_instance.metric_datas == expected_metric_data
     result_instance.logger.info.assert_called_once_with(
@@ -1202,7 +1213,7 @@ def test_addMetricDataNoneStdDev(
                 [
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
-                ]
+                ],
             ],
         ),
         (
@@ -1222,8 +1233,8 @@ def test_addMetricDataNoneStdDev(
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentPositive", 3, 3.67, 1.53),
-                ]
-            ]
+                ],
+            ],
         ),
     ],
 )
@@ -1238,8 +1249,14 @@ def test_addMetricDataFailsDueToLessBatchSize(
     result_instance.addBatchDates(batch_dates)
     with pytest.raises(ValueError):
         for idx, metric_data in enumerate(metric_data):
-            for (metric, count, mean, std_dev) in metric_data:
-                result_instance.addMetricData(batch_idx=idx, metric=metric, count=count, mean=mean, std_dev=std_dev)
+            for metric, count, mean, std_dev in metric_data:
+                result_instance.addMetricData(
+                    batch_idx=idx,
+                    metric=metric,
+                    count=count,
+                    mean=mean,
+                    std_dev=std_dev,
+                )
 
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
@@ -1274,7 +1291,7 @@ def test_addMetricDataFailsDueToLessBatchSize(
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentPositive", 3, 3.67, 1.53),
                 ],
-            ]
+            ],
         ),
         (
             [datetime.now(), datetime.now() - relativedelta(days=5)],
@@ -1289,7 +1306,7 @@ def test_addMetricDataFailsDueToLessBatchSize(
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentPositive", 3, 3.67, 1.53),
                 ],
-            ]
+            ],
         ),
         (
             [datetime.now(), datetime.now() - relativedelta(days=5)],
@@ -1304,7 +1321,7 @@ def test_addMetricDataFailsDueToLessBatchSize(
                     ("AuthorCommitCount", 5, 2.5, "0.707"),
                     ("CommitMessageSentimentPositive", 3, 3.67, 1.53),
                 ],
-            ]
+            ],
         ),
     ],
 )
@@ -1319,8 +1336,14 @@ def test_addMetricDataFailsDueToIncorrectAuthorValueType(
     result_instance.addBatchDates(batch_dates)
     with pytest.raises(ValueError):
         for idx, metric_data in enumerate(metric_data):
-            for (metric, count, mean, std_dev) in metric_data:
-                result_instance.addMetricData(batch_idx=idx, metric=metric, count=count, mean=mean, std_dev=std_dev)
+            for metric, count, mean, std_dev in metric_data:
+                result_instance.addMetricData(
+                    batch_idx=idx,
+                    metric=metric,
+                    count=count,
+                    mean=mean,
+                    std_dev=std_dev,
+                )
 
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
@@ -1334,16 +1357,44 @@ def test_addMetricDataFailsDueToIncorrectAuthorValueType(
 @pytest.mark.parametrize(
     "batch_dates, smells, expected_smells",
     [
-        ([datetime.now(),], [["OSE", "BCE"]], [["OSE", "BCE"]],),
+        (
+            [
+                datetime.now(),
+            ],
+            [["OSE", "BCE"]],
+            [["OSE", "BCE"]],
+        ),
         (
             [datetime.now(), datetime.now() - relativedelta(days=5)],
-            [["OSE", "BCE"], ["PDE",]],
-            [["OSE", "BCE"], ["PDE",]],
+            [
+                ["OSE", "BCE"],
+                [
+                    "PDE",
+                ],
+            ],
+            [
+                ["OSE", "BCE"],
+                [
+                    "PDE",
+                ],
+            ],
         ),
         (
             [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
-            [["OSE", "BCE"], ["PDE",], ["RS", "TF"]],
-            [["OSE", "BCE"], ["PDE",], ["RS", "TF"]],
+            [
+                ["OSE", "BCE"],
+                [
+                    "PDE",
+                ],
+                ["RS", "TF"],
+            ],
+            [
+                ["OSE", "BCE"],
+                [
+                    "PDE",
+                ],
+                ["RS", "TF"],
+            ],
         ),
     ],
 )
@@ -1371,10 +1422,26 @@ def test_addSmellCorrect(
 @pytest.mark.parametrize(
     "batch_dates, smells",
     [
-        ([datetime.now(),], [["OSE", "BCE"], ["PDE",]]),
+        (
+            [
+                datetime.now(),
+            ],
+            [
+                ["OSE", "BCE"],
+                [
+                    "PDE",
+                ],
+            ],
+        ),
         (
             [datetime.now(), datetime.now() - relativedelta(days=5)],
-            [["OSE", "BCE"], ["PDE",], ["RS", "TF"]],
+            [
+                ["OSE", "BCE"],
+                [
+                    "PDE",
+                ],
+                ["RS", "TF"],
+            ],
         ),
     ],
 )
@@ -1404,10 +1471,22 @@ def test_addSmellFailsDueToLessBatchSize(
 @pytest.mark.parametrize(
     "batch_dates, smells",
     [
-        ([datetime.now(),], [["OSE", 58],]),
+        (
+            [
+                datetime.now(),
+            ],
+            [
+                ["OSE", 58],
+            ],
+        ),
         (
             [datetime.now(), datetime.now() - relativedelta(days=5)],
-            [["OSE", "BCE"], [56,]],
+            [
+                ["OSE", "BCE"],
+                [
+                    56,
+                ],
+            ],
         ),
     ],
 )
@@ -1429,7 +1508,7 @@ def test_addSmellFailsDueToIncorrectSmellValueType(
         "All values of Result are being reset"
     )
     result_instance.logger.error.assert_called_once_with(
-         "Incorrect value type for smell"
+        "Incorrect value type for smell"
     )
     return None
 
@@ -1437,10 +1516,22 @@ def test_addSmellFailsDueToIncorrectSmellValueType(
 @pytest.mark.parametrize(
     "batch_dates, smells",
     [
-        ([datetime.now(),], [["OSE", "MNP"],]),
+        (
+            [
+                datetime.now(),
+            ],
+            [
+                ["OSE", "MNP"],
+            ],
+        ),
         (
             [datetime.now(), datetime.now() - relativedelta(days=5)],
-            [["OSE", "BCE"], ["XYZ",]],
+            [
+                ["OSE", "BCE"],
+                [
+                    "XYZ",
+                ],
+            ],
         ),
     ],
 )
@@ -1461,7 +1552,5 @@ def test_addSmellFailsDueToIncorrectAuthorValueType(
     result_instance.logger.info.assert_called_once_with(
         "All values of Result are being reset"
     )
-    result_instance.logger.error.assert_called_once_with(
-         "Incorrect smell type passed"
-    )
+    result_instance.logger.error.assert_called_once_with("Incorrect smell type passed")
     return None
