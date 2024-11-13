@@ -16,6 +16,7 @@ import MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper as gql
 import MLbackend.src.statsAnalysis as stats
 from MLbackend.src.configuration import Configuration
 from MLbackend.src.perspectiveAnalysis import getToxicityPercentage
+from MLbackend.src.utils.result import Result
 
 
 def prAnalysis(
@@ -24,6 +25,7 @@ def prAnalysis(
     delta: relativedelta,
     batchDates: List[datetime],
     logger: Logger,
+    result: Result,
 ) -> Tuple[List[List[List[str]]], List[List[str]]]:
 
     logger.info("Querying PRs")
@@ -42,7 +44,6 @@ def prAnalysis(
     results_metrics = []
     results_meta1 = []
     results_metrics1 = []
-
 
     for batchIdx, batch in enumerate(batches):
         logger.info(f"Analyzing PR batch #{batchIdx}")
@@ -152,7 +153,9 @@ def prAnalysis(
 
         toxicityPercentage = getToxicityPercentage(config, allComments, logger)
 
-        author, meta, metrics_data = centrality.buildGraphQlNetwork(batchIdx, participants, "PRs", config, logger)
+        centrality.buildGraphQlNetwork(
+            batchIdx, participants, "PRs", config, logger, result
+        )
 
         logger.info("Writing results of PR analysis to CSVs.")
         with open(
@@ -167,11 +170,16 @@ def prAnalysis(
             w.writerow(["PRCommentsNegative", commentSentimentsNegative])
             w.writerow(["PRCommentsNegativeRatio", generallyNegativeRatio])
             w.writerow(["PRCommentsToxicityPercentage", toxicityPercentage])
-        
-        meta1 = [["Metric","Value"],["NumberPRs", prCount],["NumberPRComments", len(allComments)],
-                 ["PRCommentsPositive", commentSentimentsPositive],["PRCommentsNegative", commentSentimentsNegative],
-                 ["PRCommentsNegativeRatio", generallyNegativeRatio],["PRCommentsToxicityPercentage", toxicityPercentage]]
 
+        meta1 = [
+            ["Metric", "Value"],
+            ["NumberPRs", prCount],
+            ["NumberPRComments", len(allComments)],
+            ["PRCommentsPositive", commentSentimentsPositive],
+            ["PRCommentsNegative", commentSentimentsNegative],
+            ["PRCommentsNegativeRatio", generallyNegativeRatio],
+            ["PRCommentsToxicityPercentage", toxicityPercentage],
+        ]
 
         with open(
             os.path.join(config.metricsPath, f"PRCommits_{batchIdx}.csv"),
@@ -200,7 +208,6 @@ def prAnalysis(
             "PRCommentsLength",
             config.resultsPath,
             logger,
-
         )
 
         pr_dur = stats.outputStatistics(
@@ -260,23 +267,23 @@ def prAnalysis(
         )
 
         metrics_data1 = [("Metric", "Count", "Mean", "Stdev")]
-        metrics_data1.extend([
-        len_com,
-        pr_dur,
-        pr_com_c,
-        pr_com,
-        pr_com_sent,
-        pr_part,
-        pr_pos,
-        pr_neg])
+        metrics_data1.extend(
+            [len_com, pr_dur, pr_com_c, pr_com, pr_com_sent, pr_part, pr_pos, pr_neg]
+        )
 
         results_meta.append(meta)
         results_meta1.append(meta1)
         results_metrics.append(metrics_data)
         results_metrics1.append(metrics_data1)
 
-
-    return batchParticipants, batchComments, results_meta[0], results_metrics[0], results_meta1[0], results_metrics1[0]
+    return (
+        batchParticipants,
+        batchComments,
+        results_meta[0],
+        results_metrics[0],
+        results_meta1[0],
+        results_metrics1[0],
+    )
 
 
 def analyzeSentiments(
@@ -383,12 +390,6 @@ def prRequest(
             query = buildPrRequestQuery(owner=owner, name=name, cursor=cursor)
 
     return list(batches_pre.values())
-
-
-
-
-
-
 
 
 def buildPrRequestQuery(owner: str, name: str, cursor: str):

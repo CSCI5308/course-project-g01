@@ -1,8 +1,12 @@
-import os
-import sys
 import pytest
-from MLbackend.validations import (InvalidInputError, validate_email,
-                                   validate_pat, validate_url)
+from MLbackend.validations import (
+    InvalidInputError,
+    validate_email,
+    validate_pat,
+    validate_url,
+)
+
+
 def test_validate_url():
     with pytest.raises(InvalidInputError):
         validate_url("invalid_url")

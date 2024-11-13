@@ -7,11 +7,14 @@ from typing import List
 from joblib import load
 
 from MLbackend.src.configuration import Configuration
+from MLbackend.src.utils.result import Result
 
 warnings.filterwarnings("ignore")
 
 
-def smellDetection(config: Configuration, batchIdx: int, logger: Logger):
+def smellDetection(
+    config: Configuration, batchIdx: int, logger: Logger, result: Result
+):
 
     # prepare results holder for easy mapping
     results = {}
@@ -42,6 +45,9 @@ def smellDetection(config: Configuration, batchIdx: int, logger: Logger):
         for smell_name, smell_model in all_models.items()
     }
     detectedSmells = [smell for smell in smells if rawSmells[smell][0] == 1]
+    for smell in smells:
+        if rawSmells[smell][0] == 1:
+            result.addSmell(batch_idx=batchIdx, smell=smell)
 
     # add last commit date as first output param
     detectedSmells.insert(0, results["LastCommitDate"])
