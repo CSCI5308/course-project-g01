@@ -109,4 +109,4 @@ def send_email(email: str, pdf_file_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3003)
+    app.run(host="0.0.0.0", port=3000)
