@@ -43,10 +43,35 @@ def smellDetection(config: Configuration, batchIdx: int, logger: Logger):
     }
     detectedSmells = [smell for smell in smells if rawSmells[smell][0] == 1]
 
-    # add last commit date as first output param
-    detectedSmells.insert(0, results["LastCommitDate"])
+        # Prepare additional values
+    additional_metrics = {
+        "CommitCount": results.get("CommitCount", 0),
+        "DaysActive": results.get("DaysActive", 0),
+        "FirstCommitDate": results.get("FirstCommitDate", ""),
+        "LastCommitDate": results.get("LastCommitDate", ""),
+        "AuthorCount": results.get("AuthorCount", 0),
+        "SponsoredAuthorCount": results.get("SponsoredAuthorCount", 0),
+        "PercentagesSponsoredAuthors": results.get("PercentageSponsoredAuthors", 0),
+        "AuthorCommitCount_mean": results.get("AuthorCommitCount_mean", 0),
+        "AuthorCommitCount_stdev": results.get("AuthorCommitCount_stdev", 0),
+        "NumberPRs": results.get("NumberPRs", 0),
+        "PRDuration_mean": results.get("PRDuration_mean", 0),
+        "PRCommentsLength_mean": results.get("PRCommentsLength_mean", 0),
+        "NumberIssues": results.get("NumberIssues", 0),
+        "IssueCommentsLength_mean": results.get("IssueCommentsLength_mean", 0),
+        "IssueCommentSentiments_mean": results.get("IssueCommentSentiments_mean", 0),
+        "NumberReleases": results.get("NumberReleases", 0),
+        "ReleaseCommitCount_mean": results.get("ReleaseCommitCount_mean", 0),
+        "BusFactorNumber": results.get("BusFactorNumber", 0),
+        "ExperiencedTFC": results.get("commitCentrality_TFC", 0),
+    }
 
-    return detectedSmells
+    # insert detected smells
+    additional_metrics["DetectedSmells"] = detectedSmells.copy()
+    detectedSmells.insert(0, results["LastCommitDate"])
+    additional_metrics["smell_results"] = detectedSmells
+
+    return additional_metrics
 
 
 def buildMetricsList(results: dict, logger: Logger):

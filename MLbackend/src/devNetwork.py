@@ -257,7 +257,7 @@ def communitySmellsDetector(
             pdf_results["Dev Analysis"] =  dev_res
             results = {
                 "batch_date": batchDate.strftime("%Y-%m-%d"),
-                "smell_results": list(smell_results),
+                **smell_results,
                 "core_devs": list(batchCoreDevs),
                 "pdf_results":pdf_results,
             }
