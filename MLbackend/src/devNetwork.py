@@ -6,8 +6,13 @@ from logging import Logger
 from pathlib import Path
 from typing import Any, List, Optional
 
+import pandas as pd
 import sentistrength
 from dateutil.relativedelta import relativedelta
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
 
 import MLbackend.src.centralityAnalysis as centrality
 from MLbackend.src.aliasWorker import replaceAliases
@@ -36,7 +41,9 @@ def communitySmellsDetector(
     batch_months: float = 9999,
     start_date: Optional[str] = None,
 ) -> None:  # Specify the return type
+    
 
+    pdf_results = {}
     try:
         # Parse args
         config: Configuration = Configuration(
@@ -84,13 +91,17 @@ def communitySmellsDetector(
 
         # Handle aliases
         commits = list(replaceAliases(repo.iter_commits(), config, logger))
+        
 
         # Run analysis
         batchDates, authorInfoDict, daysActive, results_meta, results_metrics = (
-            commitAnalysis(senti, commits, delta, config, logger, result)
+            commitAnalysis(senti, commits, delta, config, logger,result)
         )
+        pdf_results["Commit Analysis"] = [results_meta,results_metrics]
+
 
         tagres = tagAnalysis(repo, delta, batchDates, daysActive, config, logger)
+
 
         coreDevs: List[List[Any]] = centrality.centralityAnalysis(
             commits, delta, batchDates, config, logger, result
@@ -98,17 +109,37 @@ def communitySmellsDetector(
 
         releaseres = releaseAnalysis(commits, config, delta, batchDates, logger)
 
-        prParticipantBatches, prCommentBatches = prAnalysis(
-            config, senti, delta, batchDates, logger, None
+        prParticipantBatches, prCommentBatches, results_meta2, results_metrics2, results_meta3, results_metric3 = prAnalysis(
+            config,
+            senti,
+            delta,
+            batchDates,
+            logger,
+            None
+        )
+        pdf_results["PR Analysis"] = [results_meta2,results_metrics2]
+        pdf_results["PR Comment Analysis"] = [results_meta3,results_metric3]
+
+        issueParticipantBatches, issueCommentBatches, results_meta4, results_metrics4, results_meta5, results_metric5 = issueAnalysis(
+            config,
+            senti,
+            delta,
+            batchDates,
+            logger,
+            None
         )
 
-        issueParticipantBatches, issueCommentBatches = issueAnalysis(
-            config, senti, delta, batchDates, logger, None
-        )
+        pdf_results["Issue Analysis"] = [results_meta4,results_metrics4]
+        pdf_results["Issue Comment Analysis"] = [results_meta5,results_metric5]
 
         politeness = politenessAnalysis(
             config, prCommentBatches, issueCommentBatches, logger, result
         )
+        pdf_results["Politeness Analysis"] = [politeness]
+
+        dev_res = []
+        meta_cent = []
+        metrics_cent = []
 
         for batchIdx, batchDate in enumerate(batchDates):
             # Get combined author lists
@@ -117,14 +148,16 @@ def communitySmellsDetector(
             )
 
             # Build combined network
-            centrality.buildGraphQlNetwork(
+            authors, meta, metric = centrality.buildGraphQlNetwork(
                 batchIdx,
                 combinedAuthorsInBatch,
                 "issuesAndPRsCentrality",
                 config,
                 logger,
-                None,
+                None
             )
+            meta_cent.append(meta)
+            metrics_cent.append(metric)
 
             # Get combined unique authors for both PRs and issues
             uniqueAuthorsInPrBatch = set(
@@ -143,7 +176,7 @@ def communitySmellsDetector(
             batchCoreDevs = coreDevs[batchIdx]
 
             # Run dev analysis
-            devAnalysis(
+            meta_res = devAnalysis(
                 authorInfoDict,
                 batchIdx,
                 uniqueAuthorsInBatch,
@@ -151,18 +184,18 @@ def communitySmellsDetector(
                 config,
                 logger,
             )
+            dev_res.append(meta_res)
 
-            # Run smell detection and collect results
             smell_results = smellDetection(config, batchIdx, logger, result)
+            pdf_results["IssuesAndPRsCentrality Analysis"] = [meta_cent[0],metrics_cent[0]]
+            pdf_results["Dev Analysis"] =  dev_res
             result.setPDFFilePath(
                 pdf_file_path=os.path.join(".", config.resultsPath, "smell_report.pdf")
             )
             generate_pdf(
-                metrics_results=result.metric_datas[0],
-                meta_results=result.getMetaResults(),
-                smell_abbreviations=result.smells[0],
+                pdf_results=pdf_results,
+                smells_det=smell_results[1:],
                 pdf_file_path=result.pdf_file_path,
-                logger=logger,
             )
     except Exception as e:
 
@@ -177,6 +210,9 @@ def communitySmellsDetector(
         if "repo" in locals():
             del repo
 
+
+
+def commitDate(tag):
     return None
 
 

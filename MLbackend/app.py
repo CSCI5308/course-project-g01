@@ -64,12 +64,14 @@ def detect_smells():
                 ),
                 404,
             )
-
+        global pdf_path
+        pdf_path = result_ins.pdf_file_path
         send_email(
             email=email,
             pdf_file_path=result_ins.pdf_file_path,
         )
         return render_template("results.html", data=result_ins.getWebResult())
+
     except InvalidInputError as e:
         return jsonify({"status": "error", "message": str(e)}), 400
     except Exception as e:
@@ -81,16 +83,9 @@ def detect_smells():
 @app.route("/api/v1/pdf", methods=["GET"])
 def downloadPDF():
     try:
-
-        metrics_results = result["metrics"]
-        meta_results = result["meta"]
-        smell_abbreviations = result["smell_results"][1:]
-        PDF_FILE_PATH = os.path.join(output_path, "..", "smell_report.pdf")
-        # Generate PDF
-        generate_pdf1(metrics_results, meta_results, smell_abbreviations, PDF_FILE_PATH)
-
         # Send the generated PDF to the frontend
-        return send_file(PDF_FILE_PATH, as_attachment=True)
+        pdf_path1 = Path(pdf_path).resolve()
+        return send_file(pdf_path1, as_attachment=True)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -114,4 +109,4 @@ def send_email(email: str, pdf_file_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000)
+    app.run(host="0.0.0.0", port=3003)

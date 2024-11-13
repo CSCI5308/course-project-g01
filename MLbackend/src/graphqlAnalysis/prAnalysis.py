@@ -40,6 +40,11 @@ def prAnalysis(
 
     batchParticipants = list()
     batchComments = list()
+    results_meta = []
+    results_metrics = []
+    results_meta1 = []
+    results_metrics1 = []
+
 
     for batchIdx, batch in enumerate(batches):
         logger.info(f"Analyzing PR batch #{batchIdx}")
@@ -149,9 +154,7 @@ def prAnalysis(
 
         toxicityPercentage = getToxicityPercentage(config, allComments, logger)
 
-        centrality.buildGraphQlNetwork(
-            batchIdx, participants, "PRs", config, logger, result
-        )
+        author, meta, metrics_data = centrality.buildGraphQlNetwork(batchIdx, participants, "PRs", config, logger, result)
 
         logger.info("Writing results of PR analysis to CSVs.")
         with open(
@@ -166,6 +169,11 @@ def prAnalysis(
             w.writerow(["PRCommentsNegative", commentSentimentsNegative])
             w.writerow(["PRCommentsNegativeRatio", generallyNegativeRatio])
             w.writerow(["PRCommentsToxicityPercentage", toxicityPercentage])
+        
+        meta1 = [["Metric","Value"],["NumberPRs", prCount],["NumberPRComments", len(allComments)],
+                 ["PRCommentsPositive", commentSentimentsPositive],["PRCommentsNegative", commentSentimentsNegative],
+                 ["PRCommentsNegativeRatio", generallyNegativeRatio],["PRCommentsToxicityPercentage", toxicityPercentage]]
+
 
         with open(
             os.path.join(config.metricsPath, f"PRCommits_{batchIdx}.csv"),
@@ -188,15 +196,24 @@ def prAnalysis(
                 w.writerow([pr["number"], len(set(pr["participants"]))])
 
         # output statistics
-        stats.outputStatistics(
-            batchIdx, commentLengths, "PRCommentsLength", config.resultsPath, logger
+        len_com = stats.outputStatistics(
+            batchIdx,
+            commentLengths,
+            "PRCommentsLength",
+            config.resultsPath,
+            logger,
+
         )
 
-        stats.outputStatistics(
-            batchIdx, durations, "PRDuration", config.resultsPath, logger
+        pr_dur = stats.outputStatistics(
+            batchIdx,
+            durations,
+            "PRDuration",
+            config.resultsPath,
+            logger,
         )
 
-        stats.outputStatistics(
+        pr_com_c = stats.outputStatistics(
             batchIdx,
             [len(pr["comments"]) for pr in batch],
             "PRCommentsCount",
@@ -204,7 +221,7 @@ def prAnalysis(
             logger,
         )
 
-        stats.outputStatistics(
+        pr_com = stats.outputStatistics(
             batchIdx,
             [pr["commitCount"] for pr in batch],
             "PRCommitsCount",
@@ -212,7 +229,7 @@ def prAnalysis(
             logger,
         )
 
-        stats.outputStatistics(
+        pr_com_sent = stats.outputStatistics(
             batchIdx,
             commentSentiments,
             "PRCommentSentiments",
@@ -220,7 +237,7 @@ def prAnalysis(
             logger,
         )
 
-        stats.outputStatistics(
+        pr_part = stats.outputStatistics(
             batchIdx,
             [len(set(pr["participants"])) for pr in batch],
             "PRParticipantsCount",
@@ -228,7 +245,7 @@ def prAnalysis(
             logger,
         )
 
-        stats.outputStatistics(
+        pr_pos = stats.outputStatistics(
             batchIdx,
             prPositiveComments,
             "PRCountPositiveComments",
@@ -236,7 +253,7 @@ def prAnalysis(
             logger,
         )
 
-        stats.outputStatistics(
+        pr_neg = stats.outputStatistics(
             batchIdx,
             prNegativeComments,
             "PRCountNegativeComments",
@@ -244,7 +261,24 @@ def prAnalysis(
             logger,
         )
 
-    return batchParticipants, batchComments
+        metrics_data1 = [("Metric", "Count", "Mean", "Stdev")]
+        metrics_data1.extend([
+        len_com,
+        pr_dur,
+        pr_com_c,
+        pr_com,
+        pr_com_sent,
+        pr_part,
+        pr_pos,
+        pr_neg])
+
+        results_meta.append(meta)
+        results_meta1.append(meta1)
+        results_metrics.append(metrics_data)
+        results_metrics1.append(metrics_data1)
+
+
+    return batchParticipants, batchComments, results_meta[0], results_metrics[0], results_meta1[0], results_metrics1[0]
 
 
 def analyzeSentiments(
@@ -351,6 +385,12 @@ def prRequest(
             query = buildPrRequestQuery(owner=owner, name=name, cursor=cursor)
 
     return list(batches_pre.values())
+
+
+
+
+
+
 
 
 def buildPrRequestQuery(owner: str, name: str, cursor: str):

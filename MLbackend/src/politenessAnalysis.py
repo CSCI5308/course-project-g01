@@ -9,6 +9,7 @@ from MLbackend.src.configuration import Configuration
 from MLbackend.src.utils.result import Result
 
 
+
 def politenessAnalysis(
     config: Configuration,
     prCommentBatches: list,
@@ -18,10 +19,11 @@ def politenessAnalysis(
 ) -> None:
 
     accl = calculateACCL(config, prCommentBatches, issueCommentBatches, logger)
-
     rpc_pr = calculateRPC(config, "PR", prCommentBatches, logger)
     rpc_issues = calculateRPC(config, "Issue", prCommentBatches, logger)
-    return (accl, rpc_pr, rpc_issues)
+    results = [["Metrics","Value"],["ACCL",accl],["RPCPR",rpc_pr[1]],["RPCIssue",rpc_issues[1]]]
+    return results
+
 
 
 def calculateACCL(config, prCommentBatches, issueCommentBatches, logger) -> None:
@@ -49,7 +51,7 @@ def calculateACCL(config, prCommentBatches, issueCommentBatches, logger) -> None
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow(["ACCL", accl])
-    return accls
+    return accls[0]
 
 
 def calculateRPC(config, outputPrefix, commentBatches, logger: Logger) -> None:
@@ -69,7 +71,7 @@ def calculateRPC(config, outputPrefix, commentBatches, logger: Logger) -> None:
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow([f"RPC{outputPrefix}", positiveMarkerCount])
-    return rpcs
+    return rpcs[0]
 
 
 def getResults(comments: list) -> float:

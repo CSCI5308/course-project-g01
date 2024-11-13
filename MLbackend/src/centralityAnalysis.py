@@ -22,11 +22,14 @@ def centralityAnalysis(
     batchDates: List[datetime],
     config: Configuration,
     logger: Logger,
-    result: Result,
+    result:Result,
 ) -> List[List[Any]]:
     coreDevs: List[List[Any]] = list()
 
     # work with batched commits
+    central_meta = []
+    central_metric = []
+
     for idx, batchStartDate in enumerate(batchDates):
         batchEndDate = batchStartDate + delta
 
@@ -37,18 +40,16 @@ def centralityAnalysis(
             and commit.committed_datetime < batchEndDate
         ]
 
-        batchCoreDevs = processBatch(idx, batch, config, logger, result)
+        batchCoreDevs, cen_meta, cen_metric = processBatch(idx, batch, config,logger,result)
+        central_meta.append(cen_meta)
+        central_metric.append(cen_metric)
         coreDevs.append(batchCoreDevs)
 
-    return coreDevs
+    return coreDevs, central_meta[0], central_metric[0]
 
 
 def processBatch(
-    batchIdx: int,
-    commits: List[Commit],
-    config: Configuration,
-    logger: Logger,
-    result: Result,
+    batchIdx: int, commits: List[Commit], config: Configuration, logger: Logger, result: Result
 ) -> List[Any]:
     allRelatedAuthors = {}
     authorCommits = Counter({})
@@ -79,23 +80,12 @@ def processBatch(
         authorRelatedAuthors.update(commitRelatedAuthors)
 
     return prepareGraph(
-        allRelatedAuthors,
-        authorCommits,
-        batchIdx,
-        "commitCentrality",
-        config,
-        logger,
-        result,
+        allRelatedAuthors, authorCommits, batchIdx, "commitCentrality", config, logger, result
     )
 
 
 def buildGraphQlNetwork(
-    batchIdx: int,
-    batch: list,
-    prefix: str,
-    config: Configuration,
-    logger: Logger,
-    result: Result,
+    batchIdx: int, batch: list, prefix: str, config: Configuration, logger: Logger, result: Result
 ):
     allRelatedAuthors = {}
     authorItems = Counter({})
@@ -118,10 +108,7 @@ def buildGraphQlNetwork(
             )
             authorRelatedAuthors = allRelatedAuthors.setdefault(author, set())
             authorRelatedAuthors.update(relatedAuthors)
-
-    prepareGraph(
-        allRelatedAuthors, authorItems, batchIdx, prefix, config, logger, result
-    )
+    return prepareGraph(allRelatedAuthors, authorItems, batchIdx, prefix, config, logger, result)
 
 
 def prepareGraph(
@@ -213,6 +200,12 @@ def prepareGraph(
         w.writerow([f"{outputPrefix}_Community Count", len(modularity)])
         w.writerow([f"{outputPrefix}_TFN", tfn])
         w.writerow([f"{outputPrefix}_TFC", tfc])
+    
+    results_meta = [["Metric","Value"],[f"{outputPrefix}_Density", density],
+                    [f"{outputPrefix}_Community Count", len(modularity)],
+                    [f"{outputPrefix}_TFN", tfn],[f"{outputPrefix}_TFC", tfc]
+                    ]
+    
 
     # output community information
     with open(
@@ -236,6 +229,8 @@ def prepareGraph(
         }
 
         combined[key] = single
+
+    
 
     # output tabular results
     with open(
@@ -263,17 +258,24 @@ def prepareGraph(
                 percentageHighCentralityAuthors,
             ]
         )
+    
+    
+    results_meta.append([f"{outputPrefix}_NumberHighCentralityAuthors", numberHighCentralityAuthors])
+    results_meta.append( [f"{outputPrefix}_PercentageHighCentralityAuthors",percentageHighCentralityAuthors])
+    
 
     # output statistics
-    outputStatistics(
+    close = outputStatistics(
         batchIdx,
         [value for key, value in closeness.items()],
         f"{outputPrefix}_Closeness",
         config.resultsPath,
         logger,
     )
+    
+    
 
-    outputStatistics(
+    between = outputStatistics(
         batchIdx,
         [value for key, value in betweenness.items()],
         f"{outputPrefix}_Betweenness",
@@ -281,7 +283,7 @@ def prepareGraph(
         logger,
     )
 
-    outputStatistics(
+    central = outputStatistics(
         batchIdx,
         [value for key, value in centrality.items()],
         f"{outputPrefix}_Centrality",
@@ -289,7 +291,7 @@ def prepareGraph(
         logger,
     )
 
-    outputStatistics(
+    author_c = outputStatistics(
         batchIdx,
         [community[0] for community in modularity],
         f"{outputPrefix}_CommunityAuthorCount",
@@ -297,19 +299,30 @@ def prepareGraph(
         logger,
     )
 
-    outputStatistics(
+    author_item = outputStatistics(
         batchIdx,
         [community[1] for community in modularity],
         f"{outputPrefix}_CommunityAuthorItemCount",
         config.resultsPath,
         logger,
     )
-
+    
+    
+    metrics_data = [("Metric", "Count", "Mean", "Stdev")]
+    metrics_data.extend([
+        close,
+        between,
+        central,
+        author_c,
+        author_item])
+    
     nx.write_graphml(
         G, os.path.join(config.resultsPath, f"{outputPrefix}_{batchIdx}.xml")
     )
 
-    return highCentralityAuthors
+    
+    return highCentralityAuthors, results_meta, metrics_data
+
 
 
 # helper functions
