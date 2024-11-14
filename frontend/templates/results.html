@@ -25,9 +25,7 @@
                     Community Smells Report
                 </h2>
 
-                <h1>Results for {{ data.batch_date }}</h1>
-
-                <h2>Smell Results</h2>
+                <h2>Detected Smells</h2>
                 <ul id="smell-list">
                     {% for smell in data.DetectedSmells %}
                     <li class="smell-item" data-smell="{{ smell }}">
