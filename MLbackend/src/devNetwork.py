@@ -6,8 +6,13 @@ from logging import Logger
 from pathlib import Path
 from typing import Any, List, Optional
 
+import pandas as pd
 import sentistrength
 from dateutil.relativedelta import relativedelta
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
 
 import MLbackend.src.centralityAnalysis as centrality
 from MLbackend.src.aliasWorker import replaceAliases
@@ -36,8 +41,9 @@ def communitySmellsDetector(
     batch_months: float = 9999,
     start_date: Optional[str] = None,
 ) -> None:  # Specify the return type
-    pdf_results = {}
+    
 
+    pdf_results = {}
     try:
         # Parse args
         config: Configuration = Configuration(
@@ -85,14 +91,17 @@ def communitySmellsDetector(
 
         # Handle aliases
         commits = list(replaceAliases(repo.iter_commits(), config, logger))
+        
 
         # Run analysis
         batchDates, authorInfoDict, daysActive, results_meta, results_metrics = (
-            commitAnalysis(senti, commits, delta, config, logger, result)
+            commitAnalysis(senti, commits, delta, config, logger,result)
         )
-        pdf_results["Commit Analysis"] = [results_meta, results_metrics]
+        pdf_results["Commit Analysis"] = [results_meta,results_metrics]
+
 
         tagres = tagAnalysis(repo, delta, batchDates, daysActive, config, logger)
+
 
         coreDevs: List[List[Any]] = centrality.centralityAnalysis(
             commits, delta, batchDates, config, logger, result
@@ -100,28 +109,28 @@ def communitySmellsDetector(
 
         releaseres = releaseAnalysis(commits, config, delta, batchDates, logger)
 
-        (
-            prParticipantBatches,
-            prCommentBatches,
-            results_meta2,
-            results_metrics2,
-            results_meta3,
-            results_metric3,
-        ) = prAnalysis(config, senti, delta, batchDates, logger, None)
-        pdf_results["PR Analysis"] = [results_meta2, results_metrics2]
-        pdf_results["PR Comment Analysis"] = [results_meta3, results_metric3]
+        prParticipantBatches, prCommentBatches, results_meta2, results_metrics2, results_meta3, results_metric3 = prAnalysis(
+            config,
+            senti,
+            delta,
+            batchDates,
+            logger,
+            None
+        )
+        pdf_results["PR Analysis"] = [results_meta2,results_metrics2]
+        pdf_results["PR Comment Analysis"] = [results_meta3,results_metric3]
 
-        (
-            issueParticipantBatches,
-            issueCommentBatches,
-            results_meta4,
-            results_metrics4,
-            results_meta5,
-            results_metric5,
-        ) = issueAnalysis(config, senti, delta, batchDates, logger, None)
+        issueParticipantBatches, issueCommentBatches, results_meta4, results_metrics4, results_meta5, results_metric5 = issueAnalysis(
+            config,
+            senti,
+            delta,
+            batchDates,
+            logger,
+            None
+        )
 
-        pdf_results["Issue Analysis"] = [results_meta4, results_metrics4]
-        pdf_results["Issue Comment Analysis"] = [results_meta5, results_metric5]
+        pdf_results["Issue Analysis"] = [results_meta4,results_metrics4]
+        pdf_results["Issue Comment Analysis"] = [results_meta5,results_metric5]
 
         politeness = politenessAnalysis(
             config, prCommentBatches, issueCommentBatches, logger, result
@@ -177,20 +186,17 @@ def communitySmellsDetector(
             )
             dev_res.append(meta_res)
 
-            # Run smell detection and collect results
-            smell_results = smellDetection(config, batchIdx, logger)
-            results = {
-                "batch_date": batchDate.strftime("%Y-%m-%d"),
-                "smell_results": list(smell_results),
-                "core_devs": list(batchCoreDevs),
-                "meta": results_meta,
-                "metrics": results_metrics,
-            }
-
-            df = pd.read_csv(
-                os.path.join(config.resultsPath, f"results_{batchIdx}.csv")
+            smell_results = smellDetection(config, batchIdx, logger, result)
+            pdf_results["IssuesAndPRsCentrality Analysis"] = [meta_cent[0],metrics_cent[0]]
+            pdf_results["Dev Analysis"] =  dev_res
+            result.setPDFFilePath(
+                pdf_file_path=os.path.join(".", config.resultsPath, "smell_report.pdf")
             )
-            df.columns = ["Metric", "Value"]
+            generate_pdf(
+                pdf_results=pdf_results,
+                smells_det=smell_results[1:],
+                pdf_file_path=result.pdf_file_path,
+            )
     except Exception as e:
 
         # Return the detailed error
@@ -204,7 +210,6 @@ def communitySmellsDetector(
         if "repo" in locals():
             del repo
 
-    return results, df  # Return the collected results
 
 
 def commitDate(tag):

@@ -17,7 +17,7 @@ def outputStatistics(
 
     # validate
     if len(data) < 1:
-        return metric, 0, 0, 0
+        return metric,0,0,0
 
     # calculate and output
     stats = calculateStats(data, logger)
@@ -41,7 +41,7 @@ def outputStatistics(
         metric,
         stats["count"],
         f"{stats['mean']:.4f}",
-        f"{stats['stdev']:.4f}" if stats["stdev"] else "N/A",
+        f"{stats['stdev']:.4f}" if stats["stdev"] else "0.0",
     )
 
 

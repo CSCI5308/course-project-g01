@@ -24,8 +24,9 @@ def issueAnalysis(
     senti: sentistrength.PySentiStr,
     delta: relativedelta,
     batchDates: List[datetime],
-    logger: Logger,
-    result: Result,
+    logger: Logger, 
+    result:Result   
+
 ):
 
     logger.info("Querying issue comments")
@@ -153,9 +154,7 @@ def issueAnalysis(
 
         toxicityPercentage = getToxicityPercentage(config, allComments, logger)
 
-        centrality.buildGraphQlNetwork(
-            batchIdx, participants, "Issues", config, logger, result
-        )
+        author, meta, metrics_data = centrality.buildGraphQlNetwork(batchIdx, participants, "Issues", config, logger,result)
 
         logger.info("Writing GraphQL analysis results")
         with open(
@@ -171,15 +170,11 @@ def issueAnalysis(
             w.writerow(["IssueCommentsNegativeRatio", generallyNegativeRatio])
             w.writerow(["IssueCommentsToxicityPercentage", toxicityPercentage])
 
-        meta1 = [
-            ["Metrics", "Issue"],
-            ["NumberIssues", len(batch)],
-            ["NumberIssueComments", len(allComments)],
-            ["IssueCommentsPositive", commentSentimentsPositive],
-            ["IssueCommentsNegative", commentSentimentsNegative],
-            ["IssueCommentsNegativeRatio", generallyNegativeRatio],
-            ["IssueCommentsToxicityPercentage", toxicityPercentage],
-        ]
+
+        meta1 = [["Metrics","Issue"],["NumberIssues", len(batch)],["NumberIssueComments", len(allComments)],
+                 ["IssueCommentsPositive", commentSentimentsPositive],["IssueCommentsNegative", commentSentimentsNegative],
+                 ["IssueCommentsNegativeRatio", generallyNegativeRatio],["IssueCommentsToxicityPercentage", toxicityPercentage]]
+
 
         with open(
             os.path.join(config.metricsPath, f"issueCommentsCount_{batchIdx}.csv"),
@@ -258,20 +253,15 @@ def issueAnalysis(
             logger,
         )
         metrics_data1 = [("Metric", "Count", "Mean", "Stdev")]
-        metrics_data1.extend([issue_len, issue_dur, issue_com, sent, part, pos, neg])
+        metrics_data1.extend([issue_len,issue_dur,
+                              issue_com,sent,part,pos,neg])
         results_meta.append(meta)
         results_meta1.append(meta1)
         results_metrics.append(metrics_data)
         results_metrics1.append(metrics_data1)
+        
 
-    return (
-        batchParticipants,
-        batchComments,
-        results_meta[0],
-        results_metrics[0],
-        results_meta1[0],
-        results_metrics1[0],
-    )
+    return batchParticipants, batchComments, results_meta[0], results_metrics[0], results_meta1[0], results_metrics1[0]
 
 
 def analyzeSentiments(
