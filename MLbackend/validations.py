@@ -25,3 +25,9 @@ def validate_pat(token: str) -> None:
     if not re.match(r"^[a-zA-Z0-9-_]+$", token):
         LOGGER.error(f"Invalid PAT format {token}.")
         raise ValueError("Invalid PAT format.")
+
+
+def validate_input(url, email, pat):
+    validate_url(url)
+    validate_email(email)
+    validate_pat(pat)
