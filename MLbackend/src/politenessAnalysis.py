@@ -9,7 +9,6 @@ from MLbackend.src.configuration import Configuration
 from MLbackend.src.utils.result import Result
 
 
-
 def politenessAnalysis(
     config: Configuration,
     prCommentBatches: list,
@@ -21,9 +20,13 @@ def politenessAnalysis(
     accl = calculateACCL(config, prCommentBatches, issueCommentBatches, logger)
     rpc_pr = calculateRPC(config, "PR", prCommentBatches, logger)
     rpc_issues = calculateRPC(config, "Issue", prCommentBatches, logger)
-    results = [["Metrics","Value"],["ACCL",accl],["RPCPR",rpc_pr[1]],["RPCIssue",rpc_issues[1]]]
+    results = [
+        ["Metrics", "Value"],
+        ["ACCL", accl],
+        ["RPCPR", rpc_pr[1]],
+        ["RPCIssue", rpc_issues[1]],
+    ]
     return results
-
 
 
 def calculateACCL(config, prCommentBatches, issueCommentBatches, logger) -> None:
