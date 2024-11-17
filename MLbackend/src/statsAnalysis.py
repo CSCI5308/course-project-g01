@@ -3,21 +3,12 @@ import os
 from logging import Logger
 from statistics import StatisticsError, mean, stdev
 
-from MLbackend.src.utils.result import Result
 
-
-def outputStatistics(
-    idx: int,
-    data: list,
-    metric: str,
-    outputDir: str,
-    logger: Logger,
-    result: Result = None,
-):
+def outputStatistics(idx: int, data: list, metric: str, outputDir: str, logger: Logger):
 
     # validate
     if len(data) < 1:
-        return metric,0,0,0
+        return metric, 0, 0, 0
 
     # calculate and output
     stats = calculateStats(data, logger)
@@ -28,15 +19,6 @@ def outputStatistics(
 
         for key in stats:
             outputValue(w, metric, key, stats)
-
-    if result:
-        result.addMetricData(
-            batch_idx=idx,
-            metric=metric,
-            count=stats["count"],
-            mean=float(stats["mean"]),
-            std_dev=stats["stdev"],
-        )
     return (
         metric,
         stats["count"],
@@ -50,7 +32,7 @@ def calculateStats(data, logger: Logger):
     try:
         stats = dict(
             count=len(data),
-            mean=mean(data) if len(data) > 0 else 0.0,
+            mean=mean(data) if len(data) > 0 else 0,
             stdev=stdev(data) if len(data) > 1 else None,
         )
     except StatisticsError:

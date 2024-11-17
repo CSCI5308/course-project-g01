@@ -13,7 +13,6 @@ from networkx.algorithms.community import greedy_modularity_communities
 from MLbackend.src.configuration import Configuration
 from MLbackend.src.statsAnalysis import outputStatistics
 from MLbackend.src.utils import authorIdExtractor
-from MLbackend.src.utils.result import Result
 
 
 def centralityAnalysis(
@@ -22,7 +21,6 @@ def centralityAnalysis(
     batchDates: List[datetime],
     config: Configuration,
     logger: Logger,
-    result:Result,
 ) -> List[List[Any]]:
     coreDevs: List[List[Any]] = list()
 
@@ -40,7 +38,7 @@ def centralityAnalysis(
             and commit.committed_datetime < batchEndDate
         ]
 
-        batchCoreDevs, cen_meta, cen_metric = processBatch(idx, batch, config,logger,result)
+        batchCoreDevs, cen_meta, cen_metric = processBatch(idx, batch, config, logger)
         central_meta.append(cen_meta)
         central_metric.append(cen_metric)
         coreDevs.append(batchCoreDevs)
@@ -49,7 +47,7 @@ def centralityAnalysis(
 
 
 def processBatch(
-    batchIdx: int, commits: List[Commit], config: Configuration, logger: Logger, result: Result
+    batchIdx: int, commits: List[Commit], config: Configuration, logger: Logger
 ) -> List[Any]:
     allRelatedAuthors = {}
     authorCommits = Counter({})
@@ -80,12 +78,12 @@ def processBatch(
         authorRelatedAuthors.update(commitRelatedAuthors)
 
     return prepareGraph(
-        allRelatedAuthors, authorCommits, batchIdx, "commitCentrality", config, logger, result
+        allRelatedAuthors, authorCommits, batchIdx, "commitCentrality", config, logger
     )
 
 
 def buildGraphQlNetwork(
-    batchIdx: int, batch: list, prefix: str, config: Configuration, logger: Logger, result: Result
+    batchIdx: int, batch: list, prefix: str, config: Configuration, logger: Logger
 ):
     allRelatedAuthors = {}
     authorItems = Counter({})
@@ -108,7 +106,9 @@ def buildGraphQlNetwork(
             )
             authorRelatedAuthors = allRelatedAuthors.setdefault(author, set())
             authorRelatedAuthors.update(relatedAuthors)
-    return prepareGraph(allRelatedAuthors, authorItems, batchIdx, prefix, config, logger, result)
+    return prepareGraph(
+        allRelatedAuthors, authorItems, batchIdx, prefix, config, logger
+    )
 
 
 def prepareGraph(
@@ -118,7 +118,6 @@ def prepareGraph(
     outputPrefix: str,
     config: Configuration,
     logger: Logger,
-    result: Result,
 ) -> List[Any]:
 
     # prepare graph
@@ -157,9 +156,6 @@ def prepareGraph(
         for author, centrality_value in centrality.items()
         if centrality_value > 0.5
     ]
-    if result:
-        for author in highCentralityAuthors:
-            result.addCoreDev(author)
 
     numberHighCentralityAuthors = len(highCentralityAuthors)
 
@@ -200,12 +196,13 @@ def prepareGraph(
         w.writerow([f"{outputPrefix}_Community Count", len(modularity)])
         w.writerow([f"{outputPrefix}_TFN", tfn])
         w.writerow([f"{outputPrefix}_TFC", tfc])
-    
-    results_meta = [["Metric","Value"],[f"{outputPrefix}_Density", density],
-                    [f"{outputPrefix}_Community Count", len(modularity)],
-                    [f"{outputPrefix}_TFN", tfn],[f"{outputPrefix}_TFC", tfc]
-                    ]
-    
+    results_meta = [
+        ["Metric", "Value"],
+        [f"{outputPrefix}_Density", density],
+        [f"{outputPrefix}_Community Count", len(modularity)],
+        [f"{outputPrefix}_TFN", tfn],
+        [f"{outputPrefix}_TFC", tfc],
+    ]
 
     # output community information
     with open(
@@ -229,8 +226,6 @@ def prepareGraph(
         }
 
         combined[key] = single
-
-    
 
     # output tabular results
     with open(
@@ -258,11 +253,16 @@ def prepareGraph(
                 percentageHighCentralityAuthors,
             ]
         )
-    
-    
-    results_meta.append([f"{outputPrefix}_NumberHighCentralityAuthors", numberHighCentralityAuthors])
-    results_meta.append( [f"{outputPrefix}_PercentageHighCentralityAuthors",percentageHighCentralityAuthors])
-    
+
+    results_meta.append(
+        [f"{outputPrefix}_NumberHighCentralityAuthors", numberHighCentralityAuthors]
+    )
+    results_meta.append(
+        [
+            f"{outputPrefix}_PercentageHighCentralityAuthors",
+            percentageHighCentralityAuthors,
+        ]
+    )
 
     # output statistics
     close = outputStatistics(
@@ -272,8 +272,6 @@ def prepareGraph(
         config.resultsPath,
         logger,
     )
-    
-    
 
     between = outputStatistics(
         batchIdx,
@@ -306,23 +304,15 @@ def prepareGraph(
         config.resultsPath,
         logger,
     )
-    
-    
+
     metrics_data = [("Metric", "Count", "Mean", "Stdev")]
-    metrics_data.extend([
-        close,
-        between,
-        central,
-        author_c,
-        author_item])
-    
+    metrics_data.extend([close, between, central, author_c, author_item])
+
     nx.write_graphml(
         G, os.path.join(config.resultsPath, f"{outputPrefix}_{batchIdx}.xml")
     )
 
-    
     return highCentralityAuthors, results_meta, metrics_data
-
 
 
 # helper functions
