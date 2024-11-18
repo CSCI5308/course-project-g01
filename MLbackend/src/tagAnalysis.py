@@ -78,7 +78,7 @@ def outputTags(
         fn = len(tagInfo) / daysActive * 100
     except ZeroDivisionError:
         fn: float = 0
-        logger.warning(f"Number of days active is 0 for tag at date {tagInfo['date']}.")
+        logger.warning(f"Number of days active is 0 for tag at date {tagInfo}.")
 
     # output non-tabular results
     with open(

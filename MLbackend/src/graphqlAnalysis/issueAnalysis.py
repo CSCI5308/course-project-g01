@@ -16,14 +16,16 @@ import MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper as gql
 import MLbackend.src.statsAnalysis as stats
 from MLbackend.src.configuration import Configuration
 from MLbackend.src.perspectiveAnalysis import getToxicityPercentage
-
+from MLbackend.src.utils.result import Result
 
 def issueAnalysis(
     config: Configuration,
     senti: sentistrength.PySentiStr,
     delta: relativedelta,
     batchDates: List[datetime],
-    logger: Logger,
+    logger: Logger, 
+    result:Result   
+
 ):
 
     logger.info("Querying issue comments")
@@ -151,9 +153,7 @@ def issueAnalysis(
 
         toxicityPercentage = getToxicityPercentage(config, allComments, logger)
 
-        author, meta, metrics_data = centrality.buildGraphQlNetwork(
-            batchIdx, participants, "Issues", config, logger
-        )
+        author, meta, metrics_data = centrality.buildGraphQlNetwork(batchIdx, participants, "Issues", config, logger,result)
 
         logger.info("Writing GraphQL analysis results")
         with open(
