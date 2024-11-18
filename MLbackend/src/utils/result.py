@@ -21,6 +21,7 @@ class Result:
         self._metric_datas: List[Tuple[str, int, float, float]] = []
         self._smells: List[List[str]] = []
         self._pr_counts: List[int] = []
+        self._pr_comment_counts: List[int] = []
         self.logger: Logger = logger
         self.pdf_file_path: Path
 
@@ -47,6 +48,16 @@ class Result:
     def pr_count(self, pr_counts: List[int]) -> None:
         raise AttributeError(
             "Direct assignment to 'pr_count' is not allowed. Use method addPRCount to modify this property based on the requirement."
+        )
+
+    @property
+    def pr_comment_count(self) -> List[int]:
+        return self._pr_comment_counts
+
+    @pr_comment_count.setter
+    def pr_comment_count(self, pr_comment_counts: List[int]) -> None:
+        raise AttributeError(
+            "Direct assignment to 'pr_comment_count' is not allowed. Use method addPRCommentCount to modify this pr_commentoperty based on the requirement."
         )
 
     @property
@@ -451,3 +462,8 @@ class Result:
                 meta=self.getMetaResults(),
                 metrics=self._metric_datas[0],
             )
+
+    def addPRCommentCount(self, batch_idx: int, pr_comment_count: int) -> None:
+
+        self._pr_comment_counts.append(pr_comment_count)
+        return None
