@@ -11,7 +11,7 @@ class MockConfiguration:
 
 class MockLogger:
     def info(self, msg):
-        print(msg)
+        pass
 
 
 class MockCommit:
