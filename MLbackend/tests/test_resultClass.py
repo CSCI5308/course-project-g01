@@ -1818,3 +1818,37 @@ def test_addPRCommentSentimentPositiveCountCorrect(
 
     return None
 
+
+@pytest.mark.parametrize(
+    "batch_dates, pr_comment_sentiment_positive_counts",
+    [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
+)
+def test_addPRCommentSentimentPositiveCountFailsDueToLessBatchSize(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    pr_comment_sentiment_positive_counts: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and pr_comment_sentiment_positive count of {len(batch_dates) + 1}"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, pr_comment_sentiment_positive_count in enumerate(
+            pr_comment_sentiment_positive_counts
+        ):
+            result_instance.addPRCommentSentimentPositiveCount(
+                batch_idx=idx,
+                pr_comment_sentiment_positive_count=pr_comment_sentiment_positive_count,
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        f"Mismatch between batch size of {len(batch_dates)} and pr_comment_sentiment_positive count of {len(batch_dates) + 1}"
+    )
+
+    return None
+
+
