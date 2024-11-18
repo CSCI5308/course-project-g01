@@ -6,13 +6,8 @@ from logging import Logger
 from pathlib import Path
 from typing import Any, List, Optional
 
-import pandas as pd
 import sentistrength
 from dateutil.relativedelta import relativedelta
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
 
 import MLbackend.src.centralityAnalysis as centrality
 from MLbackend.src.aliasWorker import replaceAliases
