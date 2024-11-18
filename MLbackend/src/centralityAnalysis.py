@@ -13,6 +13,7 @@ from networkx.algorithms.community import greedy_modularity_communities
 from MLbackend.src.configuration import Configuration
 from MLbackend.src.statsAnalysis import outputStatistics
 from MLbackend.src.utils import authorIdExtractor
+from MLbackend.src.utils.result import Result
 
 
 def centralityAnalysis(
@@ -21,6 +22,7 @@ def centralityAnalysis(
     batchDates: List[datetime],
     config: Configuration,
     logger: Logger,
+    result:Result,
 ) -> List[List[Any]]:
     coreDevs: List[List[Any]] = list()
 
@@ -38,7 +40,7 @@ def centralityAnalysis(
             and commit.committed_datetime < batchEndDate
         ]
 
-        batchCoreDevs, cen_meta, cen_metric = processBatch(idx, batch, config,logger)
+        batchCoreDevs, cen_meta, cen_metric = processBatch(idx, batch, config,logger,result)
         central_meta.append(cen_meta)
         central_metric.append(cen_metric)
         coreDevs.append(batchCoreDevs)
@@ -47,7 +49,7 @@ def centralityAnalysis(
 
 
 def processBatch(
-    batchIdx: int, commits: List[Commit], config: Configuration, logger: Logger
+    batchIdx: int, commits: List[Commit], config: Configuration, logger: Logger, result: Result
 ) -> List[Any]:
     allRelatedAuthors = {}
     authorCommits = Counter({})
@@ -78,12 +80,12 @@ def processBatch(
         authorRelatedAuthors.update(commitRelatedAuthors)
 
     return prepareGraph(
-        allRelatedAuthors, authorCommits, batchIdx, "commitCentrality", config, logger
+        allRelatedAuthors, authorCommits, batchIdx, "commitCentrality", config, logger, result
     )
 
 
 def buildGraphQlNetwork(
-    batchIdx: int, batch: list, prefix: str, config: Configuration, logger: Logger
+    batchIdx: int, batch: list, prefix: str, config: Configuration, logger: Logger, result: Result
 ):
     allRelatedAuthors = {}
     authorItems = Counter({})
@@ -106,7 +108,7 @@ def buildGraphQlNetwork(
             )
             authorRelatedAuthors = allRelatedAuthors.setdefault(author, set())
             authorRelatedAuthors.update(relatedAuthors)
-    return prepareGraph(allRelatedAuthors, authorItems, batchIdx, prefix, config, logger)
+    return prepareGraph(allRelatedAuthors, authorItems, batchIdx, prefix, config, logger, result)
 
 
 def prepareGraph(
@@ -116,6 +118,7 @@ def prepareGraph(
     outputPrefix: str,
     config: Configuration,
     logger: Logger,
+    result: Result,
 ) -> List[Any]:
 
     # prepare graph
@@ -154,6 +157,9 @@ def prepareGraph(
         for author, centrality_value in centrality.items()
         if centrality_value > 0.5
     ]
+    if result:
+        for author in highCentralityAuthors:
+            result.addCoreDev(author)
 
     numberHighCentralityAuthors = len(highCentralityAuthors)
 

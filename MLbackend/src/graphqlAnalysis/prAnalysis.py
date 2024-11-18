@@ -16,6 +16,7 @@ import MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper as gql
 import MLbackend.src.statsAnalysis as stats
 from MLbackend.src.configuration import Configuration
 from MLbackend.src.perspectiveAnalysis import getToxicityPercentage
+from MLbackend.src.utils.result import Result
 
 
 def prAnalysis(
@@ -24,6 +25,7 @@ def prAnalysis(
     delta: relativedelta,
     batchDates: List[datetime],
     logger: Logger,
+    result: Result,
 ) -> Tuple[List[List[List[str]]], List[List[str]]]:
 
     logger.info("Querying PRs")
@@ -152,7 +154,7 @@ def prAnalysis(
 
         toxicityPercentage = getToxicityPercentage(config, allComments, logger)
 
-        author, meta, metrics_data = centrality.buildGraphQlNetwork(batchIdx, participants, "PRs", config, logger)
+        author, meta, metrics_data = centrality.buildGraphQlNetwork(batchIdx, participants, "PRs", config, logger, result)
 
         logger.info("Writing results of PR analysis to CSVs.")
         with open(

@@ -63,6 +63,11 @@ def devAnalysis(
         w.writerow(["SponsoredTFC", sponsoredTFC])
         w.writerow(["ExperiencedTFC", experiencedTFC])
 
-    meta_res = [["Metric","Value"],["NumberActiveExperiencedDevs", numberActiveExperiencedDevs],
-                ["BusFactorNumber", busFactor],["SponsoredTFC", sponsoredTFC],["ExperiencedTFC", experiencedTFC]]
+    meta_res = [
+        ["Metric", "Value"],
+        ["NumberActiveExperiencedDevs", numberActiveExperiencedDevs],
+        ["BusFactorNumber", busFactor],
+        ["SponsoredTFC", sponsoredTFC],
+        ["ExperiencedTFC", experiencedTFC],
+    ]
     return meta_res
