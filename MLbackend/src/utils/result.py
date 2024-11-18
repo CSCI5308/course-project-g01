@@ -600,5 +600,12 @@ class Result:
     def addPRCommentToxicityPercentage(
         self, batch_idx: int, pr_comment_toxicity_percentage: int
     ) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and pr_comment_toxicity_percentage of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
         self._pr_comment_toxicity_percentages.append(pr_comment_toxicity_percentage)
         return None
