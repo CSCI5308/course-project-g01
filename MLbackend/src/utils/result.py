@@ -572,6 +572,13 @@ class Result:
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
             )
+        elif not isinstance(pr_comment_sentiment_negative_ratio, int):
+            self.logger.error(
+                "Incorrect value type for pr_comment_sentiment_negative_ratio"
+            )
+            raise ValueError(
+                f"Incorrect value {pr_comment_sentiment_negative_ratio} was passed for pr_comment_sentiment_negative_ratio. It is of type {type(pr_comment_sentiment_negative_ratio)}. It should be an integer"
+            )
         self._pr_comment_sentiment_negative_ratios.append(
             pr_comment_sentiment_negative_ratio
         )
