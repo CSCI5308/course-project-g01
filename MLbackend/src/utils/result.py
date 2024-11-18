@@ -366,6 +366,11 @@ class Result:
             raise ValueError(
                 f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
             )
+        elif not isinstance(pr_count, int):
+            self.logger.error("Incorrect value type for pr count")
+            raise ValueError(
+                f"Incorrect value {pr_count} was passed for pr_count. It is of type {type(pr_count)}. It should be an integer"
+            )
         self._pr_counts.append(pr_count)
         return None
 
