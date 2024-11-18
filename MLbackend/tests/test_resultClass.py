@@ -1632,6 +1632,7 @@ def test_addPRCountFailsDueToLessBatchSize(
 
     return None
 
+
 @pytest.mark.parametrize(
     "batch_dates, pr_counts",
     [
@@ -1661,3 +1662,47 @@ def test_addPRCountFailsDueToIncorrectPRValueType(
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, pr_comment_counts, expected_pr_comment_count",
+    [
+        (
+            [datetime.now()],
+            [
+                5,
+            ],
+            [
+                5,
+            ],
+        ),
+        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, 10], [5, 10]),
+        (
+            [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
+            [5, 10, 15],
+            [5, 10, 15],
+        ),
+    ],
+)
+def test_addPRCommentCountCorrect(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    pr_comment_counts: List[int],
+    expected_pr_comment_count: List[int],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, pr_comment_count in enumerate(pr_comment_counts):
+        result_instance.addPRCommentCount(
+            batch_idx=idx, pr_comment_count=pr_comment_count
+        )
+
+    assert result_instance.pr_comment_count == expected_pr_comment_count
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
+
+
