@@ -2134,17 +2134,17 @@ def test_addPRCommentSentimentNegativeRatioFailsDueToIncorrectPRCommentSentiment
         (
             [datetime.now()],
             [
-                5,
+                0.25,
             ],
             [
-                5,
+                0.25,
             ],
         ),
-        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, 10], [5, 10]),
+        ([datetime.now(), datetime.now() - relativedelta(days=5)], [0.5, 0.1], [0.5, 0.1]),
         (
             [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
-            [5, 10, 15],
-            [5, 10, 15],
+            [0.25, 0.35, 0.005],
+            [0.25, 0.35, 0.005],
         ),
     ],
 )
@@ -2178,7 +2178,7 @@ def test_addPRCommentToxicityPercentageCorrect(
 
 @pytest.mark.parametrize(
     "batch_dates, pr_comment_toxicity_percentages",
-    [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
+    [([datetime.now()], [0.25, 0.05]), ([datetime.now(), datetime.now()], [0.35, 0.16, 0.02])],
 )
 def test_addPRCommentToxicityPercentageFailsDueToLessBatchSize(
     result_instance: Result,
@@ -2208,3 +2208,40 @@ def test_addPRCommentToxicityPercentageFailsDueToLessBatchSize(
 
     return None
 
+
+@pytest.mark.parametrize(
+    "batch_dates, pr_comment_toxicity_percentages",
+    [
+        ([datetime.now(), datetime.now()], [0.25, "a"]),
+        ([datetime.now(), datetime.now(), datetime.now()], [0.354, "b", 0.264]),
+    ],
+)
+def test_addPRCommentToxicityPercentageFailsDueToIncorrectPRCommentToxicityPercentageValueType(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    pr_comment_toxicity_percentages: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = (
+        "Incorrect value type for pr_comment_toxicity_percentage"
+    )
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, pr_comment_toxicity_percentage in enumerate(
+            pr_comment_toxicity_percentages
+        ):
+            result_instance.addPRCommentToxicityPercentage(
+                batch_idx=idx,
+                pr_comment_toxicity_percentage=pr_comment_toxicity_percentage,
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        "Incorrect value type for pr_comment_toxicity_percentage"
+    )
+
+    return None
