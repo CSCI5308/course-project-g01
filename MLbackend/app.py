@@ -8,8 +8,12 @@ from flask_mail import Mail, Message
 from MLbackend.config import LOGGER
 from MLbackend.src.devNetwork import communitySmellsDetector
 from MLbackend.src.utils.result import Result
-from MLbackend.validations import (InvalidInputError, validate_email,
-                                   validate_pat, validate_url)
+from MLbackend.validations import (
+    InvalidInputError,
+    validate_email,
+    validate_pat,
+    validate_url,
+)
 
 app = Flask(
     __name__,
