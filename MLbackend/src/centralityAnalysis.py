@@ -200,12 +200,13 @@ def prepareGraph(
         w.writerow([f"{outputPrefix}_Community Count", len(modularity)])
         w.writerow([f"{outputPrefix}_TFN", tfn])
         w.writerow([f"{outputPrefix}_TFC", tfc])
-    
-    results_meta = [["Metric","Value"],[f"{outputPrefix}_Density", density],
-                    [f"{outputPrefix}_Community Count", len(modularity)],
-                    [f"{outputPrefix}_TFN", tfn],[f"{outputPrefix}_TFC", tfc]
-                    ]
-    
+    results_meta = [
+        ["Metric", "Value"],
+        [f"{outputPrefix}_Density", density],
+        [f"{outputPrefix}_Community Count", len(modularity)],
+        [f"{outputPrefix}_TFN", tfn],
+        [f"{outputPrefix}_TFC", tfc],
+    ]
 
     # output community information
     with open(
@@ -229,8 +230,6 @@ def prepareGraph(
         }
 
         combined[key] = single
-
-    
 
     # output tabular results
     with open(
@@ -258,11 +257,16 @@ def prepareGraph(
                 percentageHighCentralityAuthors,
             ]
         )
-    
-    
-    results_meta.append([f"{outputPrefix}_NumberHighCentralityAuthors", numberHighCentralityAuthors])
-    results_meta.append( [f"{outputPrefix}_PercentageHighCentralityAuthors",percentageHighCentralityAuthors])
-    
+
+    results_meta.append(
+        [f"{outputPrefix}_NumberHighCentralityAuthors", numberHighCentralityAuthors]
+    )
+    results_meta.append(
+        [
+            f"{outputPrefix}_PercentageHighCentralityAuthors",
+            percentageHighCentralityAuthors,
+        ]
+    )
 
     # output statistics
     close = outputStatistics(
@@ -272,8 +276,6 @@ def prepareGraph(
         config.resultsPath,
         logger,
     )
-    
-    
 
     between = outputStatistics(
         batchIdx,
@@ -306,23 +308,15 @@ def prepareGraph(
         config.resultsPath,
         logger,
     )
-    
-    
+
     metrics_data = [("Metric", "Count", "Mean", "Stdev")]
-    metrics_data.extend([
-        close,
-        between,
-        central,
-        author_c,
-        author_item])
-    
+    metrics_data.extend([close, between, central, author_c, author_item])
+
     nx.write_graphml(
         G, os.path.join(config.resultsPath, f"{outputPrefix}_{batchIdx}.xml")
     )
 
-    
     return highCentralityAuthors, results_meta, metrics_data
-
 
 
 # helper functions

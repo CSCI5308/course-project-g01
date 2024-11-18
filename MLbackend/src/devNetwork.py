@@ -97,11 +97,10 @@ def communitySmellsDetector(
         batchDates, authorInfoDict, daysActive, results_meta, results_metrics = (
             commitAnalysis(senti, commits, delta, config, logger,result)
         )
-        pdf_results["Commit Analysis"] = [results_meta,results_metrics]
+        pdf_results["Commit Analysis"] = [results_meta, results_metrics]
 
 
         tagres = tagAnalysis(repo, delta, batchDates, daysActive, config, logger)
-
 
         coreDevs: List[List[Any]] = centrality.centralityAnalysis(
             commits, delta, batchDates, config, logger, result
@@ -109,7 +108,14 @@ def communitySmellsDetector(
 
         releaseres = releaseAnalysis(commits, config, delta, batchDates, logger)
 
-        prParticipantBatches, prCommentBatches, results_meta2, results_metrics2, results_meta3, results_metric3 = prAnalysis(
+        (
+            prParticipantBatches,
+            prCommentBatches,
+            results_meta2,
+            results_metrics2,
+            results_meta3,
+            results_metric3,
+        ) = prAnalysis(
             config,
             senti,
             delta,
@@ -117,10 +123,17 @@ def communitySmellsDetector(
             logger,
             None
         )
-        pdf_results["PR Analysis"] = [results_meta2,results_metrics2]
-        pdf_results["PR Comment Analysis"] = [results_meta3,results_metric3]
+        pdf_results["PR Analysis"] = [results_meta2, results_metrics2]
+        pdf_results["PR Comment Analysis"] = [results_meta3, results_metric3]
 
-        issueParticipantBatches, issueCommentBatches, results_meta4, results_metrics4, results_meta5, results_metric5 = issueAnalysis(
+        (
+            issueParticipantBatches,
+            issueCommentBatches,
+            results_meta4,
+            results_metrics4,
+            results_meta5,
+            results_metric5,
+        ) = issueAnalysis(
             config,
             senti,
             delta,
@@ -129,8 +142,8 @@ def communitySmellsDetector(
             None
         )
 
-        pdf_results["Issue Analysis"] = [results_meta4,results_metrics4]
-        pdf_results["Issue Comment Analysis"] = [results_meta5,results_metric5]
+        pdf_results["Issue Analysis"] = [results_meta4, results_metrics4]
+        pdf_results["Issue Comment Analysis"] = [results_meta5, results_metric5]
 
         politeness = politenessAnalysis(
             config, prCommentBatches, issueCommentBatches, logger, result

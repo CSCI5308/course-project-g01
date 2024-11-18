@@ -17,7 +17,7 @@ def outputStatistics(
 
     # validate
     if len(data) < 1:
-        return metric,0,0,0
+        return metric, 0, 0, 0
 
     # calculate and output
     stats = calculateStats(data, logger)
