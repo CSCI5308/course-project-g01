@@ -25,6 +25,7 @@ class Result:
         self._pr_comment_sentiment_positive_counts: List[int] = []
         self._pr_comment_sentiment_negative_counts: List[int] = []
         self._pr_comment_sentiment_negative_ratios: List[int] = []
+        self._pr_comment_toxicity_percentages: List[int] = []
         self.logger: Logger = logger
         self.pdf_file_path: Path
 
@@ -97,6 +98,18 @@ class Result:
     ) -> None:
         raise AttributeError(
             "Direct assignment to 'pr_comment_sentiment_negative_ratio' is not allowed. Use method addPRCommentSentimentNegativeRatio to modify this pr_comment_sentiment_negative property based on the requirement."
+        )
+
+    @property
+    def pr_comment_toxicity_percentage(self) -> List[int]:
+        return self._pr_comment_toxicity_percentages
+
+    @pr_comment_toxicity_percentage.setter
+    def pr_comment_toxicity_percentage(
+        self, pr_comment_toxicity_percentages: List[int]
+    ) -> None:
+        raise AttributeError(
+            "Direct assignment to 'pr_comment_toxicity_percentage' is not allowed. Use method addPRCommentToxicityPercentage to modify this pr_comment_toxicity property based on the requirement."
         )
 
     @property
@@ -582,4 +595,10 @@ class Result:
         self._pr_comment_sentiment_negative_ratios.append(
             pr_comment_sentiment_negative_ratio
         )
+        return None
+
+    def addPRCommentToxicityPercentage(
+        self, batch_idx: int, pr_comment_toxicity_percentage: int
+    ) -> None:
+        self._pr_comment_toxicity_percentages.append(pr_comment_toxicity_percentage)
         return None
