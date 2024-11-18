@@ -20,6 +20,7 @@ class Result:
         self._timezone_counts: List[int] = []
         self._metric_datas: List[Tuple[str, int, float, float]] = []
         self._smells: List[List[str]] = []
+        self._pr_counts: List[int] = []
         self.logger: Logger = logger
         self.pdf_file_path: Path
 
@@ -36,6 +37,16 @@ class Result:
     def commit_count(self, commit_counts: List[int]) -> None:
         raise AttributeError(
             "Direct assignment to 'commit_count' is not allowed. Use method addCommitCount to modify this property based on the requirement."
+        )
+
+    @property
+    def pr_count(self) -> List[int]:
+        return self._pr_counts
+
+    @pr_count.setter
+    def pr_count(self, pr_counts: List[int]) -> None:
+        raise AttributeError(
+            "Direct assignment to 'pr_count' is not allowed. Use method addPRCount to modify this property based on the requirement."
         )
 
     @property
@@ -345,6 +356,10 @@ class Result:
         if batch_idx >= len(self._metric_datas):
             self._metric_datas.insert(batch_idx, [("Metric", "Count", "Mean", "Stdev")])
         self._metric_datas[batch_idx].append((metric, count, mean, std_dev))
+        return None
+
+    def addPRCount(self, batch_idx: int, pr_count: int) -> None:
+        self._pr_counts.append(pr_count)
         return None
 
     def addSmell(self, batch_idx: int, smell: str) -> None:
