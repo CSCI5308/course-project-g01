@@ -1036,6 +1036,7 @@ def test_addTimeZoneCountFailsDueToIncorrectAuthorValueType(
             ],
             [
                 [
+                    ("Metric", "Count", "Mean", "Stdev"),
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                 ]
@@ -1057,11 +1058,13 @@ def test_addTimeZoneCountFailsDueToIncorrectAuthorValueType(
             ],
             [
                 [
+                    ("Metric", "Count", "Mean", "Stdev"),
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentiment", 5, 1.6, 3.05),
                 ],
                 [
+                    ("Metric", "Count", "Mean", "Stdev"),
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentPositive", 3, 3.67, 1.53),
@@ -1089,16 +1092,19 @@ def test_addTimeZoneCountFailsDueToIncorrectAuthorValueType(
             ],
             [
                 [
+                    ("Metric", "Count", "Mean", "Stdev"),
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentiment", 5, 1.6, 3.05),
                 ],
                 [
+                    ("Metric", "Count", "Mean", "Stdev"),
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentPositive", 3, 3.67, 1.53),
                 ],
                 [
+                    ("Metric", "Count", "Mean", "Stdev"),
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentNegative", 2, -1.5, 0.707),
@@ -1143,6 +1149,7 @@ def test_addMetricDataCorrect(
             ],
             [
                 [
+                    ("Metric", "Count", "Mean", "Stdev"),
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, None),
                 ]
@@ -1164,11 +1171,13 @@ def test_addMetricDataCorrect(
             ],
             [
                 [
+                    ("Metric", "Count", "Mean", "Stdev"),
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, None),
                     ("CommitMessageSentiment", 5, 1.6, 3.05),
                 ],
                 [
+                    ("Metric", "Count", "Mean", "Stdev"),
                     ("AuthorActiveDays", 2, 12.5, 10.61),
                     ("AuthorCommitCount", 5, 2.5, 0.707),
                     ("CommitMessageSentimentPositive", 3, 3.67, None),
