@@ -2126,3 +2126,52 @@ def test_addPRCommentSentimentNegativeRatioFailsDueToIncorrectPRCommentSentiment
     )
 
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, pr_comment_toxicity_percentages, expected_pr_comment_toxicity_percentage",
+    [
+        (
+            [datetime.now()],
+            [
+                5,
+            ],
+            [
+                5,
+            ],
+        ),
+        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, 10], [5, 10]),
+        (
+            [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
+            [5, 10, 15],
+            [5, 10, 15],
+        ),
+    ],
+)
+def test_addPRCommentToxicityPercentageCorrect(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    pr_comment_toxicity_percentages: List[int],
+    expected_pr_comment_toxicity_percentage: List[int],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, pr_comment_toxicity_percentage in enumerate(
+        pr_comment_toxicity_percentages
+    ):
+        result_instance.addPRCommentToxicityPercentage(
+            batch_idx=idx,
+            pr_comment_toxicity_percentage=pr_comment_toxicity_percentage,
+        )
+
+    assert (
+        result_instance.pr_comment_toxicity_percentage
+        == expected_pr_comment_toxicity_percentage
+    )
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
+
