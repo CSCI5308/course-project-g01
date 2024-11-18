@@ -23,6 +23,7 @@ class Result:
         self._pr_counts: List[int] = []
         self._pr_comment_counts: List[int] = []
         self._pr_comment_sentiment_positive_counts: List[int] = []
+        self._pr_comment_sentiment_negative_counts: List[int] = []
         self.logger: Logger = logger
         self.pdf_file_path: Path
 
@@ -58,7 +59,7 @@ class Result:
     @pr_comment_count.setter
     def pr_comment_count(self, pr_comment_counts: List[int]) -> None:
         raise AttributeError(
-            "Direct assignment to 'pr_comment_count' is not allowed. Use method addPRCommentCount to modify this pr_commentoperty based on the requirement."
+            "Direct assignment to 'pr_comment_count' is not allowed. Use method addPRCommentCount to modify this pr_comment property based on the requirement."
         )
 
     @property
@@ -70,7 +71,19 @@ class Result:
         self, pr_comment_sentiment_positive_counts: List[int]
     ) -> None:
         raise AttributeError(
-            "Direct assignment to 'pr_comment_sentiment_positive_count' is not allowed. Use method addPRCommentSentimentPositiveCount to modify this pr_comment_sentiment_positiveoperty based on the requirement."
+            "Direct assignment to 'pr_comment_sentiment_positive_count' is not allowed. Use method addPRCommentSentimentPositiveCount to modify this pr_comment_sentiment_positive property based on the requirement."
+        )
+
+    @property
+    def pr_comment_sentiment_negative_count(self) -> List[int]:
+        return self._pr_comment_sentiment_negative_counts
+
+    @pr_comment_sentiment_negative_count.setter
+    def pr_comment_sentiment_negative_count(
+        self, pr_comment_sentiment_negative_counts: List[int]
+    ) -> None:
+        raise AttributeError(
+            "Direct assignment to 'pr_comment_sentiment_negative_count' is not allowed. Use method addPRCommentSentimentNegativeCount to modify this pr_comment_sentiment_negative property based on the requirement."
         )
 
     @property
@@ -511,5 +524,13 @@ class Result:
             )
         self._pr_comment_sentiment_positive_counts.append(
             pr_comment_sentiment_positive_count
+        )
+        return None
+
+    def addPRCommentSentimentNegativeCount(
+        self, batch_idx: int, pr_comment_sentiment_negative_count: int
+    ) -> None:
+        self._pr_comment_sentiment_negative_counts.append(
+            pr_comment_sentiment_negative_count
         )
         return None
