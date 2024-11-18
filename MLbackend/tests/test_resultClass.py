@@ -1706,3 +1706,33 @@ def test_addPRCommentCountCorrect(
     return None
 
 
+@pytest.mark.parametrize(
+    "batch_dates, pr_comment_counts",
+    [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
+)
+def test_addPRCommentCountFailsDueToLessBatchSize(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    pr_comment_counts: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and pr_comment counts of {len(batch_dates) + 1}"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, pr_comment_count in enumerate(pr_comment_counts):
+            result_instance.addPRCommentCount(
+                batch_idx=idx, pr_comment_count=pr_comment_count
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        f"Mismatch between batch size of {len(batch_dates)} and pr_comment count of {len(batch_dates) + 1}"
+    )
+
+    return None
+
+
