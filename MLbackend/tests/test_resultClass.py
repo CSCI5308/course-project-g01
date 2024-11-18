@@ -2090,3 +2090,39 @@ def test_addPRCommentSentimentNegativeRatioFailsDueToLessBatchSize(
     return None
 
 
+@pytest.mark.parametrize(
+    "batch_dates, pr_comment_sentiment_negative_ratios",
+    [
+        ([datetime.now(), datetime.now()], [5, "a"]),
+        ([datetime.now(), datetime.now(), datetime.now()], [5, "b", 6]),
+    ],
+)
+def test_addPRCommentSentimentNegativeRatioFailsDueToIncorrectPRCommentSentimentNegativeRatioValueType(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    pr_comment_sentiment_negative_ratios: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = (
+        "Incorrect value type for pr_comment_sentiment_negative_ratio"
+    )
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, pr_comment_sentiment_negative_ratio in enumerate(
+            pr_comment_sentiment_negative_ratios
+        ):
+            result_instance.addPRCommentSentimentNegativeRatio(
+                batch_idx=idx,
+                pr_comment_sentiment_negative_ratio=pr_comment_sentiment_negative_ratio,
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        "Incorrect value type for pr_comment_sentiment_negative_ratio"
+    )
+
+    return None
