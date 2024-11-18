@@ -1554,3 +1554,44 @@ def test_addSmellFailsDueToIncorrectAuthorValueType(
     )
     result_instance.logger.error.assert_called_once_with("Incorrect smell type passed")
     return None
+
+
+@pytest.mark.parametrize(
+    "batch_dates, pr_counts, expected_pr_count",
+    [
+        (
+            [datetime.now()],
+            [
+                5,
+            ],
+            [
+                5,
+            ],
+        ),
+        ([datetime.now(), datetime.now() - relativedelta(days=5)], [5, 10], [5, 10]),
+        (
+            [datetime.now(), datetime.now(), datetime.now() - relativedelta(days=5)],
+            [5, 10, 15],
+            [5, 10, 15],
+        ),
+    ],
+)
+def test_addPRCountCorrect(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    pr_counts: List[int],
+    expected_pr_count: List[int],
+) -> None:
+
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+    for idx, pr_count in enumerate(pr_counts):
+        result_instance.addPRCount(batch_idx=idx, pr_count=pr_count)
+
+    assert result_instance.pr_count == expected_pr_count
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+
+    return None
+
