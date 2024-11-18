@@ -22,6 +22,7 @@ class Result:
         self._smells: List[List[str]] = []
         self._pr_counts: List[int] = []
         self._pr_comment_counts: List[int] = []
+        self._pr_comment_sentiment_positive_counts: List[int] = []
         self.logger: Logger = logger
         self.pdf_file_path: Path
 
@@ -58,6 +59,18 @@ class Result:
     def pr_comment_count(self, pr_comment_counts: List[int]) -> None:
         raise AttributeError(
             "Direct assignment to 'pr_comment_count' is not allowed. Use method addPRCommentCount to modify this pr_commentoperty based on the requirement."
+        )
+
+    @property
+    def pr_comment_sentiment_positive_count(self) -> List[int]:
+        return self._pr_comment_sentiment_positive_counts
+
+    @pr_comment_sentiment_positive_count.setter
+    def pr_comment_sentiment_positive_count(
+        self, pr_comment_sentiment_positive_counts: List[int]
+    ) -> None:
+        raise AttributeError(
+            "Direct assignment to 'pr_comment_sentiment_positive_count' is not allowed. Use method addPRCommentSentimentPositiveCount to modify this pr_comment_sentiment_positiveoperty based on the requirement."
         )
 
     @property
@@ -477,4 +490,12 @@ class Result:
                 f"Incorrect value {pr_comment_count} was passed for pr_comment_count. It is of type {type(pr_comment_count)}. It should be an integer"
             )
         self._pr_comment_counts.append(pr_comment_count)
+        return None
+
+    def addPRCommentSentimentPositiveCount(
+        self, batch_idx: int, pr_comment_sentiment_positive_count: int
+    ) -> None:
+        self._pr_comment_sentiment_positive_counts.append(
+            pr_comment_sentiment_positive_count
+        )
         return None
