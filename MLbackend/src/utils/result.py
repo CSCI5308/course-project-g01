@@ -565,6 +565,13 @@ class Result:
     def addPRCommentSentimentNegativeRatio(
         self, batch_idx: int, pr_comment_sentiment_negative_ratio: int
     ) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and pr_comment_sentiment_negative_ratio of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
         self._pr_comment_sentiment_negative_ratios.append(
             pr_comment_sentiment_negative_ratio
         )
