@@ -359,6 +359,13 @@ class Result:
         return None
 
     def addPRCount(self, batch_idx: int, pr_count: int) -> None:
+        if batch_idx >= len(self._batch_dates):
+            self.logger.error(
+                f"Mismatch between batch size of {len(self._batch_dates)} and pr count of {batch_idx + 1}"
+            )
+            raise ValueError(
+                f"The index provided for the batch {batch_idx} is greater than length of batch dates {len(self._batch_dates)}!!"
+            )
         self._pr_counts.append(pr_count)
         return None
 
