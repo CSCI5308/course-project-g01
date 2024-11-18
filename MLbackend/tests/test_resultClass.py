@@ -2056,3 +2056,37 @@ def test_addPRCommentSentimentNegativeRatioCorrect(
 
     return None
 
+
+@pytest.mark.parametrize(
+    "batch_dates, pr_comment_sentiment_negative_ratios",
+    [([datetime.now()], [5, 5]), ([datetime.now(), datetime.now()], [5, 1, 6])],
+)
+def test_addPRCommentSentimentNegativeRatioFailsDueToLessBatchSize(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    pr_comment_sentiment_negative_ratios: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = f"Mismatch between batch size of {len(batch_dates)} and pr_comment_sentiment_negative_ratio of {len(batch_dates) + 1}"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, pr_comment_sentiment_negative_ratio in enumerate(
+            pr_comment_sentiment_negative_ratios
+        ):
+            result_instance.addPRCommentSentimentNegativeRatio(
+                batch_idx=idx,
+                pr_comment_sentiment_negative_ratio=pr_comment_sentiment_negative_ratio,
+            )
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        f"Mismatch between batch size of {len(batch_dates)} and pr_comment_sentiment_negative_ratio of {len(batch_dates) + 1}"
+    )
+
+    return None
+
+
