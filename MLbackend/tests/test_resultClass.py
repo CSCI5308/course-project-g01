@@ -1632,3 +1632,32 @@ def test_addPRCountFailsDueToLessBatchSize(
 
     return None
 
+@pytest.mark.parametrize(
+    "batch_dates, pr_counts",
+    [
+        ([datetime.now(), datetime.now()], [5, "a"]),
+        ([datetime.now(), datetime.now(), datetime.now()], [5, "b", 6]),
+    ],
+)
+def test_addPRCountFailsDueToIncorrectPRValueType(
+    result_instance: Result,
+    batch_dates: List[datetime],
+    pr_counts: List[Any],
+) -> None:
+
+    result_instance.logger.error.return_value = "Incorrect value type for pr count"
+    result_instance.logger.info.return_value = "All values of Result are being reset"
+    result_instance.addBatchDates(batch_dates)
+
+    with pytest.raises(ValueError):
+        for idx, pr_count in enumerate(pr_counts):
+            result_instance.addPRCount(batch_idx=idx, pr_count=pr_count)
+
+    result_instance.logger.info.assert_called_once_with(
+        "All values of Result are being reset"
+    )
+    result_instance.logger.error.assert_called_once_with(
+        "Incorrect value type for pr count"
+    )
+
+    return None
