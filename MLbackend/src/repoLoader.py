@@ -1,31 +1,38 @@
 import os
-import git
 from logging import Logger
-
+import git
 from MLbackend.src.configuration import Configuration
-from MLbackend.src.utils.progress import Progress
 
 
 def getRepo(config: Configuration, logger: Logger):
-
-    # build path
     repoPath = os.path.join(
         config.repositoryPath,
         "{}.{}".format(config.repositoryOwner, config.repositoryName),
     )
 
-    # get repository reference
+    # Reference from https://docs.readthedocs.io/en/stable/guides/private-python-packages.html
+    pat = config.pat or os.getenv("GITHUB_TOKEN")
+
+    repoUrl = config.repositoryUrl.replace("https://", f"https://{pat}@")
+
     repo = None
-    if not os.path.exists(repoPath):
-        logger.info("Downloading repository")
-        repo = git.Repo.clone_from(
-            config.repositoryUrl,
-            repoPath,
-            odbt=git.GitCmdObjectDB,
-        )
-        logger.info(f"Cloned repository from link {config.repositoryUrl}")
-    else:
-        repo = git.Repo(repoPath, odbt=git.GitCmdObjectDB)
-        logger.info(f"Repositroy from link {config.repositoryUrl} is already cloned.")
+    try:
+        if not os.path.exists(repoPath):
+            logger.info(f"Repository path does not exist. Cloning from {repoUrl}")
+            repo = git.Repo.clone_from(
+                repoUrl,
+                repoPath,
+                odbt=git.GitCmdObjectDB,
+            )
+            logger.info(f"Cloned repository from {repoUrl}")
+        else:
+            repo = git.Repo(repoPath, odbt=git.GitCmdObjectDB)
+            logger.info(f"Repository already cloned from {repoUrl}")
+    except git.exc.GitCommandError as e:
+        logger.error(f"Failed to clone or open repository: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
+        return None
 
     return repo
