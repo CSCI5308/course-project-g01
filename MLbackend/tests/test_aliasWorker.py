@@ -1,9 +1,11 @@
+import os
 import unittest
-from unittest.mock import MagicMock, patch, mock_open
 from typing import List
+from unittest.mock import MagicMock, mock_open, patch
+
 import git
 import yaml
-import os
+
 from MLbackend.src.aliasWorker import replaceAliases
 
 
@@ -11,9 +13,11 @@ class MockConfiguration:
     def __init__(self, repositoryPath):
         self.repositoryPath = repositoryPath
 
+
 class MockLogger:
     def info(self, msg):
         print(msg)
+
 
 class MockCommit:
     def __init__(self, author_email):
@@ -27,7 +31,11 @@ class TestReplaceAliases(unittest.TestCase):
         self.mock_logger = MockLogger()
         self.mock_config = MockConfiguration(repositoryPath="/test/repo")
 
-    @patch("builtins.open", new_callable=mock_open, read_data="alias1:\n  - email1@example.com\n  - email2@example.com\n")
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data="alias1:\n  - email1@example.com\n  - email2@example.com\n",
+    )
     @patch("os.path.exists", return_value=True)
     def test_alias_replacement(self, mock_exists, mock_open):
         commits = [
@@ -62,6 +70,7 @@ class TestReplaceAliases(unittest.TestCase):
     def test_empty_commits_list(self):
         result = list(replaceAliases([], self.mock_config, self.mock_logger))
         self.assertEqual(result, [])
+
 
 if __name__ == "__main__":
     unittest.main()

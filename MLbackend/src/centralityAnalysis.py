@@ -22,7 +22,7 @@ def centralityAnalysis(
     batchDates: List[datetime],
     config: Configuration,
     logger: Logger,
-    result:Result,
+    result: Result,
 ) -> List[List[Any]]:
     coreDevs: List[List[Any]] = list()
 
@@ -40,7 +40,9 @@ def centralityAnalysis(
             and commit.committed_datetime < batchEndDate
         ]
 
-        batchCoreDevs, cen_meta, cen_metric = processBatch(idx, batch, config,logger,result)
+        batchCoreDevs, cen_meta, cen_metric = processBatch(
+            idx, batch, config, logger, result
+        )
         central_meta.append(cen_meta)
         central_metric.append(cen_metric)
         coreDevs.append(batchCoreDevs)
@@ -49,7 +51,11 @@ def centralityAnalysis(
 
 
 def processBatch(
-    batchIdx: int, commits: List[Commit], config: Configuration, logger: Logger, result: Result
+    batchIdx: int,
+    commits: List[Commit],
+    config: Configuration,
+    logger: Logger,
+    result: Result,
 ) -> List[Any]:
     allRelatedAuthors = {}
     authorCommits = Counter({})
@@ -80,12 +86,23 @@ def processBatch(
         authorRelatedAuthors.update(commitRelatedAuthors)
 
     return prepareGraph(
-        allRelatedAuthors, authorCommits, batchIdx, "commitCentrality", config, logger, result
+        allRelatedAuthors,
+        authorCommits,
+        batchIdx,
+        "commitCentrality",
+        config,
+        logger,
+        result,
     )
 
 
 def buildGraphQlNetwork(
-    batchIdx: int, batch: list, prefix: str, config: Configuration, logger: Logger, result: Result
+    batchIdx: int,
+    batch: list,
+    prefix: str,
+    config: Configuration,
+    logger: Logger,
+    result: Result,
 ):
     allRelatedAuthors = {}
     authorItems = Counter({})
@@ -108,7 +125,9 @@ def buildGraphQlNetwork(
             )
             authorRelatedAuthors = allRelatedAuthors.setdefault(author, set())
             authorRelatedAuthors.update(relatedAuthors)
-    return prepareGraph(allRelatedAuthors, authorItems, batchIdx, prefix, config, logger, result)
+    return prepareGraph(
+        allRelatedAuthors, authorItems, batchIdx, prefix, config, logger, result
+    )
 
 
 def prepareGraph(

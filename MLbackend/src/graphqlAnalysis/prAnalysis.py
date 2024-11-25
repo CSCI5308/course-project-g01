@@ -153,7 +153,9 @@ def prAnalysis(
 
         toxicityPercentage = getToxicityPercentage(config, allComments, logger)
 
-        author, meta, metrics_data = centrality.buildGraphQlNetwork(batchIdx, participants, "PRs", config, logger, result)
+        author, meta, metrics_data = centrality.buildGraphQlNetwork(
+            batchIdx, participants, "PRs", config, logger, result
+        )
 
         logger.info("Writing results of PR analysis to CSVs.")
         with open(

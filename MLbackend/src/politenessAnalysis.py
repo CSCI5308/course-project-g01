@@ -20,7 +20,12 @@ def politenessAnalysis(
     accl = calculateACCL(config, prCommentBatches, issueCommentBatches, logger)
     rpc_pr = calculateRPC(config, "PR", prCommentBatches, logger)
     rpc_issues = calculateRPC(config, "Issue", prCommentBatches, logger)
-    results = [["Metrics","Value"],["ACCL",accl],["RPCPR",rpc_pr[1]],["RPCIssue",rpc_issues[1]]]
+    results = [
+        ["Metrics", "Value"],
+        ["ACCL", accl],
+        ["RPCPR", rpc_pr[1]],
+        ["RPCIssue", rpc_issues[1]],
+    ]
     return results
 
 
