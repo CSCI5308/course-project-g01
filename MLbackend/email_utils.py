@@ -1,8 +1,5 @@
-import os
-from flask_mail import Message, Mail
-from flask import current_app as app
-import traceback
 
+from flask_mail import Mail
 
 
 def configure_app(app):
