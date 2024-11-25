@@ -1,27 +1,28 @@
+import argparse
 import os
 import shutil
 import stat
-import sentistrength
-import argparse
-from pathlib import Path
-from typing import Optional, List, Any
-from datetime import datetime
-import pandas as pd
 import sys
 import traceback
-from src.configuration import Configuration, parseDevNetworkArgs
-from src.repoLoader import getRepo
+from datetime import datetime
+from pathlib import Path
+from typing import Any, List, Optional
+
+import pandas as pd
+import sentistrength
+import src.centralityAnalysis as centrality
+from dateutil.relativedelta import relativedelta
 from src.aliasWorker import replaceAliases
 from src.commitAnalysis import commitAnalysis
-import src.centralityAnalysis as centrality
-from src.tagAnalysis import tagAnalysis
+from src.configuration import Configuration, parseDevNetworkArgs
 from src.devAnalysis import devAnalysis
-from src.graphqlAnalysis.releaseAnalysis import releaseAnalysis
-from src.graphqlAnalysis.prAnalysis import prAnalysis
 from src.graphqlAnalysis.issueAnalysis import issueAnalysis
-from src.smellDetection import smellDetection
+from src.graphqlAnalysis.prAnalysis import prAnalysis
+from src.graphqlAnalysis.releaseAnalysis import releaseAnalysis
 from src.politenessAnalysis import politenessAnalysis
-from dateutil.relativedelta import relativedelta
+from src.repoLoader import getRepo
+from src.smellDetection import smellDetection
+from src.tagAnalysis import tagAnalysis
 
 
 def communitySmellsDetector(config) -> dict:  # Specify the return type
@@ -30,9 +31,6 @@ def communitySmellsDetector(config) -> dict:  # Specify the return type
     df = None
 
     try:
-        # Parse args
-        print(config)
-
         # Prepare folders
         if os.path.exists(config.resultsPath):
             remove_tree(config.resultsPath)
@@ -50,8 +48,6 @@ def communitySmellsDetector(config) -> dict:  # Specify the return type
         senti.setSentiStrengthLanguageFolderPath(
             os.path.join(config.sentiStrengthPath, "SentiStrength_Data")
         )
-        
-
 
         # Prepare batch delta
         delta = relativedelta(months=+config.batchMonths)
@@ -79,7 +75,6 @@ def communitySmellsDetector(config) -> dict:  # Specify the return type
             batchDates,
         )
 
-
         issueParticipantBatches, issueCommentBatches = issueAnalysis(
             config,
             senti,
@@ -88,7 +83,6 @@ def communitySmellsDetector(config) -> dict:  # Specify the return type
         )
 
         politenessAnalysis(config, prCommentBatches, issueCommentBatches)
-       
 
         for batchIdx, batchDate in enumerate(batchDates):
             # Get combined author lists
@@ -128,20 +122,22 @@ def communitySmellsDetector(config) -> dict:  # Specify the return type
                 batchCoreDevs,
                 config,
             )
-            
-            df = pd.read_csv(os.path.join(config.resultsPath, f"results_{batchIdx}.csv"))
-            df.columns=["Metric", "Value"]
+
+            df = pd.read_csv(
+                os.path.join(config.resultsPath, f"results_{batchIdx}.csv")
+            )
+            df.columns = ["Metric", "Value"]
 
             # Run smell detection and collect results
             smell_results = smellDetection(config, batchIdx)
             results = {
-                        "batch_date": batchDate.strftime("%Y-%m-%d"),
-                        "smell_results": list(smell_results),
-                        "core_devs": list(batchCoreDevs),
-                    }
+                "batch_date": batchDate.strftime("%Y-%m-%d"),
+                "smell_results": list(smell_results),
+                "core_devs": list(batchCoreDevs),
+            }
 
-                # Add more relevant results as needed
-            
+            # Add more relevant results as needed
+
     except Exception as e:
         # Capture detailed error information
         error_message = str(e)
@@ -158,9 +154,7 @@ def communitySmellsDetector(config) -> dict:  # Specify the return type
         if "repo" in locals():
             del repo
 
-    
-
-    return results,df  # Return the collected results
+    return results, df  # Return the collected results
 
 
 def commitDate(tag):
@@ -179,7 +173,6 @@ def remove_tree(path):
         os.remove(path)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     config = parseDevNetworkArgs(sys.argv[1:])
     communitySmellsDetector(config)
-

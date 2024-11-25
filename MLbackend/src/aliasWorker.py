@@ -1,18 +1,19 @@
 import os
+from logging import Logger
+from typing import Generator, List
+
 import git
 import yaml
 
-from typing import List, Generator
-from progress.bar import Bar
-from src.utils import authorIdExtractor
-from src.configuration import Configuration
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.utils import authorIdExtractor
 
 
 def replaceAliases(
-    commits: List[git.Commit], config: Configuration
+    commits: List[git.Commit], config: Configuration, logger: Logger
 ) -> Generator[git.Commit, None, None]:
 
-    print("Cleaning aliased authors")
+    logger.info("Cleaning aliased authors")
 
     # build path
     aliasPath = os.path.join(config.repositoryPath, "aliases.yml")
@@ -27,6 +28,8 @@ def replaceAliases(
         content = file.read()
 
     aliases = yaml.load(content, Loader=yaml.FullLoader)
+    if aliases is None:
+        return commits
 
     # transpose for easy replacements
     transposesAliases = {}
@@ -39,7 +42,7 @@ def replaceAliases(
 
 
 def replaceAll(commits, aliases) -> Generator[git.Commit, None, None]:
-    for commit in Bar("Processing").iter(list(commits)):
+    for commit in list(commits):
         copy = commit
         author = authorIdExtractor(commit.author)
 

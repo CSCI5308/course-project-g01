@@ -1,11 +1,12 @@
 import os
 import git
+from logging import Logger
 
-from src.configuration import Configuration
-from src.utils.progress import Progress
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.utils.progress import Progress
 
 
-def getRepo(config: Configuration):
+def getRepo(config: Configuration, logger: Logger):
 
     # build path
     repoPath = os.path.join(
@@ -16,15 +17,15 @@ def getRepo(config: Configuration):
     # get repository reference
     repo = None
     if not os.path.exists(repoPath):
-        print("Downloading repository...")
+        logger.info("Downloading repository")
         repo = git.Repo.clone_from(
             config.repositoryUrl,
             repoPath,
-            progress=Progress(),
             odbt=git.GitCmdObjectDB,
         )
-        print()
+        logger.info(f"Cloned repository from link {config.repositoryUrl}")
     else:
         repo = git.Repo(repoPath, odbt=git.GitCmdObjectDB)
+        logger.info(f"Repositroy from link {config.repositoryUrl} is already cloned.")
 
     return repo

@@ -1,5 +1,5 @@
-import os
 import argparse
+import os
 from typing import Sequence
 
 
@@ -37,7 +37,6 @@ class Configuration:
 
         # build metrics path
         self.metricsPath = os.path.join(self.resultsPath, "metrics")
-
 
 
 def parseDevNetworkArgs(args: Sequence[str]):
@@ -106,7 +105,7 @@ def parseDevNetworkArgs(args: Sequence[str]):
         0,
         args.pat,
         args.googleKey,
-        args.startDate
+        args.startDate,
     )
 
     return config

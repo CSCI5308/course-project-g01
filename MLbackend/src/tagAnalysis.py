@@ -1,13 +1,14 @@
-import os
-import git
 import csv
 import datetime
-
-from progress.bar import Bar
-from src.statsAnalysis import outputStatistics
+import os
+from logging import Logger
 from typing import List
+
+import git
 from dateutil.relativedelta import relativedelta
-from src.configuration import Configuration
+
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.statsAnalysis import outputStatistics
 
 
 def tagAnalysis(
@@ -16,19 +17,20 @@ def tagAnalysis(
     batchDates: List[datetime.datetime],
     daysActive: List[int],
     config: Configuration,
+    logger: Logger,
 ) -> None:
-    print("Analyzing tags")
+    logger.info("Analyzing tags")
 
     tagInfo = []
-    print("Sorting (no progress available, may take several minutes to complete)")
+    logger.info("Sorting tags")
     tags = sorted(repo.tags, key=getTaggedDate)
 
     # get tag list
     if len(tags) > 0:
         lastTag = None
-        for tag in Bar("Processing").iter(tags):
+        for tag in tags:
             commitCount = 0
-            if lastTag == None:
+            if lastTag is None:
                 commitCount = len(list(tag.commit.iter_items(repo, tag.commit)))
             else:
                 sinceStr = formatDate(getTaggedDate(lastTag))
@@ -58,19 +60,25 @@ def tagAnalysis(
             if tag["rawDate"] >= batchStartDate and tag["rawDate"] < batchEndDate
         ]
 
-        x = outputTags(idx, batchTags, daysActive[idx], config)
+        x = outputTags(idx, batchTags, daysActive[idx], config, logger)
         res.append(x)
     return res
 
 
-def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configuration):
+def outputTags(
+    idx: int,
+    tagInfo: List[dict],
+    daysActive: int,
+    config: Configuration,
+    logger: Logger,
+):
 
     # calculate FN
     try:
         fn = len(tagInfo) / daysActive * 100
     except ZeroDivisionError:
         fn: float = 0
-        print("daysActive is 0")
+        logger.warning(f"Number of days active is 0 for tag at date {tagInfo}.")
 
     # output non-tabular results
     with open(
@@ -80,7 +88,7 @@ def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configura
         w.writerow(["Tag Count", len(tagInfo)])
 
     # output tag info
-    print("Outputting CSVs")
+    logger.info("Outputting CSVs with tag information.")
 
     with open(
         os.path.join(config.resultsPath, f"results_{idx}.csv"), "a", newline=""
@@ -96,12 +104,12 @@ def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configura
         for tag in tagInfo:
             w.writerow([tag["path"], tag["date"], tag["commitCount"]])
 
-
     outputStatistics(
         idx,
         [tag["commitCount"] for tag in tagInfo],
         "TagCommitCount",
         config.resultsPath,
+        logger,
     )
     return [tag["commitCount"] for tag in tagInfo]
 

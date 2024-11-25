@@ -1,15 +1,18 @@
 import csv
-from joblib import load
 import os
 import warnings
+from logging import Logger
 from typing import List
 
-from src.configuration import Configuration
+from joblib import load
+
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.utils.result import Result
 
 warnings.filterwarnings("ignore")
 
 
-def smellDetection(config: Configuration, batchIdx: int):
+def smellDetection(config: Configuration, batchIdx: int, logger: Logger, result: Result):
 
     # prepare results holder for easy mapping
     results = {}
@@ -23,14 +26,14 @@ def smellDetection(config: Configuration, batchIdx: int):
         for row in rows:
             results[row[0]] = row[1]
 
-    metrics = buildMetricsList(results)
+    metrics = buildMetricsList(results, logger)
 
     # load all models
     smells = ["OSE", "BCE", "PDE", "SV", "OS", "SD", "RS", "TF", "UI", "TC"]
     all_models = {}
 
     for smell in smells:
-        modelPath = os.path.abspath("./models/{}.joblib".format(smell))
+        modelPath = os.path.abspath("MLbackend/models/{}.joblib".format(smell))
         all_models[smell] = load(modelPath)
 
     # detect smells
@@ -40,17 +43,43 @@ def smellDetection(config: Configuration, batchIdx: int):
         for smell_name, smell_model in all_models.items()
     }
     detectedSmells = [smell for smell in smells if rawSmells[smell][0] == 1]
+    for smell in smells:
+        if rawSmells[smell][0] == 1:
+            result.addSmell(batch_idx=batchIdx, smell=smell)
 
-    # add last commit date as first output param
+        # Prepare additional values
+    additional_metrics = {
+        "CommitCount": results.get("CommitCount", 0),
+        "DaysActive": results.get("DaysActive", 0),
+        "FirstCommitDate": results.get("FirstCommitDate", ""),
+        "LastCommitDate": results.get("LastCommitDate", ""),
+        "AuthorCount": results.get("AuthorCount", 0),
+        "SponsoredAuthorCount": results.get("SponsoredAuthorCount", 0),
+        "PercentagesSponsoredAuthors": results.get("PercentageSponsoredAuthors", 0),
+        "AuthorCommitCount_mean": results.get("AuthorCommitCount_mean", 0),
+        "AuthorCommitCount_stdev": results.get("AuthorCommitCount_stdev", 0),
+        "NumberPRs": results.get("NumberPRs", 0),
+        "PRDuration_mean": results.get("PRDuration_mean", 0),
+        "PRCommentsLength_mean": results.get("PRCommentsLength_mean", 0),
+        "NumberIssues": results.get("NumberIssues", 0),
+        "IssueCommentsLength_mean": results.get("IssueCommentsLength_mean", 0),
+        "IssueCommentSentiments_mean": results.get("IssueCommentSentiments_mean", 0),
+        "NumberReleases": results.get("NumberReleases", 0),
+        "ReleaseCommitCount_mean": results.get("ReleaseCommitCount_mean", 0),
+        "BusFactorNumber": results.get("BusFactorNumber", 0),
+        "ExperiencedTFC": results.get("commitCentrality_TFC", 0),
+    }
+
+    # insert detected smells
+    additional_metrics["DetectedSmells"] = detectedSmells.copy()
     detectedSmells.insert(0, results["LastCommitDate"])
+    additional_metrics["smell_results"] = detectedSmells
+    result.setSmellResults(additional_metrics)
 
-    # display results
-    # print("Detected smells:")
-    # print(detectedSmells)
-    return detectedSmells
+    return additional_metrics
 
 
-def buildMetricsList(results: dict):
+def buildMetricsList(results: dict, logger: Logger):
 
     # declare names to extract from the results file in the right order
     names: List[str] = [
@@ -111,11 +140,11 @@ def buildMetricsList(results: dict):
     for name in names:
 
         # default value if key isn't present or the value is blank
-        result: str | float = results.get(name, 0)
-        if result == "":
-
-            print(f"No value for '{name}' during smell detection, defaulting to 0")
-            result = 0
+        result: float = results.get(name) or 0
+        if result == 0:
+            logger.warning(
+                f"No value for '{name}' during smell detection, defaulting to 0"
+            )
 
         metrics.append(float(result))
 

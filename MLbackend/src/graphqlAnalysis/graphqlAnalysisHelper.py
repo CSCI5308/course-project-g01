@@ -1,6 +1,8 @@
-import requests
 import random
 import time
+from logging import Logger
+
+import requests
 
 
 def buildNextPageQuery(cursor: str):
@@ -9,7 +11,7 @@ def buildNextPageQuery(cursor: str):
     return ', after:"{0}"'.format(cursor)
 
 
-def runGraphqlRequest(pat: str, query: str):
+def runGraphqlRequest(pat: str, query: str, logger: Logger):
     headers = {"Authorization": "Bearer {0}".format(pat)}
 
     sleepTime = random.randint(0, 8)
@@ -22,6 +24,9 @@ def runGraphqlRequest(pat: str, query: str):
     if request.status_code == 200:
         return request.json()["data"]
 
+    logger.error(
+        f"Query execution failed with code {request.status_code}: {request.text}."
+    )
     raise Exception(
         "Query execution failed with code {0}: {1}".format(
             request.status_code, request.text
@@ -32,12 +37,12 @@ def runGraphqlRequest(pat: str, query: str):
 def addLogin(node, authors: list):
     login = extractAuthorLogin(node)
 
-    if not login is None:
+    if login is not None:
         authors.append(login)
 
 
 def extractAuthorLogin(node):
-    if node is None or not "login" in node or node["login"] is None:
+    if node is None or "login" not in node or node["login"] is None:
         return None
 
     return node["login"]

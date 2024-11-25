@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/style/styles.css" rel="stylesheet" type="text/css" />
+    <link href="/static/style/results_styles.css" rel="stylesheet" type="text/css" />
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/static/main.js" defer></script>
@@ -17,37 +19,250 @@
 
 <body>
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-6 bg-color2 d-flex align-items-center justify-content-center">
-                <div class="content text-center">
-                    <h2 class="heading-text">Community<br>Smells<br>Detector</h2>
+        <div class="bg-Color">
+            <div class="content-result" style="width: 100%;">
+                <h2 class="heading-text">
+                    Community Smells Report
+                </h2>
+
+                <h2>Detected Smells</h2>
+                <ul id="smell-list">
+                    {% for smell in data.DetectedSmells %}
+                    <li class="smell-item" data-smell="{{ smell }}">
+                        <span class="smell-full-name"></span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <h2>Download PDF Report</h2>
+                <a href="/api/v1/pdf" target="_blank">Download Smell Report</a>
+
+                <h2>Core Developers</h2>
+                <ul>
+                    {% for dev in data.core_devs %}
+                    <li>{{ dev }}</li>
+                    {% endfor %}
+                </ul>
+                <div class="all-results">
+                    <div class="section">
+                        <div class="heading-block">
+                            <h3>Commit Activity</h3>
+                        </div>
+                        <div class="content-block">
+                            <p><strong>Total number of commits:</strong> <span id="total-commits"></span></p>
+                            <p><strong>Project has been active for:</strong> <span id="days-active"></span> days</p>
+                            <p><strong>First Commit Date:</strong> {{ data.FirstCommitDate }}</p>
+                            <p><strong>Last Commit Date:</strong> {{ data.LastCommitDate }}</p>
+                        </div>
+                    </div>
+
+
+                    <div class="section">
+                        <div class="heading-block">
+                            <h3>Contributors</h3>
+                        </div>
+                        <div class="content-block">
+                            <p><strong>Total number of authors:</strong> <span id="total-authors"></span></p>
+                            <p><strong>Number of sponsored contributors:</strong> <span
+                                    id="sponsored-contributors"></span>
+                            </p>
+                            <p><strong>Percentage of sponsored contributors:</strong> <span
+                                    id="percentage-sponsored"></span>%</p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="heading-block">
+                            <h3>Commits per Author</h3>
+                        </div>
+                        <div class="content-block">
+                            <p><strong>Average commits per author:</strong> <span id="avg-commits-per-author"></span>
+                            </p>
+                            <p><strong>Standard deviation of commits:</strong> <span id="std-dev-commits"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="heading-block">
+                            <h3>Pull Requests</h3>
+                        </div>
+                        <div class="content-block">
+                            <p><strong>Total number of pull requests:</strong> <span id="total-prs"></span></p>
+                            <p><strong>Average time to merge PRs:</strong> <span id="avg-merge-time"></span></p>
+                            <p><strong>Average length of PR comments:</strong> <span id="avg-pr-comments-length"></span>
+                                characters</p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="heading-block">
+                            <h3>Issues</h3>
+                        </div>
+                        <div class="content-block">
+                            <p><strong>Total number of issues:</strong> <span id="total-issues"></span></p>
+                            <p><strong>Average length of issue comments:</strong> <span
+                                    id="avg-issue-comments-length"></span> characters</p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="heading-block">
+                            <h3>Release Activity</h3>
+                        </div>
+                        <div class="content-block">
+                            <p><strong>Total number of releases:</strong> <span id="total-releases"></span></p>
+                            <p><strong>Average commits per release:</strong> <span id="avg-commits-per-release"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="heading-block">
+                            <h3>Project Activity</h3>
+                        </div>
+                        <div class="content-block">
+                            <p><strong>Commit frequency:</strong> <span id="commit-frequency"></span> commits/day</p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="heading-block">
+                            <h3>Developer Experience</h3>
+                        </div>
+                        <div class="content-block">
+                            <p><strong>Bus Factor:</strong> <span id="bus-factor"></span></p>
+                            <p><strong>Experienced developers' impact:</strong> <span
+                                    id="experienced-dev-impact"></span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6 bg-Color d-flex align-items-center">
-                <div class="content-result" style="width: 100%;">
-                    <h1>Results for {{ data.batch_date }}</h1>
-                    
-                    <h2>Smell Results</h2>
-                    <ul>
-                        {% for result in data.smell_results[1:] %}
-                            <li>{{ result }}</li>
-                        {% endfor %}
-                    </ul>
-                    
-                    <h2>Download PDF Report</h2>
-                    <a href="/api/v1/pdf" target="_blank">Download Smell Report</a>
-                    
-                
-                    <h2>Core Developers</h2>
-                    <ul>
-                        {% for dev in data.core_devs %}
-                            <li>{{ dev }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                
+
+
             </div>
         </div>
     </div>
+
+    <script>
+
+        const smellDefinitions = {
+            "OSE": {
+                fullName: "Organizational Silo Effect",
+                description: "This refers to the presence of isolated subgroups, and lack of communication and collaboration between community developers. This smell causes unforeseen project costs by wasting resources, such as time, and duplicating code."
+            },
+            "BCE": {
+                fullName: "Black-cloud Effect",
+                description: "Information overload due to limited structured communication and lack of expert knowledge sharing. Leads to inefficient collaboration."
+            },
+            "PDE": {
+                fullName: "Prima-donnas Effect",
+                description: "A resistance to external input or changes from team members due to poor collaboration structure."
+            },
+            "SV": {
+                fullName: "Sharing Villainy",
+                description: "Low-quality information exchange, leading to essential knowledge being outdated, incorrect, or unconfirmed."
+            },
+            "OS": {
+                fullName: "Organizational Skirmish",
+                description: "Misalignment between expertise levels and communication channels, causing productivity drops and project delays."
+            },
+            "SD": {
+                fullName: "Solution Defiance",
+                description: "Division into subgroups with conflicting opinions, often leading to uncooperative behaviors and project delays."
+            },
+            "RS": {
+                fullName: "Radio Silence",
+                description: "High formality and rigid procedures slow down decision-making and cause massive project delays."
+            },
+            "TFS": {
+                fullName: "Truck Factor Smell",
+                description: "Knowledge concentrated among few developers, creating risk of knowledge loss if they leave."
+            },
+            "UI": {
+                fullName: "Unhealthy Interaction",
+                description: "Poor-quality discussions and low participation, manifesting as delays and low communication."
+            },
+            "TC": {
+                fullName: "Toxic Communication",
+                description: "Negative interactions and toxic conversations leading to frustration, stress, and potentially project abandonment."
+            }
+        };
+
+        // Set full names for each smell item
+        document.querySelectorAll('.smell-item').forEach((item) => {
+            const smellCode = item.getAttribute('data-smell');
+            if (smellDefinitions[smellCode]) {
+                const fullNameSpan = item.querySelector('.smell-full-name');
+                fullNameSpan.textContent = smellDefinitions[smellCode].fullName;
+            }
+        });
+
+        // Add click event listener to each smell item
+        document.querySelectorAll('.smell-item').forEach((item) => {
+            item.addEventListener('click', () => {
+                const smellCode = item.getAttribute('data-smell');
+                if (smellDefinitions[smellCode]) {
+                    // Toggle expanded class
+                    item.classList.toggle('expanded');
+
+                    // Toggle description
+                    let description = item.querySelector('.description');
+                    if (description) {
+                        description.remove();
+                        // Remove expanded class when description is removed
+                        item.classList.remove('expanded');
+                    } else {
+                        description = document.createElement('div');
+                        description.className = 'description';
+                        description.textContent = smellDefinitions[smellCode].description;
+                        item.appendChild(description);
+                        // Add expanded class when description is added
+                        item.classList.add('expanded');
+                    }
+                }
+            });
+        });
+        // Function to format numbers to two decimal places
+        function formatToTwoDecimalPlaces(value) {
+            return parseFloat(value).toFixed(2);
+        }
+
+        // Define a list of elements with their data
+        const elements = [
+            { id: "total-commits", value: "{{ data.CommitCount }}" },
+            { id: "days-active", value: "{{ data.DaysActive }}" },
+            { id: "total-authors", value: "{{ data.AuthorCount }}" },
+            { id: "sponsored-contributors", value: "{{ data.SponsoredAuthorCount }}" },
+            { id: "avg-commits-per-author", value: "{{ data.AuthorCommitCount_mean }}" },
+            { id: "std-dev-commits", value: "{{ data.AuthorCommitCount_stdev }}" },
+            { id: "total-prs", value: "{{ data.NumberPRs }}" },
+            { id: "avg-merge-time", value: "{{ data.PRDuration_mean }}" },
+            { id: "avg-pr-comments-length", value: "{{ data.PRCommentsLength_mean }}" },
+            { id: "total-issues", value: "{{ data.NumberIssues }}" },
+            { id: "avg-issue-comments-length", value: "{{ data.IssueCommentsLength_mean }}" },
+            { id: "total-releases", value: "{{ data.NumberReleases }}" },
+            { id: "avg-commits-per-release", value: "{{ data.ReleaseCommitCount_mean }}" },
+            { id: "bus-factor", value: "{{ data.BusFactorNumber }}" },
+            { id: "experienced-dev-impact", value: "{{ data.ExperiencedTFC }}" }
+        ];
+
+        // Loop through each element and format its value
+        elements.forEach(item => {
+            document.getElementById(item.id).textContent = formatToTwoDecimalPlaces(item.value);
+        });
+
+        // Calculate and format PercentageSponsoredAuthors
+        const authorCount = parseFloat("{{ data.AuthorCount }}");
+        const sponsoredAuthorCount = parseFloat("{{ data.SponsoredAuthorCount }}");
+        const percentageSponsored = (sponsoredAuthorCount / authorCount) * 100;
+        document.getElementById("percentage-sponsored").textContent = formatToTwoDecimalPlaces(percentageSponsored);
+
+        // Calculate and format Commit Frequency
+        const commitCount = parseFloat("{{ data.CommitCount }}");
+        const daysActive = parseFloat("{{ data.DaysActive }}");
+        const commitFrequency = (commitCount / daysActive);
+        document.getElementById("commit-frequency").textContent = formatToTwoDecimalPlaces(commitFrequency);
+    </script>
+
 </body>
+
 </html>

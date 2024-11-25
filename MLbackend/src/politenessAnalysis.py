@@ -1,33 +1,44 @@
-import os
 import csv
+import os
+from logging import Logger
+
 import convokit
 
-import src.statsAnalysis as stats
-from src.configuration import Configuration
+import MLbackend.src.statsAnalysis as stats
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.utils.result import Result
 
 
 def politenessAnalysis(
     config: Configuration,
     prCommentBatches: list,
     issueCommentBatches: list,
+    logger: Logger,
+    result: Result,
 ) -> None:
 
-    accl = calculateACCL(config, prCommentBatches, issueCommentBatches)
+    accl = calculateACCL(config, prCommentBatches, issueCommentBatches, logger)
+    rpc_pr = calculateRPC(config, "PR", prCommentBatches, logger)
+    rpc_issues = calculateRPC(config, "Issue", prCommentBatches, logger)
+    results = [["Metrics","Value"],["ACCL",accl],["RPCPR",rpc_pr[1]],["RPCIssue",rpc_issues[1]]]
+    return results
 
-    rpc_pr = calculateRPC(config, "PR", prCommentBatches)
-    rpc_issues = calculateRPC(config, "Issue", prCommentBatches)
-    return (accl,rpc_pr,rpc_issues)
 
+def calculateACCL(config, prCommentBatches, issueCommentBatches, logger) -> None:
+    logger.info(
+        "Calculating Average Comment Character Length based on comments in PRs and Issues batches."
+    )
 
-def calculateACCL(config, prCommentBatches, issueCommentBatches) -> None:
     accls = []
     for batchIdx, batch in enumerate(prCommentBatches):
 
         prCommentLengths = list([len(c) for c in batch])
         issueCommentBatch = list([len(c) for c in issueCommentBatches[batchIdx]])
 
-        prCommentLengthsMean = stats.calculateStats(prCommentLengths)["mean"]
-        issueCommentLengthsMean = stats.calculateStats(issueCommentBatch)["mean"]
+        prCommentLengthsMean = stats.calculateStats(prCommentLengths, logger)["mean"]
+        issueCommentLengthsMean = stats.calculateStats(issueCommentBatch, logger)[
+            "mean"
+        ]
 
         accl = prCommentLengthsMean + issueCommentLengthsMean / 2
         accls.append(accl)
@@ -38,17 +49,17 @@ def calculateACCL(config, prCommentBatches, issueCommentBatches) -> None:
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow(["ACCL", accl])
-    return accls
+    return accls[0]
 
 
-def calculateRPC(config, outputPrefix, commentBatches) -> None:
+def calculateRPC(config, outputPrefix, commentBatches, logger: Logger) -> None:
+    logger.info(f"Calculating Relative positive count for {outputPrefix}s.")
     rpcs = []
     for batchIdx, batch in enumerate(commentBatches):
 
         # analyze batch
         positiveMarkerCount = getResults(batch) if len(batch) > 0 else 0.0
-        rpcs.append((outputPrefix,positiveMarkerCount))
-
+        rpcs.append((outputPrefix, positiveMarkerCount))
 
         # output results
         with open(
@@ -58,8 +69,7 @@ def calculateRPC(config, outputPrefix, commentBatches) -> None:
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow([f"RPC{outputPrefix}", positiveMarkerCount])
-    return rpcs
-        
+    return rpcs[0]
 
 
 def getResults(comments: list) -> float:
@@ -79,7 +89,7 @@ def getResults(comments: list) -> float:
     corpus = convokit.Corpus(utterances=utterances)
 
     # parse
-    parser = convokit.TextParser(verbosity=1000)
+    parser = convokit.TextParser(verbosity=0)
     corpus = parser.transform(corpus)
 
     # extract politeness features

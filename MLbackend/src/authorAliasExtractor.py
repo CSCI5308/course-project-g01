@@ -1,15 +1,15 @@
-import git
-import yaml
 import os
-import requests
-import sys
 import re
+import sys
 
+import git
+import requests
+import yaml
+from progress.bar import Bar
 from src.configuration import Configuration, parseAliasArgs
 from src.repoLoader import getRepo
-from progress.bar import Bar
-from utils import authorIdExtractor
 from strsimpy.metric_lcs import MetricLCS
+from utils import authorIdExtractor
 
 
 def main():
@@ -68,7 +68,7 @@ def extractAliases(config: Configuration, repo: git.Repo, aliasPath: str):
         request = requests.get(url, headers={"Authorization": "token " + config.pat})
         commit = request.json()
 
-        if not "author" in commit.keys():
+        if "author" not in commit.keys():
             continue
 
         if not commit["author"] is None and not commit["author"]["login"] is None:
@@ -132,7 +132,6 @@ def extractAliases(config: Configuration, repo: git.Repo, aliasPath: str):
                     usedAsValues[authorB] = authorA
                     break
 
-    print("Writing aliases to '{0}'".format(aliasPath))
     if not os.path.exists(os.path.dirname(aliasPath)):
         os.makedirs(os.path.dirname(aliasPath))
 

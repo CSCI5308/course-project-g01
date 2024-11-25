@@ -1,39 +1,61 @@
+.bg-Color{
+    background: hsla(240, 94%, 10%, 1);
+    color: white; 
+
+}
+.form-text {
+    color: white; 
+}
+
 .content {
-    min-height: 100vh;            /* At least the full viewport height */
-    width: 100%;                  /* Full width */
-    display: grid;                /* Grid layout for easy centering */
-    align-items: center;          /* Vertically center */
-    justify-content: center;      /* Horizontally center */
-    padding: 20px;                /* Add padding to the container */
-    box-sizing: border-box;       /* Include padding in width calculations */
+    min-height: 100vh;            
+    width: 100%;                  
+    display: grid;               
+    align-items: center;         
+    justify-content: center;      
+    padding: 20px;               
+    box-sizing: border-box;       
 }
 
 .content-form {
-    min-height: 100vh;            /* At least the full viewport height */
-    width: 100%;                  /* Full width */
-    display: grid;                /* Grid layout for easy centering */
-    align-items: center;          /* Vertically center items within the grid */
+    min-height: 100vh;            
+    width: 100%;                  
+    display: grid;                
+    align-items: center;          
     padding: 20px;   
-    box-sizing: border-box;             /* Add padding to the container */
+    box-sizing: border-box;             
 }
 
-.bg-Color{
-    background: hsla(154, 68%, 82%, 1);
-    background: linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
-    background: -moz-linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
-    background: -webkit-linear-gradient(90deg, hsla(154, 68%, 82%, 1) 0%, hsla(154, 70%, 91%, 1) 49%, hsla(0, 0%, 100%, 1) 100%);
-    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#B0F0D4", endColorstr="#D8F8EA", GradientType=1 );
-}
-.bg-color2{
-    background: hsla(154, 28%, 52%, 1);
-    background: linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
-    background: -moz-linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
-    background: -webkit-linear-gradient(90deg, hsla(154, 28%, 52%, 1) 0%, hsla(0, 0%, 100%, 1) 100%);
-    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#62A789", endColorstr="#FFFFFF", GradientType=1 );
-}
 .heading-text {
     font-size: 3em;
 }
+
+.content-result {
+    width: 100%;
+    min-height: 100vh; 
+    max-height: 100vh; 
+    overflow-y: auto; 
+    padding: 20px; 
+    box-sizing: border-box; 
+    border: 0.5px solid #ccc; 
+    border-radius: 5px;
+}
+
+.btn-custom {
+    background-color: #D97706; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer;
+    font-size: 16px; 
+    transition: background-color 0.3s ease;
+}
+
+.btn-custom:hover {
+    background-color: #b06605; 
+}
+
 
 .overlay {
     position: fixed;              
@@ -41,7 +63,7 @@
     left: 0;                    
     right: 0;                    
     bottom: 0;                  
-    background-color: rgba(255, 255, 255, 0.7); 
+    background-color: rgba(10, 10, 10, 0.7); 
     display: flex;               
     align-items: center;          
     justify-content: center;     
@@ -49,17 +71,15 @@
 }
 
 .spinner-border {
-    width: 3rem;               
-    height: 3rem;                
+    width: 4rem;               
+    height: 4rem;                
+    border: 4px solid transparent; 
+    border-top: 5px solid #D97706; 
+    border-radius: 50%;         
+    animation: spin 1s linear infinite; 
 }
 
-.content-result {
-    width: 100%;
-    min-height: 100vh; /* Set minimum height to 100% of the viewport height */
-    max-height: 100vh; /* Set maximum height to the viewport height */
-    overflow-y: auto; /* Enable vertical scrolling */
-    padding: 20px; /* Add some padding for better readability */
-    box-sizing: border-box; /* Ensure padding does not affect total width */
-    border: 1px solid #ccc; /* Optional: Add a border for better visibility */
-    border-radius: 5px;
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

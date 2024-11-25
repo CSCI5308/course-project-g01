@@ -1,17 +1,19 @@
-import git
 import csv
 import os
-
-from dateutil.relativedelta import relativedelta
-from typing import List, Tuple, Dict, Any
-from progress.bar import Bar
 from datetime import datetime
-from src.utils import authorIdExtractor
-from src.statsAnalysis import outputStatistics
-from sentistrength import PySentiStr
-from git.objects.commit import Commit
-from src.configuration import Configuration
+from logging import Logger
+from typing import Any, Dict, List, Tuple
+
+import git
 import pytz
+from dateutil.relativedelta import relativedelta
+from git.objects.commit import Commit
+from sentistrength import PySentiStr
+
+from MLbackend.src.configuration import Configuration
+from MLbackend.src.statsAnalysis import outputStatistics
+from MLbackend.src.utils import authorIdExtractor
+from MLbackend.src.utils.result import Result
 
 
 def commitAnalysis(
@@ -19,6 +21,8 @@ def commitAnalysis(
     commits: List[git.Commit],
     delta: relativedelta,
     config: Configuration,
+    logger: Logger,
+    result: Result,
 ) -> Tuple[List[datetime], Dict[str, Dict[str, Any]], List[int]]:
 
     # sort commits
@@ -35,7 +39,7 @@ def commitAnalysis(
     batchEndDate = None
     batchDates = []
 
-    for commit in Bar("Batching commits").iter(commits):
+    for commit in commits:
         if startDate is not None and startDate > commit.committed_datetime:
             continue
         # prepare first batch
@@ -44,6 +48,7 @@ def commitAnalysis(
             batchEndDate = batchStartDate + delta
 
             batchDates.append(batchStartDate)
+            result.addBatchDates([batchStartDate])
 
         # prepare next batch
         elif commit.committed_datetime > batchEndDate:
@@ -53,6 +58,7 @@ def commitAnalysis(
             batchEndDate = batchStartDate + delta
 
             batchDates.append(batchStartDate)
+            result.addBatchDates([batchStartDate])
 
         # populate current batch
         batch.append(commit)
@@ -69,22 +75,27 @@ def commitAnalysis(
     for idx, batch in enumerate(batches):
 
         # get batch authors
-        batchAuthorInfoDict, batchDaysActive, meta_res, metric_res = commitBatchAnalysis(
-            idx, senti, batch, config
+
+        batchAuthorInfoDict, batchDaysActive, meta_res, metric_res = (
+            commitBatchAnalysis(idx, senti, batch, config, logger, result)
         )
         meta_results.append(meta_res)
         metric_results.append(metric_res)
-
 
         # combine with main lists
         authorInfoDict.update(batchAuthorInfoDict)
         daysActive.append(batchDaysActive)
 
-    return batchDates, authorInfoDict, daysActive, meta_results[0],metric_results[0]
+    return batchDates, authorInfoDict, daysActive, meta_results[0], metric_results[0]
 
 
 def commitBatchAnalysis(
-    idx: int, senti: PySentiStr, commits: List[git.Commit], config: Configuration
+    idx: int,
+    senti: PySentiStr,
+    commits: List[git.Commit],
+    config: Configuration,
+    logger: Logger,
+    result: Result,
 ):
 
     authorInfoDict = {}
@@ -92,7 +103,7 @@ def commitBatchAnalysis(
     experienceDays = 150
 
     # traverse all commits
-    print("Analyzing commits")
+    logger.info("Analyzing commits")
     startDate = None
     if config.startDate is not None:
         startDate = datetime.strptime(config.startDate, "%Y-%m-%d")
@@ -105,7 +116,7 @@ def commitBatchAnalysis(
     lastDate = None
     firstDate = None
     realCommitCount = 0
-    for commit in Bar("Processing").iter(commits):
+    for commit in commits:
         if startDate is not None and startDate > commit.committed_datetime:
             continue
         if lastDate is None:
@@ -157,7 +168,9 @@ def commitBatchAnalysis(
         if not commit.author_tz_offset == 0 and time.hour >= 9 and time.hour <= 17:
             authorInfo["sponsoredCommitCount"] += 1
 
-    print("Analyzing commit message sentiment")
+    result.addTimeZoneCount(batch_idx=idx, timezone_count=len([*timezoneInfoDict]))
+    result.addCommitCount(batch_idx=idx, commit_count=realCommitCount)
+    logger.info("Analyzing commit message sentiment")
     sentimentScores = []
     commitMessageSentimentsPositive = []
     commitMessageSentimentsNegative = []
@@ -171,7 +184,7 @@ def commitBatchAnalysis(
             result for result in filter(lambda value: value <= -1, sentimentScores)
         )
 
-    print("Analyzing authors")
+    logger.info("Analyzing authors")
     sponsoredAuthorCount = 0
     for login, author in authorInfoDict.items():
 
@@ -194,7 +207,19 @@ def commitBatchAnalysis(
             author["experienced"] = True
 
     # calculate percentage sponsored authors
-    percentageSponsoredAuthors = sponsoredAuthorCount / len([*authorInfoDict])
+    # In real world scenario it's not possible but for testing purpose.
+    try:
+        percentageSponsoredAuthors = sponsoredAuthorCount / len([*authorInfoDict])
+    except ZeroDivisionError:
+        percentageSponsoredAuthors = 0
+
+    result.addAuthorCount(batch_idx=idx, author_count=len([*authorInfoDict]))
+    result.addSponsoredAuthorCount(
+        batch_idx=idx, sponsored_author_count=sponsoredAuthorCount
+    )
+    result.addPercentageSponsoredAuthor(
+        batch_idx=idx, percentage_sponsored_author=percentageSponsoredAuthors
+    )
 
     # calculate active project days
     firstCommitDate = None
@@ -206,8 +231,11 @@ def commitBatchAnalysis(
     daysActive = 0
     if lastCommitDate is not None:
         daysActive = (lastCommitDate - firstCommitDate).days
+    result.addFirstCommitDate(batch_idx=idx, first_commit_date=firstCommitDate)
+    result.addLastCommitDate(batch_idx=idx, last_commit_date=lastCommitDate)
+    result.addDaysActive(batch_idx=idx, days_active=daysActive)
 
-    print("Outputting CSVs")
+    logger.info("Outputting CSVs")
 
     # output author days on project
     with open(
@@ -252,12 +280,18 @@ def commitBatchAnalysis(
         w.writerow(["PercentageSponsoredAuthors", percentageSponsoredAuthors])
         w.writerow(["TimezoneCount", len([*timezoneInfoDict])])
 
-    result_meta = [["CommitCount", realCommitCount],["DaysActive", daysActive],
-                   ["FirstCommitDate", "{:%Y-%m-%d}".format(firstCommitDate)],
-                   ["LastCommitDate", "{:%Y-%m-%d}".format(lastCommitDate)],
-                   ["AuthorCount", len([*authorInfoDict])],["SponsoredAuthorCount", sponsoredAuthorCount],
-                   ["PercentageSponsoredAuthors", percentageSponsoredAuthors],["TimezoneCount", len([*timezoneInfoDict])]]
-    
+    result_meta = [
+        ["Metrics", "Value"],
+        ["CommitCount", realCommitCount],
+        ["DaysActive", daysActive],
+        ["FirstCommitDate", "{:%Y-%m-%d}".format(firstCommitDate)],
+        ["LastCommitDate", "{:%Y-%m-%d}".format(lastCommitDate)],
+        ["AuthorCount", len([*authorInfoDict])],
+        ["SponsoredAuthorCount", sponsoredAuthorCount],
+        ["PercentageSponsoredAuthors", percentageSponsoredAuthors],
+        ["TimezoneCount", len([*timezoneInfoDict])],
+    ]
+
     metrics_data = [("Metric", "Count", "Mean", "Stdev")]
 
     active = outputStatistics(
@@ -265,14 +299,17 @@ def commitBatchAnalysis(
         [author["activeDays"] for login, author in authorInfoDict.items()],
         "AuthorActiveDays",
         config.resultsPath,
+        logger,
+        result,
     )
-
 
     commit_author = outputStatistics(
         idx,
         [author["commitCount"] for login, author in authorInfoDict.items()],
         "AuthorCommitCount",
         config.resultsPath,
+        logger,
+        result,
     )
 
     times = outputStatistics(
@@ -280,6 +317,8 @@ def commitBatchAnalysis(
         [len(timezone["authors"]) for key, timezone in timezoneInfoDict.items()],
         "TimezoneAuthorCount",
         config.resultsPath,
+        logger,
+        result,
     )
 
     times_commit = outputStatistics(
@@ -287,6 +326,8 @@ def commitBatchAnalysis(
         [timezone["commitCount"] for key, timezone in timezoneInfoDict.items()],
         "TimezoneCommitCount",
         config.resultsPath,
+        logger,
+        result,
     )
 
     senti_msg = outputStatistics(
@@ -294,6 +335,8 @@ def commitBatchAnalysis(
         sentimentScores,
         "CommitMessageSentiment",
         config.resultsPath,
+        logger,
+        result,
     )
 
     positive = outputStatistics(
@@ -301,6 +344,8 @@ def commitBatchAnalysis(
         commitMessageSentimentsPositive,
         "CommitMessageSentimentsPositive",
         config.resultsPath,
+        logger,
+        result,
     )
 
     negative = outputStatistics(
@@ -308,18 +353,11 @@ def commitBatchAnalysis(
         commitMessageSentimentsNegative,
         "CommitMessageSentimentsNegative",
         config.resultsPath,
+        logger,
+        result,
     )
-    print(senti_msg,times_commit)
-    metrics_data.extend([
-        active,
-        commit_author,
-        times,
-        times_commit,
-        senti_msg,
-        positive,
-        negative])
-
-    
-
+    metrics_data.extend(
+        [active, commit_author, times, times_commit, senti_msg, positive, negative]
+    )
 
     return authorInfoDict, daysActive, result_meta, metrics_data

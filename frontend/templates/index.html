@@ -18,9 +18,13 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-6 bg-color2 d-flex align-items-center justify-content-center">
+            <div class="col-md-6 bg-Color d-flex align-items-center justify-content-center"> 
                 <div class="content text-center">
-                    <h2 class="heading-text">Community<br>Smells<br>Detector</h2>
+                    <h2 class="heading-text">
+                        <span class="line">Community</span>
+                        <span class="line">Smells</span>
+                        <span class="line">Detector</span>
+                    </h2>
                 </div>
             </div>
             <div class="col-md-6 bg-Color d-flex align-items-center">
@@ -43,7 +47,12 @@
                             <div class="invalid-feedback">
                                 Please provide a valid access token.
                             </div>
+                            <div class="form-text">
+                                Don't have a token? 
+                                <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token" target="_blank"> Learn to create one </a>
+                            </div>
                         </div>
+                        
                         <div class="mb-3">
                             <label for="email" class="form-label">
                                 <i class="fas fa-envelope"></i> Your Email Address
@@ -58,7 +67,7 @@
                                 Please note that your GitHub username and Personal Access Token (PAT) will only be used for the purpose of cloning the repository and will not be stored or logged in any way.
                             </small>
                         </div>
-                        <button type="submit" class="btn btn-success">Submit</button>
+                        <button type="submit" class="btn btn-custom ">Submit</button>
                     </form>
                 </div>
             </div>
