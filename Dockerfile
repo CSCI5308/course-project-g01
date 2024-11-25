@@ -24,7 +24,7 @@ RUN apt-get update \
 COPY . /app/
 
 # Set the working directory for the application (pointing to MLbackend where app.py resides)
-WORKDIR /app/MLbackend
+WORKDIR /app
 
 # Expose the desired port (if your app runs on a specific port)
 EXPOSE 3000
