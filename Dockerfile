@@ -27,7 +27,7 @@ COPY . /app/
 WORKDIR /app/MLbackend
 
 # Expose the desired port (if your app runs on a specific port)
-EXPOSE 5000
+EXPOSE 3000
 
 # Command to run your app
-CMD ["python", "app.py"]
+CMD ["python", "-m", "MLbackend.app"]
