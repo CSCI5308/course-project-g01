@@ -1,11 +1,8 @@
-import os
-from flask_mail import Message, Mail
 from flask import current_app as app
-import traceback
+from flask_mail import Mail
 
 
-
-def configure_app(app):
+def configure_app():
     app.config["MAIL_SERVER"] = "smtp.gmail.com"
     app.config["MAIL_PORT"] = 587
     app.config["MAIL_USERNAME"] = "g01communitysmellsdetector@gmail.com"

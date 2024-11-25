@@ -210,7 +210,7 @@ def commitBatchAnalysis(
     # In real world scenario it's not possible but for testing purpose.
     try:
         percentageSponsoredAuthors = sponsoredAuthorCount / len([*authorInfoDict])
-    except:
+    except ZeroDivisionError:
         percentageSponsoredAuthors = 0
 
     result.addAuthorCount(batch_idx=idx, author_count=len([*authorInfoDict]))
