@@ -29,7 +29,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Step 4: Run Flake8 using the config file from .github/workflows
+      # Step 4: Run black on the whole project
+      - name: Run Black
+        run: |
+          python -m black .
+
+      # Step 5: Run isort on the whole project
+      - name: Run Isort
+        run: |
+          python -m isort .
+
+      # Step 6: Run Flake8 using the config file from .github/workflows
       - name: Run Flake8
         run: |
           flake8 --config=.github/workflows/.flake8 .
