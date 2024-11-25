@@ -1,12 +1,13 @@
-
 import os
-import traceback
+import sys
 from pathlib import Path
-from flask import Flask, render_template, request, jsonify, send_file
+
+from flask import Flask, jsonify, render_template, request, send_file
+from flask_mail import Message
+
 from MLbackend.community_smells import detect_community_smells
 from MLbackend.email_utils import configure_app
 from MLbackend.validations import validate_input
-from flask_mail import Message
 
 app = Flask(
     __name__,
@@ -20,8 +21,6 @@ configure_app(app)
 @app.route("/")
 def home():
     return render_template("index.html")
-
-
 
 
 @app.route("/api/v1/smells", methods=["POST"])
@@ -51,8 +50,6 @@ def detect_smells():
         return render_template("results.html", data=result.getWebResult())
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
-
 
 
 @app.route("/api/v1/pdf", methods=["GET"])
@@ -88,7 +85,6 @@ def send_email(email):
         return "Message sent!"
     except Exception as e:
         return str(e)
-    
 
 
 if __name__ == "__main__":
