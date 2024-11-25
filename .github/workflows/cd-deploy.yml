@@ -13,18 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
       - name: Deploy to VM
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-            cd /home/student/course-project-g01/MLbackend  # Correct path on your VM
-            git pull origin main
             docker build -t myapp .
             docker stop myapp || true
             docker rm myapp || true
-            docker run -d --name myapp -p 5000:5000 myapp:latest
-          EOF
+            docker run -d --name myapp -p 3000:3000 myapp:latest
