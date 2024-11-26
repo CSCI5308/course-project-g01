@@ -7,7 +7,7 @@
 
 ## Overview
 
-Community Smell Detection Tool is a web application solution designed to assist developers in automatically identifying "community smells" within their open-source GitHub repositories. These smells represent patterns of ineffective collaboration, communication, or organizational practices within development teams that can negatively impact project productivity, quality, and timeline. By simply entering the URL of an open GitHub repository, developers can analyze their projects for potential community smells and gain actionable insights to improve team dynamics and project outcomes.
+Community Smell Detection Tool is a web application solution designed to assist developers in automatically identifying "community smells" within their GitHub repositories. These smells represent patterns of ineffective collaboration, communication, or organizational practices within development teams that can negatively impact project productivity, quality, and timeline. By simply entering the URL of an GitHub repository, developers can analyze their projects for potential community smells and gain actionable insights to improve team dynamics and project outcomes.
 
 This project is built upon and extends the existing [ **CSDetector** ](https://github.com/Nuri22/csDetector) tool, originally created by Nuri22. We have transformed the original command-line interface (CLI) tool into a more accessible and user-friendly web application. This web-based version enhances usability and ensures that the tool is available to a broader audience, including those who may not be comfortable with CLI environments.
 
@@ -33,7 +33,7 @@ This project is built upon and extends the existing [ **CSDetector** ](https://g
 
 **How it Works:**
 
-1. **User-Friendly Interface**: A simple and intuitive interface for easy input of open-source GitHub repository URL, PAT, and email address.
+1. **User-Friendly Interface**: A simple and intuitive interface for easy input of GitHub repository URL, PAT, and email address.
 
 2. **Data Extraction:** The tool automatically extracts relevant data from the repository, including commit history, issue tracker, pull requests, and discussions.
 
@@ -45,7 +45,7 @@ This project is built upon and extends the existing [ **CSDetector** ](https://g
 
 **Limitations:**
 
-1. **Data Accessibility**: The tool only works with public repositories that provide proper authentication via GitHub PAT.
+1. **Data Accessibility**: The tool works with repositories that provide proper authentication via GitHub PAT.
 
 2. **Smell Detection Scope:** The tool is currently limited to detecting the specified community smells and does not assess technical or code-related issues within the repository.
 
@@ -175,6 +175,7 @@ Replace <your-gmail-address>, and <your-gmail-app-password> with your actual val
 
 
 **8. Start the Application**
+
 To start the application, use the following command:
 ```
 python -m MLbackend.app
@@ -182,6 +183,30 @@ python -m MLbackend.app
 This will launch the application.
 
 You can access it in your browser at http://localhost:3000
+
+## Completed Features and Milestones
+
+**1. Functional Web Application**
+
+**2. GitHub Repository Analysis**
+
+**3. Results Page and Visualization**
+
+**4. PDF Report Generation**
+
+**5. Email Notification System for Report**
+
+## Planned Features and Future Enhancements
+
+**1. Enhanced Smell Detection**
+
+**2. Advanced Data Visualizations**
+
+**3.Support for Additional Platforms**
+
+## Work flow diagram
+
+![User Flow Diagram](userflow.svg)
 
 
 ## Folder Structure
