@@ -2,7 +2,7 @@ import csv
 import datetime
 import os
 from logging import Logger
-from typing import List
+from typing import List, Any
 
 import git
 from dateutil.relativedelta import relativedelta
@@ -18,7 +18,7 @@ def tag_analysis(
     days_active: List[int],
     config: Configuration,
     logger: Logger,
-) -> None:
+) -> list[list[Any]]:
     logger.info("Analyzing tags")
 
     tag_info = []
@@ -57,7 +57,7 @@ def tag_analysis(
         batch_tags = [
             tag
             for tag in tag_info
-            if tag["rawDate"] >= batch_start_date and tag["rawDate"] < batch_end_date
+            if batch_start_date <= tag["rawDate"] < batch_end_date
         ]
 
         x = outputTags(idx, batch_tags, days_active[idx], config, logger)

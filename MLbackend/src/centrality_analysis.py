@@ -85,7 +85,7 @@ def processBatch(
 
 
 def buildGraphQlNetwork(
-    batch_idx: int, batch: list, prefix: str, config: Configuration, logger: Logger, result: Result
+    batch_idx: int, batch: list, prefix: str, config: Configuration, logger: Logger, result: Result | None
 ):
     all_related_authors = {}
     author_items = Counter({})

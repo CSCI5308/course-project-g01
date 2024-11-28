@@ -100,16 +100,16 @@ def community_smells_detector(
         pdf_results["Commit Analysis"] = [results_meta, results_metrics]
 
 
-        tagres = tag_analysis(repo, delta, batch_dates, days_active, config, logger)
+        tag_res = tag_analysis(repo, delta, batch_dates, days_active, config, logger)
 
-        coreDevs: List[List[Any]] = centrality.centralityAnalysis(
+        core_devs: List[List[Any]] = centrality.centralityAnalysis(
             commits, delta, batch_dates, config, logger, result
         )
 
-        releaseres = release_analysis(commits, config, delta, batch_dates, logger)
+        release_res = release_analysis(commits, config, delta, batch_dates, logger)
 
         (
-            prParticipantBatches,
+            pr_participant_batches,
             pr_comment_batches,
             results_meta2,
             results_metrics2,
@@ -127,7 +127,7 @@ def community_smells_detector(
         pdf_results["PR Comment Analysis"] = [results_meta3, results_metric3]
 
         (
-            issueParticipantBatches,
+            issue_participant_batches,
             issue_comment_batches,
             results_meta4,
             results_metrics4,
@@ -157,7 +157,7 @@ def community_smells_detector(
         for batch_idx, batch_date in enumerate(batch_dates):
             # Get combined author lists
             combined_authors_in_batch = (
-                prParticipantBatches[batch_idx] + issueParticipantBatches[batch_idx]
+                pr_participant_batches[batch_idx] + issue_participant_batches[batch_idx]
             )
 
             # Build combined network
@@ -174,11 +174,11 @@ def community_smells_detector(
 
             # Get combined unique authors for both PRs and issues
             unique_authors_in_pr_batch = set(
-                author for pr in prParticipantBatches[batch_idx] for author in pr
+                author for pr in pr_participant_batches[batch_idx] for author in pr
             )
 
             unique_authors_in_issue_batch = set(
-                author for pr in issueParticipantBatches[batch_idx] for author in pr
+                author for pr in issue_participant_batches[batch_idx] for author in pr
             )
 
             unique_authors_in_batch = unique_authors_in_pr_batch.union(
@@ -186,7 +186,7 @@ def community_smells_detector(
             )
 
             # Get batch core team
-            batch_core_devs = coreDevs[batch_idx]
+            batch_core_devs = core_devs[batch_idx]
 
             # Run dev analysis
             meta_res = dev_analysis(
