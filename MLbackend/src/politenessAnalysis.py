@@ -1,6 +1,7 @@
 import csv
 import os
 from logging import Logger
+from typing import Tuple
 
 import convokit
 
@@ -20,11 +21,18 @@ def politeness_analysis(
     accl = calculateACCL(config, pr_comment_batches, issue_comment_batches, logger)
     rpc_pr = calculateRPC(config, "PR", pr_comment_batches, logger)
     rpc_issues = calculateRPC(config, "Issue", pr_comment_batches, logger)
-    results = [["Metrics","Value"],["ACCL",accl],["RPCPR",rpc_pr[1]],["RPCIssue",rpc_issues[1]]]
+    results = [
+        ["Metrics", "Value"],
+        ["ACCL", accl],
+        ["RPCPR", rpc_pr[1]],
+        ["RPCIssue", rpc_issues[1]],
+    ]
     return results
 
 
-def calculateACCL(config, pr_comment_batches, issue_comment_batches, logger) -> None:
+def calculateACCL(
+    config, pr_comment_batches, issue_comment_batches, logger
+) -> Tuple[str, float]:
     logger.info(
         "Calculating Average Comment Character Length based on comments in PRs and Issues batches."
     )
@@ -45,14 +53,18 @@ def calculateACCL(config, pr_comment_batches, issue_comment_batches, logger) -> 
 
         # output results
         with open(
-            os.path.join(config.resultsPath, f"results_{batch_idx}.csv"), "a", newline=""
+            os.path.join(config.resultsPath, f"results_{batch_idx}.csv"),
+            "a",
+            newline="",
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow(["ACCL", accl])
     return accls[0]
 
 
-def calculateRPC(config, outputPrefix, commentBatches, logger: Logger) -> None:
+def calculateRPC(
+    config, outputPrefix, commentBatches, logger: Logger
+) -> Tuple[str, float]:
     logger.info(f"Calculating Relative positive count for {outputPrefix}s.")
     rpcs = []
     for batch_idx, batch in enumerate(commentBatches):
