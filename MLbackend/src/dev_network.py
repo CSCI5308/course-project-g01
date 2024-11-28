@@ -102,7 +102,7 @@ def community_smells_detector(
 
         tagres = tag_analysis(repo, delta, batch_dates, days_active, config, logger)
 
-        coreDevs: List[List[Any]] = centrality.centralityAnalysis(
+        coreDevs: List[List[Any]] = centrality.centrality_analysis(
             commits, delta, batch_dates, config, logger, result
         )
 
@@ -161,7 +161,7 @@ def community_smells_detector(
             )
 
             # Build combined network
-            authors, meta, metric = centrality.buildGraphQlNetwork(
+            authors, meta, metric = centrality.build_grapql_network(
                 batch_idx,
                 combined_authors_in_batch,
                 "issuesAndPRsCentrality",
