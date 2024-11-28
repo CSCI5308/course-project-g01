@@ -60,12 +60,12 @@ def tag_analysis(
             if batch_start_date <= tag["rawDate"] < batch_end_date
         ]
 
-        x = outputTags(idx, batch_tags, days_active[idx], config, logger)
+        x = output_tags(idx, batch_tags, days_active[idx], config, logger)
         res.append(x)
     return res
 
 
-def outputTags(
+def output_tags(
     idx: int,
     tag_info: List[dict],
     days_active: int,

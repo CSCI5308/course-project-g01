@@ -7,7 +7,7 @@ import requests
 import yaml
 from progress.bar import Bar
 from MLbackend.src.configuration import Configuration, parseDevNetworkArgs
-from MLbackend.src.repo_loader import getRepo
+from MLbackend.src.repo_loader import get_repo
 from strsimpy.metric_lcs import MetricLCS
 from utils import author_id_extractor
 
@@ -18,7 +18,7 @@ def main():
         config = parseDevNetworkArgs(sys.argv)
 
         # get repository reference
-        repo = getRepo(config)
+        repo = get_repo(config)
 
         # build path
         alias_path = os.path.join(config.repositoryPath, "aliases.yml")

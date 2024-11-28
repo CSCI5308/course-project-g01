@@ -2,7 +2,7 @@ import csv
 import os
 import warnings
 from logging import Logger
-from typing import List
+from typing import List, Dict
 
 from joblib import load
 
@@ -12,29 +12,29 @@ from MLbackend.src.utils.result import Result
 warnings.filterwarnings("ignore")
 
 
-def smellDetection(config: Configuration, batch_idx: int, logger: Logger, result: Result):
+def smell_detection(config: Configuration, batch_idx: int, logger: Logger, result: Result) -> Dict[str, float]:
 
     # prepare results holder for easy mapping
     results = {}
 
     # open finalized results for reading
     project_csv_path = os.path.join(config.resultsPath, f"results_{batch_idx}.csv")
-    with open(project_csv_path, newline="") as csvfile:
-        rows = csv.reader(csvfile, delimiter=",")
+    with open(project_csv_path, newline="") as csv_file:
+        rows = csv.reader(csv_file, delimiter=",")
 
         # parse into a dictionary
         for row in rows:
             results[row[0]] = row[1]
 
-    metrics = buildMetricsList(results, logger)
+    metrics = build_metrics_list(results, logger)
 
     # load all models
     smells = ["OSE", "BCE", "PDE", "SV", "OS", "SD", "RS", "TF", "UI", "TC"]
     all_models = {}
 
     for smell in smells:
-        modelPath = os.path.abspath("MLbackend/models/{}.joblib".format(smell))
-        all_models[smell] = load(modelPath)
+        model_path = os.path.abspath("MLbackend/models/{}.joblib".format(smell))
+        all_models[smell] = load(model_path)
 
     # detect smells
 
@@ -48,30 +48,27 @@ def smellDetection(config: Configuration, batch_idx: int, logger: Logger, result
             result.add_smell(batch_idx=batch_idx, smell=smell)
 
         # Prepare additional values
-    additional_metrics = {
-        "commit_count": results.get("commit_count", 0),
-        "days_active": results.get("days_active", 0),
-        "FirstCommitDate": results.get("FirstCommitDate", ""),
-        "LastCommitDate": results.get("LastCommitDate", ""),
-        "AuthorCount": results.get("AuthorCount", 0),
-        "SponsoredAuthorCount": results.get("SponsoredAuthorCount", 0),
-        "PercentagesSponsoredAuthors": results.get("PercentageSponsoredAuthors", 0),
-        "AuthorCommitCount_mean": results.get("AuthorCommitCount_mean", 0),
-        "AuthorCommitCount_stdev": results.get("AuthorCommitCount_stdev", 0),
-        "NumberPRs": results.get("NumberPRs", 0),
-        "PRDuration_mean": results.get("PRDuration_mean", 0),
-        "PRCommentsLength_mean": results.get("PRCommentsLength_mean", 0),
-        "NumberIssues": results.get("NumberIssues", 0),
-        "IssueCommentsLength_mean": results.get("IssueCommentsLength_mean", 0),
-        "IssueCommentSentiments_mean": results.get("IssueCommentSentiments_mean", 0),
-        "NumberReleases": results.get("NumberReleases", 0),
-        "ReleaseCommitCount_mean": results.get("ReleaseCommitCount_mean", 0),
-        "BusFactorNumber": results.get("BusFactorNumber", 0),
-        "ExperiencedTFC": results.get("commitCentrality_TFC", 0),
-    }
+    additional_metrics = {"commit_count": results.get("commit_count", 0), "days_active": results.get("days_active", 0),
+                          "FirstCommitDate": results.get("FirstCommitDate", ""),
+                          "LastCommitDate": results.get("LastCommitDate", ""),
+                          "AuthorCount": results.get("AuthorCount", 0),
+                          "SponsoredAuthorCount": results.get("SponsoredAuthorCount", 0),
+                          "PercentagesSponsoredAuthors": results.get("PercentageSponsoredAuthors", 0),
+                          "AuthorCommitCount_mean": results.get("AuthorCommitCount_mean", 0),
+                          "AuthorCommitCount_stdev": results.get("AuthorCommitCount_stdev", 0),
+                          "NumberPRs": results.get("NumberPRs", 0),
+                          "PRDuration_mean": results.get("PRDuration_mean", 0),
+                          "PRCommentsLength_mean": results.get("PRCommentsLength_mean", 0),
+                          "NumberIssues": results.get("NumberIssues", 0),
+                          "IssueCommentsLength_mean": results.get("IssueCommentsLength_mean", 0),
+                          "IssueCommentSentiments_mean": results.get("IssueCommentSentiments_mean", 0),
+                          "NumberReleases": results.get("NumberReleases", 0),
+                          "ReleaseCommitCount_mean": results.get("ReleaseCommitCount_mean", 0),
+                          "BusFactorNumber": results.get("BusFactorNumber", 0),
+                          "ExperiencedTFC": results.get("commitCentrality_TFC", 0),
+                          "detected_smells": detected_smells.copy()}
 
     # insert detected smells
-    additional_metrics["detected_smells"] = detected_smells.copy()
     detected_smells.insert(0, results["LastCommitDate"])
     additional_metrics["smell_results"] = detected_smells
     result.set_smell_results(additional_metrics)
@@ -79,7 +76,7 @@ def smellDetection(config: Configuration, batch_idx: int, logger: Logger, result
     return additional_metrics
 
 
-def buildMetricsList(results: dict, logger: Logger):
+def build_metrics_list(results: dict, logger: Logger) -> List[List[float]]:
 
     # declare names to extract from the results file in the right order
     names: List[str] = [
