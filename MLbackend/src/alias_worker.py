@@ -9,7 +9,7 @@ from MLbackend.src.configuration import Configuration
 from MLbackend.src.utils import author_id_extractor
 
 
-def replaceAliases(
+def replace_aliases(
     commits: List[git.Commit], config: Configuration, logger: Logger
 ) -> Generator[git.Commit, None, None]:
 

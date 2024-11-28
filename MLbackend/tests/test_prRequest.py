@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from dateutil.relativedelta import relativedelta
 
-from MLbackend.src.graphqlAnalysis.prAnalysis import prRequest
+from MLbackend.src.graphql_analysis.pr_analysis import prRequest
 
 
 class TestPRRequest(unittest.TestCase):

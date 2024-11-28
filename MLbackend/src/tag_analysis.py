@@ -8,7 +8,7 @@ import git
 from dateutil.relativedelta import relativedelta
 
 from MLbackend.src.configuration import Configuration
-from MLbackend.src.statsAnalysis import outputStatistics
+from MLbackend.src.stats_analysis import outputStatistics
 
 
 def tag_analysis(

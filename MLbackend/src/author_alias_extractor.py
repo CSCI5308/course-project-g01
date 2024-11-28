@@ -7,7 +7,7 @@ import requests
 import yaml
 from progress.bar import Bar
 from src.configuration import Configuration, parseAliasArgs
-from src.repoLoader import getRepo
+from MLbackend.src.repo_loader import getRepo
 from strsimpy.metric_lcs import MetricLCS
 from utils import author_id_extractor
 

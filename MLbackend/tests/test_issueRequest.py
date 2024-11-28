@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from dateutil.relativedelta import relativedelta
 
-from MLbackend.src.graphqlAnalysis.issueAnalysis import issueRequest
+from MLbackend.src.graphql_analysis.issue_analysis import issue_request
 
 
 class TestIssueRequest(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestIssueRequest(unittest.TestCase):
     def test_noIssuesAvailable(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {"repository": None}
         batch_dates: List[datetime] = [datetime.now(timezone.utc)]
-        result = issueRequest(
+        result = issue_request(
             pat="test_pat",
             owner="test_owner",
             name="test_name",
@@ -70,7 +70,7 @@ class TestIssueRequest(unittest.TestCase):
 
         batch_dates: List[datetime] = [datetime.now(timezone.utc) - timedelta(days=5)]
 
-        result = issueRequest(
+        result = issue_request(
             pat="test_pat",
             owner="test_owner",
             name="test_name",
@@ -139,7 +139,7 @@ class TestIssueRequest(unittest.TestCase):
             datetime.now(timezone.utc) - relativedelta(days=5),
         ]
 
-        result = issueRequest(
+        result = issue_request(
             pat="test_pat",
             owner="test_owner",
             name="test_name",

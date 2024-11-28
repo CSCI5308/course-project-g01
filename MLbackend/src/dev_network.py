@@ -14,23 +14,23 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
 
-import MLbackend.src.centralityAnalysis as centrality
-from MLbackend.src.aliasWorker import replaceAliases
-from MLbackend.src.commitAnalysis import commitAnalysis
+import MLbackend.src.centrality_analysis as centrality
+from MLbackend.src.alias_worker import replace_aliases
+from MLbackend.src.commit_analysis import commit_analysis
 from MLbackend.src.configuration import Configuration
-from MLbackend.src.devAnalysis import devAnalysis
-from MLbackend.src.graphqlAnalysis.issueAnalysis import issueAnalysis
-from MLbackend.src.graphqlAnalysis.prAnalysis import prAnalysis
-from MLbackend.src.graphqlAnalysis.release_analysis import release_analysis
-from MLbackend.src.pdfGeneration import generate_pdf
+from MLbackend.src.dev_analysis import dev_analysis
+from MLbackend.src.graphql_analysis.issue_analysis import issue_analysis
+from MLbackend.src.graphql_analysis.pr_analysis import pr_analysis
+from MLbackend.src.graphql_analysis.release_analysis import release_analysis
+from MLbackend.src.pdf_generation import generate_pdf
 from MLbackend.src.politeness_analysis import politeness_analysis
-from MLbackend.src.repoLoader import getRepo
-from MLbackend.src.smellDetection import smellDetection
+from MLbackend.src.repo_loader import getRepo
+from MLbackend.src.smell_detection import smellDetection
 from MLbackend.src.tag_analysis import tag_analysis
 from MLbackend.src.utils.result import Result
 
 
-def communitySmellsDetector(
+def community_smells_detector(
     pat: str,
     repo_url: str,
     senti_strength_path: Path,
@@ -54,7 +54,7 @@ def communitySmellsDetector(
             maxDistance=0,
             pat=pat,
             googleKey=google_api_key,
-            startDate=start_date,
+            start_date=start_date,
         )
 
         logger.info(f"Received a new request for {repo_url}.")
@@ -90,12 +90,12 @@ def communitySmellsDetector(
         delta = relativedelta(months=+config.batchMonths)
 
         # Handle aliases
-        commits = list(replaceAliases(repo.iter_commits(), config, logger))
+        commits = list(replace_aliases(repo.iter_commits(), config, logger))
         
 
         # Run analysis
-        batch_dates, authorInfoDict, days_active, results_meta, results_metrics = (
-            commitAnalysis(senti, commits, delta, config, logger,result)
+        batch_dates, author_info_dict, days_active, results_meta, results_metrics = (
+            commit_analysis(senti, commits, delta, config, logger,result)
         )
         pdf_results["Commit Analysis"] = [results_meta, results_metrics]
 
@@ -115,7 +115,7 @@ def communitySmellsDetector(
             results_metrics2,
             results_meta3,
             results_metric3,
-        ) = prAnalysis(
+        ) = pr_analysis(
             config,
             senti,
             delta,
@@ -133,7 +133,7 @@ def communitySmellsDetector(
             results_metrics4,
             results_meta5,
             results_metric5,
-        ) = issueAnalysis(
+        ) = issue_analysis(
             config,
             senti,
             delta,
@@ -154,16 +154,16 @@ def communitySmellsDetector(
         meta_cent = []
         metrics_cent = []
 
-        for batch_idx, batchDate in enumerate(batch_dates):
+        for batch_idx, batch_date in enumerate(batch_dates):
             # Get combined author lists
-            combinedAuthorsInBatch = (
+            combined_authors_in_batch = (
                 prParticipantBatches[batch_idx] + issueParticipantBatches[batch_idx]
             )
 
             # Build combined network
             authors, meta, metric = centrality.buildGraphQlNetwork(
                 batch_idx,
-                combinedAuthorsInBatch,
+                combined_authors_in_batch,
                 "issuesAndPRsCentrality",
                 config,
                 logger,
@@ -173,27 +173,27 @@ def communitySmellsDetector(
             metrics_cent.append(metric)
 
             # Get combined unique authors for both PRs and issues
-            uniqueAuthorsInPrBatch = set(
+            unique_authors_in_pr_batch = set(
                 author for pr in prParticipantBatches[batch_idx] for author in pr
             )
 
-            uniqueAuthorsInIssueBatch = set(
+            unique_authors_in_issue_batch = set(
                 author for pr in issueParticipantBatches[batch_idx] for author in pr
             )
 
-            uniqueAuthorsInBatch = uniqueAuthorsInPrBatch.union(
-                uniqueAuthorsInIssueBatch
+            unique_authors_in_batch = unique_authors_in_pr_batch.union(
+                unique_authors_in_issue_batch
             )
 
             # Get batch core team
-            batchCoreDevs = coreDevs[batch_idx]
+            batch_core_devs = coreDevs[batch_idx]
 
             # Run dev analysis
-            meta_res = devAnalysis(
-                authorInfoDict,
+            meta_res = dev_analysis(
+                author_info_dict,
                 batch_idx,
-                uniqueAuthorsInBatch,
-                batchCoreDevs,
+                unique_authors_in_batch,
+                batch_core_devs,
                 config,
                 logger,
             )
@@ -225,7 +225,7 @@ def communitySmellsDetector(
 
 
 
-def commitDate(tag):
+def commit_date(tag):
     return tag.commit.committed_date
 
 

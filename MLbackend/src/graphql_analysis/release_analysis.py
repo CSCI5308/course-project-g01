@@ -8,8 +8,8 @@ import git
 from dateutil.parser import isoparse
 from dateutil.relativedelta import relativedelta
 
-import MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper as gql
-import MLbackend.src.statsAnalysis as stats
+import MLbackend.src.graphql_analysis.graphql_analysis_helper as gql
+import MLbackend.src.stats_analysis as stats
 from MLbackend.src.configuration import Configuration
 
 
@@ -221,5 +221,5 @@ def build_release_request_query(owner: str, name: str, cursor: str):
             }}
         }}
     }}""".format(
-        owner, name, gql.buildNextPageQuery(cursor)
+        owner, name, gql.build_next_page_query(cursor)
     )

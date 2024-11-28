@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from dateutil.relativedelta import relativedelta
 
-from MLbackend.src.graphqlAnalysis.release_analysis import releaseRequest
+from MLbackend.src.graphql_analysis.release_analysis import releaseRequest
 
 
 class TestReleaseRequest(unittest.TestCase):
@@ -23,7 +23,7 @@ class TestReleaseRequest(unittest.TestCase):
         cls.mock_config_instance.sentiStrengthPath = Path()
         cls.mock_config_instance.batchMonths = 9999
         cls.mock_config_instance.maxDistance = 0
-        cls.mock_config_instance.startDate = datetime.now()
+        cls.mock_config_instance.start_date = datetime.now()
         cls.mock_config_instance.googleKey = None
         cls.delta = relativedelta(months=+cls.mock_config_instance.batchMonths)
         cls.batch_dates = [datetime.now()]
