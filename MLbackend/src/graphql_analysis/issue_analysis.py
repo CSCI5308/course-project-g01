@@ -21,7 +21,7 @@ def issue_analysis(
     delta: relativedelta,
     batch_dates: List[datetime],
     logger: Logger, 
-    result:Result   
+    result:Result | None
 
 ):
 

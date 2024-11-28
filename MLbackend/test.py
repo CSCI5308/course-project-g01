@@ -176,3 +176,4 @@ def remove_tree(path):
 if __name__ == "__main__":
     config = parseDevNetworkArgs(sys.argv[1:])
     community_smells_detector(config)
+

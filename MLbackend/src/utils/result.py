@@ -9,7 +9,6 @@ class Result:
     def __init__(self, logger: Logger) -> None:
 
         self.smell_results = None
-        self.pdf_file_path = None
         self._batch_dates: List[datetime] = []
         self._commit_count: List[int] = []
         self._core_devs: List[str] = []
@@ -23,9 +22,9 @@ class Result:
         self._metric_datas: List[Tuple[str, int, float, float]] = []
         self._smells: List[List[str]] = []
         self.logger: Logger = logger
-        self.pdf_file_path: Path
+        self.pdf_file_path: str
 
-    def set_pdf_file_path(self, pdf_file_path: Path) -> None:
+    def set_pdf_file_path(self, pdf_file_path: str) -> None:
         self.pdf_file_path = pdf_file_path
 
     def set_smell_results(self, smell_results) -> None:
