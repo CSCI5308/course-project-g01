@@ -1,6 +1,8 @@
 import os
 from logging import Logger
+
 import git
+
 from MLbackend.src.configuration import Configuration
 
 

@@ -7,10 +7,12 @@ class MockConfiguration:
     def __init__(self, repository_path):
         self.repository_path = repository_path
 
+
 class MockLogger:
     @staticmethod
     def info(msg):
         print(msg)
+
 
 class MockCommit:
     def __init__(self, author_email):
@@ -24,7 +26,11 @@ class TestReplaceAliases(unittest.TestCase):
         self.mock_logger = MockLogger()
         self.mock_config = MockConfiguration(repository_path="/test/repo")
 
-    @patch("builtins.open", new_callable=mock_open, read_data="alias1:\n  - email1@example.com\n  - email2@example.com\n")
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data="alias1:\n  - email1@example.com\n  - email2@example.com\n",
+    )
     @patch("os.path.exists", return_value=True)
     def test_alias_replacement(self, mock_exists, mock_open):
         commits = [
@@ -59,6 +65,7 @@ class TestReplaceAliases(unittest.TestCase):
     def test_empty_commits_list(self):
         result = list(replace_aliases([], self.mock_config, self.mock_logger))
         self.assertEqual(result, [])
+
 
 if __name__ == "__main__":
     unittest.main()

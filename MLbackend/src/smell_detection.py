@@ -81,8 +81,8 @@ def build_metrics_list(results: dict, logger: Logger) -> List[List[float]]:
     # declare names to extract from the results file in the right order
     names: List[str] = [
         "AuthorCount",
-        "days_active",
-        "commit_count",
+        "DaysActive",
+        "CommitCount",
         "AuthorCommitCount_stdev",
         "commitCentrality_NumberHighCentralityAuthors",
         "commitCentrality_PercentageHighCentralityAuthors",
