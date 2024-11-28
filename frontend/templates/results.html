@@ -251,9 +251,9 @@
         });
 
         // Calculate and format PercentageSponsoredAuthors
-        const authorCount = parseFloat("{{ data.AuthorCount }}");
-        const sponsoredAuthorCount = parseFloat("{{ data.SponsoredAuthorCount }}");
-        const percentageSponsored = (sponsoredAuthorCount / authorCount) * 100;
+        const author_count = parseFloat("{{ data.AuthorCount }}");
+        const sponsored_author_count = parseFloat("{{ data.SponsoredAuthorCount }}");
+        const percentageSponsored = (sponsored_author_count / author_count) * 100;
         document.getElementById("percentage-sponsored").textContent = formatToTwoDecimalPlaces(percentageSponsored);
 
         // Calculate and format Commit Frequency

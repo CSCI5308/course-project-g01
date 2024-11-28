@@ -7,6 +7,12 @@ SentiStrength
 testConfig.py
 .python-version
 coverage.xml
+.idea/*.xml
+.idea/misc.xml
+.idea/vcs.xml
+.idea/course-project-g01.iml
+.idea
+.coverage
 
 *.pyc
 

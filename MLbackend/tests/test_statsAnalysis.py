@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch, mock_open
 from logging import Logger
 import os
 import csv
-from  MLbackend.src.statsAnalysis import outputStatistics
+from  MLbackend.src.stats_analysis import outputStatistics
 
 
 def mock_calculateStats(data, logger):

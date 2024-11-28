@@ -5,7 +5,7 @@ from typing import Any, List, Tuple
 
 import convokit
 
-import MLbackend.src.statsAnalysis as stats
+import MLbackend.src.stats_analysis as stats
 from MLbackend.src.configuration import Configuration
 from MLbackend.src.utils.result import Result
 
@@ -63,15 +63,15 @@ def calculateACCL(
 
 
 def calculateRPC(
-    config, outputPrefix, commentBatches, logger: Logger
+    config, output_prefix, commentBatches, logger: Logger
 ) -> Tuple[str, float]:
-    logger.info(f"Calculating Relative positive count for {outputPrefix}s.")
+    logger.info(f"Calculating Relative positive count for {output_prefix}s.")
     rpcs = []
     for batch_idx, batch in enumerate(commentBatches):
 
         # analyze batch
         positive_marker_count = getResults(batch) if len(batch) > 0 else 0.0
-        rpcs.append((outputPrefix, positive_marker_count))
+        rpcs.append((output_prefix, positive_marker_count))
 
         # output results
         with open(
@@ -80,7 +80,7 @@ def calculateRPC(
             newline="",
         ) as f:
             w = csv.writer(f, delimiter=",")
-            w.writerow([f"RPC{outputPrefix}", positive_marker_count])
+            w.writerow([f"RPC{output_prefix}", positive_marker_count])
     return rpcs[0]
 
 

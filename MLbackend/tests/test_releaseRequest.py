@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from dateutil.relativedelta import relativedelta
 
-from MLbackend.src.graphqlAnalysis.release_analysis import releaseRequest
+from MLbackend.src.graphql_analysis.release_analysis import release_request
 
 
 class TestReleaseRequest(unittest.TestCase):
@@ -23,17 +23,17 @@ class TestReleaseRequest(unittest.TestCase):
         cls.mock_config_instance.sentiStrengthPath = Path()
         cls.mock_config_instance.batchMonths = 9999
         cls.mock_config_instance.maxDistance = 0
-        cls.mock_config_instance.startDate = datetime.now()
+        cls.mock_config_instance.start_date = datetime.now()
         cls.mock_config_instance.googleKey = None
         cls.delta = relativedelta(months=+cls.mock_config_instance.batchMonths)
         cls.batch_dates = [datetime.now()]
         cls.mock_logger = MagicMock()
         cls.mock_logger.return_value = cls.mock_logger
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
     def test_noReleaseAvailable(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {"repository": None}
-        result = releaseRequest(
+        result = release_request(
             config=self.mock_config_instance,
             delta=self.delta,
             batch_dates=self.batch_dates,
@@ -48,7 +48,7 @@ class TestReleaseRequest(unittest.TestCase):
 
         return None
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
     def test_releaseAvailableNumberOfBatches(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {
             "repository": {
@@ -69,7 +69,7 @@ class TestReleaseRequest(unittest.TestCase):
             }
         }
 
-        result = releaseRequest(
+        result = release_request(
             config=self.mock_config_instance,
             delta=self.delta,
             batch_dates=self.batch_dates,
@@ -82,7 +82,7 @@ class TestReleaseRequest(unittest.TestCase):
 
         return None
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
     def test_releaseAvailableNumberOfItemInBatch(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {
             "repository": {
@@ -103,7 +103,7 @@ class TestReleaseRequest(unittest.TestCase):
             }
         }
 
-        result = releaseRequest(
+        result = release_request(
             config=self.mock_config_instance,
             delta=self.delta,
             batch_dates=self.batch_dates,

@@ -2,14 +2,14 @@ import csv
 import os
 from datetime import datetime
 from logging import Logger
-from typing import List
+from typing import List, Dict, Any
 
 import git
 from dateutil.parser import isoparse
 from dateutil.relativedelta import relativedelta
 
-import MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper as gql
-import MLbackend.src.statsAnalysis as stats
+import MLbackend.src.graphql_analysis.graphql_analysis_helper as gql
+import MLbackend.src.stats_analysis as stats
 from MLbackend.src.configuration import Configuration
 
 
@@ -19,13 +19,13 @@ def release_analysis(
     delta: relativedelta,
     batch_dates: List[datetime],
     logger: Logger,
-) -> None:
+) -> dict[Any, dict[str, int | Any]] | None:
 
     # sort commits by ascending commit date
     all_commits.sort(key=lambda c: c.committed_datetime)
 
     logger.info("Querying releases")
-    batches = releaseRequest(config, delta, batch_dates, logger)
+    batches = release_request(config, delta, batch_dates, logger)
 
     if not batches:
         logger.warning("No batches found.")
@@ -39,7 +39,7 @@ def release_analysis(
 
         for i, release in enumerate(releases):
             release_commits = list()
-            release_date = release["created_at"]
+            release_date = release["createdAt"]
 
             # try add author to set
             release_authors.add(release["author"])
@@ -56,11 +56,10 @@ def release_analysis(
             else:
 
                 # get in-between commit count
-                prev_release_date = releases[i - 1]["created_at"]
+                prev_release_date = releases[i - 1]["createdAt"]
                 for commit in all_commits:
                     if (
-                        commit.committed_datetime >= prev_release_date
-                        and commit.committed_datetime < release_date
+                            prev_release_date <= commit.committed_datetime < release_date
                     ):
                         release_commits.append(commit)
                     else:
@@ -74,7 +73,7 @@ def release_analysis(
 
             # add results
             release_commits_count[release["name"]] = dict(
-                date=release["created_at"],
+                date=release["createdAt"],
                 authorsCount=len(commit_authors),
                 commitsCount=len(release_commits),
             )
@@ -130,7 +129,7 @@ def release_analysis(
         return release_commits_count
 
 
-def releaseRequest(
+def release_request(
     config: Configuration,
     delta: relativedelta,
     batch_dates: List[datetime],
@@ -149,7 +148,7 @@ def releaseRequest(
     while True:
 
         # get page of releases
-        result = gql.runGraphqlRequest(config.pat, query, logger)
+        result = gql.run_graphql_request(config.pat, query, logger)
 
         # extract nodes
         try:
@@ -162,7 +161,7 @@ def releaseRequest(
         # parse
         for node in nodes:
 
-            created_at = isoparse(node["created_at"])
+            created_at = isoparse(node["createdAt"])
 
             if batch_end_date is None or (
                 created_at > batch_end_date and len(batches) < len(batch_dates) - 1
@@ -180,13 +179,13 @@ def releaseRequest(
             batch["releases"].append(
                 dict(
                     name=node["name"],
-                    created_at=created_at,
+                    createdAt=created_at,
                     author=node["author"]["login"],
                 )
             )
 
         # check for next page
-        page_info = result["repository"]["releases"]["page_info"]
+        page_info = result["repository"]["releases"]["pageInfo"]
 
         if not page_info["hasNextPage"]:
             break
@@ -211,15 +210,15 @@ def build_release_request_query(owner: str, name: str, cursor: str):
                     author {{
                         login
                     }}
-                    created_at
+                    createdAt
                     name
                 }}
-                page_info {{
+                pageInfo {{
                     endCursor
                     hasNextPage
                 }}
             }}
         }}
     }}""".format(
-        owner, name, gql.buildNextPageQuery(cursor)
+        owner, name, gql.build_next_page_query(cursor)
     )

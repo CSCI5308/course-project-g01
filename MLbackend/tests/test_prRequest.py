@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from dateutil.relativedelta import relativedelta
 
-from MLbackend.src.graphqlAnalysis.prAnalysis import prRequest
+from MLbackend.src.graphql_analysis.pr_analysis import pr_request
 
 
 class TestPRRequest(unittest.TestCase):
@@ -17,11 +17,11 @@ class TestPRRequest(unittest.TestCase):
         cls.mock_logger = MagicMock()
         cls.mock_logger.return_value = cls.mock_logger
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
     def test_noPRsAvailable(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {"repository": None}
         batch_dates: List[datetime] = [datetime.now(timezone.utc)]
-        result = prRequest(
+        result = pr_request(
             pat="test_pat",
             owner="test_owner",
             name="test_name",
@@ -38,7 +38,7 @@ class TestPRRequest(unittest.TestCase):
 
         return None
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
     def test_prsAvailableNumberOfBatches(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {
             "repository": {
@@ -74,7 +74,7 @@ class TestPRRequest(unittest.TestCase):
         }
         batch_dates: List[datetime] = [datetime.now(timezone.utc)]
 
-        result = prRequest(
+        result = pr_request(
             pat="test_pat",
             owner="test_owner",
             name="test_name",
@@ -90,7 +90,7 @@ class TestPRRequest(unittest.TestCase):
 
         return None
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
     def test_prsAvailableTwoOfBatches(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {
             "repository": {
@@ -149,7 +149,7 @@ class TestPRRequest(unittest.TestCase):
             datetime.now(timezone.utc) - relativedelta(days=5),
         ]
 
-        result = prRequest(
+        result = pr_request(
             pat="test_pat",
             owner="test_owner",
             name="test_name",

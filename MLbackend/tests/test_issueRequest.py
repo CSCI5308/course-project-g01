@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from dateutil.relativedelta import relativedelta
 
-from MLbackend.src.graphqlAnalysis.issueAnalysis import issueRequest
+from MLbackend.src.graphql_analysis.issue_analysis import issue_request
 
 
 class TestIssueRequest(unittest.TestCase):
@@ -17,11 +17,11 @@ class TestIssueRequest(unittest.TestCase):
         cls.mock_logger = MagicMock()
         cls.mock_logger.return_value = cls.mock_logger
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
     def test_noIssuesAvailable(self, mock_runGraphqlRequest) -> None:
         mock_runGraphqlRequest.return_value = {"repository": None}
         batch_dates: List[datetime] = [datetime.now(timezone.utc)]
-        result = issueRequest(
+        result = issue_request(
             pat="test_pat",
             owner="test_owner",
             name="test_name",
@@ -38,7 +38,7 @@ class TestIssueRequest(unittest.TestCase):
 
         return None
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
     def test_issuesAvailableNumberOfBatches(self, mock_runGraphqlRequest) -> None:
         # Generate the created_at date as today's date minus some days
         created_at_date = datetime.now() + timedelta(days=10)
@@ -70,7 +70,7 @@ class TestIssueRequest(unittest.TestCase):
 
         batch_dates: List[datetime] = [datetime.now(timezone.utc) - timedelta(days=5)]
 
-        result = issueRequest(
+        result = issue_request(
             pat="test_pat",
             owner="test_owner",
             name="test_name",
@@ -86,7 +86,7 @@ class TestIssueRequest(unittest.TestCase):
 
         return None
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
+    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
     def test_issuesAvailableTwoOfBatches(self, mock_runGraphqlRequest) -> None:
         created_at_date = datetime.now() - relativedelta(months=1, days=10)
         closed_at_date = datetime.now() - relativedelta(months=1, days=15)
@@ -139,7 +139,7 @@ class TestIssueRequest(unittest.TestCase):
             datetime.now(timezone.utc) - relativedelta(days=5),
         ]
 
-        result = issueRequest(
+        result = issue_request(
             pat="test_pat",
             owner="test_owner",
             name="test_name",

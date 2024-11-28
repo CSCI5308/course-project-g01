@@ -5,7 +5,7 @@ from pathlib import Path
 from flask import Flask, render_template, request, jsonify, send_file
 from MLbackend.community_smells import detect_community_smells
 from MLbackend.email_utils import configure_app
-from MLbackend.validations import validate_input
+from MLbackend.validations import validate_email,validate_pat,validate_url,InvalidInputError
 from flask_mail import Message
 
 app = Flask(
@@ -31,11 +31,11 @@ def detect_smells():
     pat = request.form["access-token"]
 
     try:
-        validate_input(url, email, pat)
+        validate_url(url)
+        validate_email(email)
+        validate_pat(pat)
         result = detect_community_smells(url, pat)
         global pdf_path
-        pdf_path = result.pdf_file_path
-
         if not result:
             return (
                 jsonify(
@@ -46,9 +46,11 @@ def detect_smells():
                 ),
                 404,
             )
-
+        pdf_path = result.pdf_file_path
         send_email(email=email)
         return render_template("results.html", data=result.getWebResult())
+    except InvalidInputError as input_error:
+        return jsonify({"status": "error", "message": str(input_error)}), 400
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 

@@ -13,7 +13,7 @@ class Configuration:
         maxDistance: int,
         pat: str,
         googleKey: str,
-        startDate: str,
+        start_date: str,
     ):
         self.repositoryUrl = repositoryUrl
         self.batchMonths = batchMonths
@@ -22,7 +22,7 @@ class Configuration:
         self.maxDistance = maxDistance
         self.pat = pat
         self.googleKey = googleKey
-        self.startDate = startDate
+        self.start_date = start_date
 
         # parse repo name into owner and project name
         split = self.repositoryUrl.split("/")
@@ -91,7 +91,7 @@ def parseDevNetworkArgs(args: Sequence[str]):
 
     parser.add_argument(
         "-sd",
-        "--startDate",
+        "--start_date",
         help="Start date of project life",
         required=False,
     )
@@ -105,7 +105,7 @@ def parseDevNetworkArgs(args: Sequence[str]):
         0,
         args.pat,
         args.googleKey,
-        args.startDate,
+        args.start_date,
     )
 
     return config
