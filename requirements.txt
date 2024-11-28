@@ -83,3 +83,4 @@ weasel==0.4.1
 wheel==0.44.0
 wrapt==1.16.0
 flake8==7.1.1
+python-dotenv==1.0.1
