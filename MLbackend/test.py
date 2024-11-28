@@ -62,7 +62,7 @@ def community_smells_detector(config) -> dict:  # Specify the return type
 
         tag_analysis(repo, delta, batch_dates, days_active, config)
 
-        coreDevs: List[List[Any]] = centrality.centrality_analysis(
+        core_devs: List[List[Any]] = centrality.centrality_analysis(
             commits, delta, batch_dates, config
         )
 
@@ -112,7 +112,7 @@ def community_smells_detector(config) -> dict:  # Specify the return type
             )
 
             # Get batch core team
-            batch_core_devs = coreDevs[batch_idx]
+            batch_core_devs = core_devs[batch_idx]
 
             # Run dev analysis
             dev_analysis(

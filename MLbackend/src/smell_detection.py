@@ -38,13 +38,13 @@ def smellDetection(config: Configuration, batch_idx: int, logger: Logger, result
 
     # detect smells
 
-    rawSmells = {
+    raw_smells = {
         smell_name: smell_model.predict(metrics)
         for smell_name, smell_model in all_models.items()
     }
-    detected_smells = [smell for smell in smells if rawSmells[smell][0] == 1]
+    detected_smells = [smell for smell in smells if raw_smells[smell][0] == 1]
     for smell in smells:
-        if rawSmells[smell][0] == 1:
+        if raw_smells[smell][0] == 1:
             result.add_smell(batch_idx=batch_idx, smell=smell)
 
         # Prepare additional values

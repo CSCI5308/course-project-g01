@@ -164,8 +164,8 @@ def commit_batch_analysis(
         if time < author_info["earliestCommitDate"]:
             author_info["earliestCommitDate"] = time
 
-        # check if commit was between 9 and 5
-        if not commit.author_tz_offset == 0 and time.hour >= 9 and time.hour <= 17:
+        # Check if commit was NOT outside 9 and 5
+        if commit.author_tz_offset != 0 and 9 <= time.hour <= 17:
             author_info["sponsored_commit_count"] += 1
 
     result.add_time_zone_count(batch_idx=idx, timezone_count=len([*timezone_info_dict]))
