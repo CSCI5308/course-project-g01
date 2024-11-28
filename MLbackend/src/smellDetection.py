@@ -12,7 +12,7 @@ from MLbackend.src.utils.result import Result
 warnings.filterwarnings("ignore")
 
 
-def smellDetection(
+def smell_detection(
     config: Configuration, batchIdx: int, logger: Logger, result: Result
 ):
 
