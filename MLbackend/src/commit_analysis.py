@@ -11,7 +11,7 @@ from git.objects.commit import Commit
 from sentistrength import PySentiStr
 
 from MLbackend.src.configuration import Configuration
-from MLbackend.src.stats_analysis import outputStatistics
+from MLbackend.src.stats_analysis import output_statistics
 from MLbackend.src.utils import author_id_extractor
 from MLbackend.src.utils.result import Result
 
@@ -294,7 +294,7 @@ def commit_batch_analysis(
 
     metrics_data = [("Metric", "Count", "Mean", "Stdev")]
 
-    active = outputStatistics(
+    active = output_statistics(
         idx,
         [author["active_days"] for login, author in author_info_dict.items()],
         "AuthorActiveDays",
@@ -303,7 +303,7 @@ def commit_batch_analysis(
         result,
     )
 
-    commit_author = outputStatistics(
+    commit_author = output_statistics(
         idx,
         [author["commit_count"] for login, author in author_info_dict.items()],
         "AuthorCommitCount",
@@ -312,7 +312,7 @@ def commit_batch_analysis(
         result,
     )
 
-    times = outputStatistics(
+    times = output_statistics(
         idx,
         [len(timezone["authors"]) for key, timezone in timezone_info_dict.items()],
         "TimezoneAuthorCount",
@@ -321,7 +321,7 @@ def commit_batch_analysis(
         result,
     )
 
-    times_commit = outputStatistics(
+    times_commit = output_statistics(
         idx,
         [timezone["commit_count"] for key, timezone in timezone_info_dict.items()],
         "TimezoneCommitCount",
@@ -330,7 +330,7 @@ def commit_batch_analysis(
         result,
     )
 
-    senti_msg = outputStatistics(
+    senti_msg = output_statistics(
         idx,
         sentiment_scores,
         "CommitMessageSentiment",
@@ -339,7 +339,7 @@ def commit_batch_analysis(
         result,
     )
 
-    positive = outputStatistics(
+    positive = output_statistics(
         idx,
         commit_message_sentiments_positive,
         "CommitMessageSentimentsPositive",
@@ -348,7 +348,7 @@ def commit_batch_analysis(
         result,
     )
 
-    negative = outputStatistics(
+    negative = output_statistics(
         idx,
         commit_message_sentiments_negative,
         "CommitMessageSentimentsNegative",

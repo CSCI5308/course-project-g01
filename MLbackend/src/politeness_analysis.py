@@ -43,8 +43,8 @@ def calculateACCL(
         pr_comment_lengths = list([len(c) for c in batch])
         issue_comment_batch = list([len(c) for c in issue_comment_batches[batch_idx]])
 
-        prCommentLengthsMean = stats.calculateStats(pr_comment_lengths, logger)["mean"]
-        issueCommentLengthsMean = stats.calculateStats(issue_comment_batch, logger)[
+        prCommentLengthsMean = stats.calculate_stats(pr_comment_lengths, logger)["mean"]
+        issueCommentLengthsMean = stats.calculate_stats(issue_comment_batch, logger)[
             "mean"
         ]
 

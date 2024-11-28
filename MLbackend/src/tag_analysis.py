@@ -8,7 +8,7 @@ import git
 from dateutil.relativedelta import relativedelta
 
 from MLbackend.src.configuration import Configuration
-from MLbackend.src.stats_analysis import outputStatistics
+from MLbackend.src.stats_analysis import output_statistics
 
 
 def tag_analysis(
@@ -104,7 +104,7 @@ def outputTags(
         for tag in tag_info:
             w.writerow([tag["path"], tag["date"], tag["commit_count"]])
 
-    outputStatistics(
+    output_statistics(
         idx,
         [tag["commit_count"] for tag in tag_info],
         "TagCommitCount",
