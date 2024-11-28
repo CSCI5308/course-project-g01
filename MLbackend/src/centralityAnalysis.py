@@ -40,12 +40,12 @@ def centralityAnalysis(
             and commit.committed_datetime < batchEndDate
         ]
 
-        batchCoreDevs, cen_meta, cen_metric = processBatch(
+        batch_core_devs, cen_meta, cen_metric = processBatch(
             idx, batch, config, logger, result
         )
         central_meta.append(cen_meta)
         central_metric.append(cen_metric)
-        coreDevs.append(batchCoreDevs)
+        coreDevs.append(batch_core_devs)
 
     return coreDevs, central_meta[0], central_metric[0]
 
