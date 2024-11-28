@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, mock_open, patch
 from MLbackend.src.statsAnalysis import outputStatistics
 
 
-def mock_calculateStats(data, logger):
+def mock_calculate_stats(data, logger):
     return {
         "count": len(data),
         "mean": sum(data) / len(data) if data else 0,
@@ -28,10 +28,10 @@ class TestOutputStatistics(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open)
     @patch("csv.writer")
     @patch(
-        "MLbackend.src.statsAnalysis.calculateStats", side_effect=mock_calculateStats
+        "MLbackend.src.statsAnalysis.calculateStats", side_effect=mock_calculate_stats
     )
     def test_output_statistics_with_data(
-        self, mock_calculateStats, mock_csv_writer, mock_open
+        self, mock_calculate_stats, mock_csv_writer, mock_open
     ):
         data = [10, 20, 30]
         metric = "test_metric"
@@ -46,7 +46,7 @@ class TestOutputStatistics(unittest.TestCase):
         self.assertEqual(mean, "20.0000")
         self.assertNotEqual(stdev, "0.0")
 
-        mock_calculateStats.assert_called_once_with(data, self.mock_logger)
+        mock_calculate_stats.assert_called_once_with(data, self.mock_logger)
 
         mock_open.assert_called_once_with(
             os.path.join(self.output_dir, "results_1.csv"), "a", newline=""
@@ -55,9 +55,9 @@ class TestOutputStatistics(unittest.TestCase):
 
     @patch("builtins.open", new_callable=mock_open)
     @patch(
-        "MLbackend.src.statsAnalysis.calculateStats", side_effect=mock_calculateStats
+        "MLbackend.src.statsAnalysis.calculateStats", side_effect=mock_calculate_stats
     )
-    def test_output_statistics_with_empty_data(self, mock_calculateStats, mock_open):
+    def test_output_statistics_with_empty_data(self, mock_calculate_stats, mock_open):
         data = []
         metric = "test_metric"
 
@@ -73,7 +73,7 @@ class TestOutputStatistics(unittest.TestCase):
         self.assertEqual(stdev, 0)
 
         # Check that calculateStats was not called for empty data
-        mock_calculateStats.assert_not_called()
+        mock_calculate_stats.assert_not_called()
 
         # Verify that file operations did not occur
         mock_open.assert_not_called()
