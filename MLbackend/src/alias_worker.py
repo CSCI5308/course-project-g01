@@ -16,15 +16,15 @@ def replace_aliases(
     logger.info("Cleaning aliased authors")
 
     # build path
-    aliasPath = os.path.join(config.repositoryPath, "aliases.yml")
+    alias_path = os.path.join(config.repositoryPath, "aliases.yml")
 
     # quick lowercase and trim if no alias file
-    if aliasPath is None or not os.path.exists(aliasPath):
+    if not os.path.exists(alias_path):
         return commits
 
     # read aliases
     content = ""
-    with open(aliasPath, "r", encoding="utf-8-sig") as file:
+    with open(alias_path, "r", encoding="utf-8-sig") as file:
         content = file.read()
 
     aliases = yaml.load(content, Loader=yaml.FullLoader)
@@ -32,16 +32,16 @@ def replace_aliases(
         return commits
 
     # transpose for easy replacements
-    transposesAliases = {}
+    transposes_aliases = {}
     for alias in aliases:
         for email in aliases[alias]:
-            transposesAliases[email] = alias
+            transposes_aliases[email] = alias
 
     # replace all author aliases with a unique one
-    return replaceAll(commits, transposesAliases)
+    return replace_all(commits, transposes_aliases)
 
 
-def replaceAll(commits, aliases) -> Generator[git.Commit, None, None]:
+def replace_all(commits, aliases) -> Generator[git.Commit, None, None]:
     for commit in list(commits):
         copy = commit
         author = author_id_extractor(commit.author)
