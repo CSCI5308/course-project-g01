@@ -6,34 +6,10 @@ import git
 import requests
 import yaml
 from progress.bar import Bar
-from MLbackend.src.configuration import Configuration, parseDevNetworkArgs
+from MLbackend.src.configuration import Configuration
 from MLbackend.src.repo_loader import get_repo
 from strsimpy.metric_lcs import MetricLCS
 from utils import author_id_extractor
-
-
-def main():
-    try:
-        # parse args
-        config = parseDevNetworkArgs(sys.argv)
-
-        # get repository reference
-        repo = get_repo(config)
-
-        # build path
-        alias_path = os.path.join(config.repository_path, "aliases.yml")
-
-        # delete existing alias file if present
-        if os.path.exists(alias_path):
-            os.remove(alias_path)
-
-        # extract aliases
-        extract_aliases(config, repo, alias_path)
-
-    finally:
-        # close repo to avoid resource leaks
-        if "repo" in locals():
-            del repo
 
 
 def extract_aliases(config: Configuration, repo: git.Repo, alias_path: str) -> None:
@@ -155,6 +131,3 @@ def are_similar(value_a: str, value_b: str, max_distance: float) -> None:
     distance = lcs.distance(local_part_a_matches[0], local_part_b_matches[0])
 
     return distance <= max_distance
-
-
-main()
