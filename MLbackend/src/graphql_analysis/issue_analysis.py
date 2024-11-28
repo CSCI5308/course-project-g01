@@ -28,8 +28,8 @@ def issue_analysis(
     logger.info("Querying issue comments")
     batches = issue_request(
         config.pat,
-        config.repositoryOwner,
-        config.repositoryName,
+        config.repository_owner,
+        config.repository_name,
         delta,
         batch_dates,
         logger,
@@ -62,7 +62,7 @@ def issue_analysis(
 
         logger.info("Writing GraphQL analysis results")
         with open(
-            os.path.join(config.resultsPath, f"results_{batch_idx}.csv"),
+            os.path.join(config.results_path, f"results_{batch_idx}.csv"),
             "a",
             newline="",
         ) as f:
@@ -109,7 +109,7 @@ def issue_analysis(
             batch_idx,
             comment_lengths,
             "IssueCommentsLength",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -117,7 +117,7 @@ def issue_analysis(
             batch_idx,
             durations,
             "IssueDuration",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -125,7 +125,7 @@ def issue_analysis(
             batch_idx,
             [len(issue["comments"]) for issue in batch],
             "IssueCommentsCount",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -133,7 +133,7 @@ def issue_analysis(
             batch_idx,
             comment_sentiments,
             "IssueCommentSentiments",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -141,7 +141,7 @@ def issue_analysis(
             batch_idx,
             [len(set(issue["participants"])) for issue in batch],
             "IssueParticipantCount",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -149,7 +149,7 @@ def issue_analysis(
             batch_idx,
             issue_positive_comments,
             "IssueCountPositiveComments",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -157,7 +157,7 @@ def issue_analysis(
             batch_idx,
             issue_negative_comments,
             "IssueCountNegativeComments",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
         metrics_data1 = [("Metric", "Count", "Mean", "Stdev")]

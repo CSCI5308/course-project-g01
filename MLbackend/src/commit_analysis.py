@@ -268,7 +268,7 @@ def commit_batch_analysis(
 
     # output results
     with open(
-        os.path.join(config.resultsPath, f"results_{idx}.csv"), "a", newline=""
+        os.path.join(config.results_path, f"results_{idx}.csv"), "a", newline=""
     ) as f:
         w = csv.writer(f, delimiter=",")
         w.writerow(["commit_count", real_commit_count])
@@ -298,7 +298,7 @@ def commit_batch_analysis(
         idx,
         [author["active_days"] for login, author in author_info_dict.items()],
         "AuthorActiveDays",
-        config.resultsPath,
+        config.results_path,
         logger,
         result,
     )
@@ -307,7 +307,7 @@ def commit_batch_analysis(
         idx,
         [author["commit_count"] for login, author in author_info_dict.items()],
         "AuthorCommitCount",
-        config.resultsPath,
+        config.results_path,
         logger,
         result,
     )
@@ -316,7 +316,7 @@ def commit_batch_analysis(
         idx,
         [len(timezone["authors"]) for key, timezone in timezone_info_dict.items()],
         "TimezoneAuthorCount",
-        config.resultsPath,
+        config.results_path,
         logger,
         result,
     )
@@ -325,7 +325,7 @@ def commit_batch_analysis(
         idx,
         [timezone["commit_count"] for key, timezone in timezone_info_dict.items()],
         "TimezoneCommitCount",
-        config.resultsPath,
+        config.results_path,
         logger,
         result,
     )
@@ -334,7 +334,7 @@ def commit_batch_analysis(
         idx,
         sentiment_scores,
         "CommitMessageSentiment",
-        config.resultsPath,
+        config.results_path,
         logger,
         result,
     )
@@ -343,7 +343,7 @@ def commit_batch_analysis(
         idx,
         commit_message_sentiments_positive,
         "CommitMessageSentimentsPositive",
-        config.resultsPath,
+        config.results_path,
         logger,
         result,
     )
@@ -352,7 +352,7 @@ def commit_batch_analysis(
         idx,
         commit_message_sentiments_negative,
         "CommitMessageSentimentsNegative",
-        config.resultsPath,
+        config.results_path,
         logger,
         result,
     )

@@ -30,8 +30,8 @@ def pr_analysis(
     logger.info("Querying PRs")
     batches = pr_request(
         config.pat,
-        config.repositoryOwner,
-        config.repositoryName,
+        config.repository_owner,
+        config.repository_name,
         delta,
         batch_dates,
         logger,
@@ -63,7 +63,7 @@ def pr_analysis(
 
         logger.info("Writing results of PR analysis to CSVs.")
         with open(
-            os.path.join(config.resultsPath, f"results_{batch_idx}.csv"),
+            os.path.join(config.results_path, f"results_{batch_idx}.csv"),
             "a",
             newline="",
         ) as f:
@@ -110,7 +110,7 @@ def pr_analysis(
             batch_idx,
             comment_lengths,
             "PRCommentsLength",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -118,7 +118,7 @@ def pr_analysis(
             batch_idx,
             durations,
             "PRDuration",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -126,7 +126,7 @@ def pr_analysis(
             batch_idx,
             [len(pr["comments"]) for pr in batch],
             "PRCommentsCount",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -134,7 +134,7 @@ def pr_analysis(
             batch_idx,
             [pr["commit_count"] for pr in batch],
             "PRCommitsCount",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -142,7 +142,7 @@ def pr_analysis(
             batch_idx,
             comment_sentiments,
             "PRCommentSentiments",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -150,7 +150,7 @@ def pr_analysis(
             batch_idx,
             [len(set(pr["participants"])) for pr in batch],
             "PRParticipantsCount",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -158,7 +158,7 @@ def pr_analysis(
             batch_idx,
             pr_positive_comments,
             "PRCountPositiveComments",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -166,7 +166,7 @@ def pr_analysis(
             batch_idx,
             pr_negative_comments,
             "PRCountNegativeComments",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 

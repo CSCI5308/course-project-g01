@@ -55,7 +55,7 @@ def dev_analysis(
 
     logger.info("Writing developer analysis results")
     with open(
-        os.path.join(config.resultsPath, f"results_{batch_idx}.csv"), "a", newline=""
+        os.path.join(config.results_path, f"results_{batch_idx}.csv"), "a", newline=""
     ) as f:
         w = csv.writer(f, delimiter=",")
         w.writerow(["NumberActiveExperiencedDevs", number_active_experienced_devs])

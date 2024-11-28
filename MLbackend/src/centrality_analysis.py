@@ -193,7 +193,7 @@ def prepare_graph(
 
     # output non-tabular results
     with open(
-        os.path.join(config.resultsPath, f"results_{batch_idx}.csv"), "a", newline=""
+        os.path.join(config.results_path, f"results_{batch_idx}.csv"), "a", newline=""
     ) as f:
         w = csv.writer(f, delimiter=",")
         w.writerow([f"{output_prefix}_Density", density])
@@ -245,7 +245,7 @@ def prepare_graph(
 
     # output high centrality authors
     with open(
-        os.path.join(config.resultsPath, f"results_{batch_idx}.csv"), "a", newline=""
+        os.path.join(config.results_path, f"results_{batch_idx}.csv"), "a", newline=""
     ) as f:
         w = csv.writer(f, delimiter=",")
         w.writerow(
@@ -273,7 +273,7 @@ def prepare_graph(
         batch_idx,
         [value for key, value in closeness.items()],
         f"{output_prefix}_Closeness",
-        config.resultsPath,
+        config.results_path,
         logger,
     )
 
@@ -281,7 +281,7 @@ def prepare_graph(
         batch_idx,
         [value for key, value in betweenness.items()],
         f"{output_prefix}_Betweenness",
-        config.resultsPath,
+        config.results_path,
         logger,
     )
 
@@ -289,7 +289,7 @@ def prepare_graph(
         batch_idx,
         [value for key, value in centrality.items()],
         f"{output_prefix}_Centrality",
-        config.resultsPath,
+        config.results_path,
         logger,
     )
 
@@ -297,7 +297,7 @@ def prepare_graph(
         batch_idx,
         [community[0] for community in modularity],
         f"{output_prefix}_CommunityAuthorCount",
-        config.resultsPath,
+        config.results_path,
         logger,
     )
 
@@ -305,7 +305,7 @@ def prepare_graph(
         batch_idx,
         [community[1] for community in modularity],
         f"{output_prefix}_CommunityAuthorItemCount",
-        config.resultsPath,
+        config.results_path,
         logger,
     )
 
@@ -313,7 +313,7 @@ def prepare_graph(
     metrics_data.extend([close, between, central, author_c, author_item])
 
     nx.write_graphml(
-        G, os.path.join(config.resultsPath, f"{output_prefix}_{batch_idx}.xml")
+        G, os.path.join(config.results_path, f"{output_prefix}_{batch_idx}.xml")
     )
 
     return high_centrality_authors, results_meta, metrics_data

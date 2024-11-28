@@ -16,7 +16,7 @@ def replace_aliases(
     logger.info("Cleaning aliased authors")
 
     # build path
-    alias_path = os.path.join(config.repositoryPath, "aliases.yml")
+    alias_path = os.path.join(config.repository_path, "aliases.yml")
 
     # quick lowercase and trim if no alias file
     if not os.path.exists(alias_path):

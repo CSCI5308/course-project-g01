@@ -53,7 +53,7 @@ def calculate_accl(
 
         # output results
         with open(
-            os.path.join(config.resultsPath, f"results_{batch_idx}.csv"),
+            os.path.join(config.results_path, f"results_{batch_idx}.csv"),
             "a",
             newline="",
         ) as f:
@@ -75,7 +75,7 @@ def calculate_rpc(
 
         # output results
         with open(
-            os.path.join(config.resultsPath, f"results_{batch_idx}.csv"),
+            os.path.join(config.results_path, f"results_{batch_idx}.csv"),
             "a",
             newline="",
         ) as f:

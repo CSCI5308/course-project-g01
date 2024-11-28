@@ -6,14 +6,14 @@ from MLbackend.src.configuration import Configuration
 
 def get_repo(config: Configuration, logger: Logger):
     repo_path = os.path.join(
-        config.repositoryPath,
-        "{}.{}".format(config.repositoryOwner, config.repositoryName),
+        config.repository_path,
+        "{}.{}".format(config.repository_owner, config.repository_name),
     )
 
     # Reference from https://docs.readthedocs.io/en/stable/guides/private-python-packages.html
     pat = config.pat or os.getenv("GITHUB_TOKEN")
 
-    repo_url = config.repositoryUrl.replace("https://", f"https://{pat}@")
+    repo_url = config.repository_url.replace("https://", f"https://{pat}@")
 
     repo = None
     try:

@@ -88,7 +88,7 @@ def release_analysis(
 
         logger.info("Writing results for analysis of releases to CSVs.")
         with open(
-            os.path.join(config.resultsPath, f"results_{batch_idx}.csv"), "a", newline=""
+            os.path.join(config.results_path, f"results_{batch_idx}.csv"), "a", newline=""
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow(["NumberReleases", batch["releaseCount"]])
@@ -115,7 +115,7 @@ def release_analysis(
             batch_idx,
             [value["authorsCount"] for key, value in release_commits_count.items()],
             "ReleaseAuthorCount",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
 
@@ -123,7 +123,7 @@ def release_analysis(
             batch_idx,
             [value["commitsCount"] for key, value in release_commits_count.items()],
             "ReleaseCommitCount",
-            config.resultsPath,
+            config.results_path,
             logger,
         )
         return release_commits_count
@@ -136,7 +136,7 @@ def release_request(
     logger: Logger,
 ):
     query = build_release_request_query(
-        config.repositoryOwner, config.repositoryName, None
+        config.repository_owner, config.repository_name, None
     )
 
     # prepare batches
@@ -192,7 +192,7 @@ def release_request(
 
         cursor = page_info["endCursor"]
         query = build_release_request_query(
-            config.repositoryOwner, config.repositoryName, cursor
+            config.repository_owner, config.repository_name, cursor
         )
 
     if batch is not None:

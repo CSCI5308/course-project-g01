@@ -21,7 +21,7 @@ def main():
         repo = get_repo(config)
 
         # build path
-        alias_path = os.path.join(config.repositoryPath, "aliases.yml")
+        alias_path = os.path.join(config.repository_path, "aliases.yml")
 
         # delete existing alias file if present
         if os.path.exists(alias_path):
@@ -63,7 +63,7 @@ def extract_aliases(config: Configuration, repo: git.Repo, alias_path: str) -> N
     for email in Bar("Processing").iter(shas_by_email):
         sha = shas_by_email[email]
         url = "https://api.github.com/repos/{}/{}/commits/{}".format(
-            config.repositoryOwner, config.repositoryName, sha
+            config.repository_owner, config.repository_name, sha
         )
         request = requests.get(url, headers={"Authorization": "token " + config.pat})
         commit = request.json()
@@ -96,7 +96,7 @@ def extract_aliases(config: Configuration, repo: git.Repo, alias_path: str) -> N
                     quick_matched = True
                     continue
 
-                if are_similar(authorA, key, config.maxDistance):
+                if are_similar(authorA, key, config.max_distance):
                     alias = used_as_values[key]
                     aliases[alias].append(authorA)
                     used_as_values[authorA] = alias
@@ -112,7 +112,7 @@ def extract_aliases(config: Configuration, repo: git.Repo, alias_path: str) -> N
                     quick_matched = True
                     continue
 
-                if are_similar(authorA, key, config.maxDistance):
+                if are_similar(authorA, key, config.max_distance):
                     aliases[key].append(authorA)
                     used_as_values[authorA] = key
                     quick_matched = True
@@ -126,7 +126,7 @@ def extract_aliases(config: Configuration, repo: git.Repo, alias_path: str) -> N
                 if authorA == authorB:
                     continue
 
-                if are_similar(authorA, authorB, config.maxDistance):
+                if are_similar(authorA, authorB, config.max_distance):
                     aliased_author = aliases.setdefault(authorA, [])
                     aliased_author.append(authorB)
                     used_as_values[authorB] = authorA

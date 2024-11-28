@@ -82,7 +82,7 @@ def output_tags(
 
     # output non-tabular results
     with open(
-        os.path.join(config.resultsPath, f"results_{idx}.csv"), "a", newline=""
+        os.path.join(config.results_path, f"results_{idx}.csv"), "a", newline=""
     ) as f:
         w = csv.writer(f, delimiter=",")
         w.writerow(["Tag Count", len(tag_info)])
@@ -91,7 +91,7 @@ def output_tags(
     logger.info("Outputting CSVs with tag information.")
 
     with open(
-        os.path.join(config.resultsPath, f"results_{idx}.csv"), "a", newline=""
+        os.path.join(config.results_path, f"results_{idx}.csv"), "a", newline=""
     ) as f:
         w = csv.writer(f, delimiter=",")
         w.writerow(["FN", fn])
@@ -108,7 +108,7 @@ def output_tags(
         idx,
         [tag["commit_count"] for tag in tag_info],
         "TagCommitCount",
-        config.resultsPath,
+        config.results_path,
         logger,
     )
     return [tag["commit_count"] for tag in tag_info]

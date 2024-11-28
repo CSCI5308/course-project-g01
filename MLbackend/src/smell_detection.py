@@ -18,7 +18,7 @@ def smell_detection(config: Configuration, batch_idx: int, logger: Logger, resul
     results = {}
 
     # open finalized results for reading
-    project_csv_path = os.path.join(config.resultsPath, f"results_{batch_idx}.csv")
+    project_csv_path = os.path.join(config.results_path, f"results_{batch_idx}.csv")
     with open(project_csv_path, newline="") as csv_file:
         rows = csv.reader(csv_file, delimiter=",")
 
