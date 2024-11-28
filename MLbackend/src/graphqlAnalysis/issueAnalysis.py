@@ -153,7 +153,7 @@ def issueAnalysis(
 
         toxicityPercentage = getToxicityPercentage(config, allComments, logger)
 
-        author, meta, metrics_data = centrality.buildGraphQlNetwork(
+        _, meta, metrics_data = centrality.buildGraphQlNetwork(
             batchIdx, participants, "Issues", config, logger, result
         )
 
