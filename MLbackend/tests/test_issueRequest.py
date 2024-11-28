@@ -40,7 +40,7 @@ class TestIssueRequest(unittest.TestCase):
 
     @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.runGraphqlRequest")
     def test_issuesAvailableNumberOfBatches(self, mock_runGraphqlRequest) -> None:
-        # Generate the createdAt date as today's date minus some days
+        # Generate the created_at date as today's date minus some days
         created_at_date = datetime.now() + timedelta(days=10)
         closed_at_date = datetime.now() + timedelta(days=15)
         created_at_iso = created_at_date.isoformat() + "Z"
@@ -48,11 +48,11 @@ class TestIssueRequest(unittest.TestCase):
         mock_runGraphqlRequest.return_value = {
             "repository": {
                 "issues": {
-                    "pageInfo": {"hasNextPage": False, "endCursor": None},
+                    "page_info": {"hasNextPage": False, "endCursor": None},
                     "nodes": [
                         {
                             "number": 1,
-                            "createdAt": created_at_iso,
+                            "created_at": created_at_iso,
                             "closedAt": closed_at_iso,
                             "participants": {
                                 "nodes": [{"login": "user1"}, {"login": "user2"}]
@@ -93,14 +93,14 @@ class TestIssueRequest(unittest.TestCase):
         mock_runGraphqlRequest.return_value = {
             "repository": {
                 "issues": {
-                    "pageInfo": {
+                    "page_info": {
                         "endCursor": "Y3Vyc29yOnYyOpHOBYEJRz==",
                         "hasNextPage": False,
                     },
                     "nodes": [
                         {
                             "number": 57,
-                            "createdAt": (
+                            "created_at": (
                                 created_at_date + relativedelta(months=1, days=10)
                             ).isoformat()
                             + "Z",
@@ -116,7 +116,7 @@ class TestIssueRequest(unittest.TestCase):
                         },
                         {
                             "number": 1,
-                            "createdAt": (
+                            "created_at": (
                                 created_at_date + relativedelta(days=10)
                             ).isoformat()
                             + "Z",

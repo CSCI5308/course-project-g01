@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from dateutil.relativedelta import relativedelta
 
-from MLbackend.src.graphqlAnalysis.releaseAnalysis import releaseRequest
+from MLbackend.src.graphqlAnalysis.release_analysis import releaseRequest
 
 
 class TestReleaseRequest(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestReleaseRequest(unittest.TestCase):
         result = releaseRequest(
             config=self.mock_config_instance,
             delta=self.delta,
-            batchDates=self.batch_dates,
+            batch_dates=self.batch_dates,
             logger=self.mock_logger,
         )
 
@@ -57,11 +57,11 @@ class TestReleaseRequest(unittest.TestCase):
                     "nodes": [
                         {
                             "author": {"login": "sampleAuthor"},
-                            "createdAt": "2024-01-15T12:00:00Z",
+                            "created_at": "2024-01-15T12:00:00Z",
                             "name": "v1.0.0",
                         }
                     ],
-                    "pageInfo": {
+                    "page_info": {
                         "endCursor": "Y3Vyc29yOnYyOpHOBYEJRz==",
                         "hasNextPage": False,
                     },
@@ -72,7 +72,7 @@ class TestReleaseRequest(unittest.TestCase):
         result = releaseRequest(
             config=self.mock_config_instance,
             delta=self.delta,
-            batchDates=self.batch_dates,
+            batch_dates=self.batch_dates,
             logger=self.mock_logger,
         )
         self.assertEqual(len(result), 1)
@@ -91,11 +91,11 @@ class TestReleaseRequest(unittest.TestCase):
                     "nodes": [
                         {
                             "author": {"login": "sampleAuthor"},
-                            "createdAt": "2024-01-15T12:00:00Z",
+                            "created_at": "2024-01-15T12:00:00Z",
                             "name": "v1.0.0",
                         }
                     ],
-                    "pageInfo": {
+                    "page_info": {
                         "endCursor": "Y3Vyc29yOnYyOpHOBYEJRz==",
                         "hasNextPage": False,
                     },
@@ -106,7 +106,7 @@ class TestReleaseRequest(unittest.TestCase):
         result = releaseRequest(
             config=self.mock_config_instance,
             delta=self.delta,
-            batchDates=self.batch_dates,
+            batch_dates=self.batch_dates,
             logger=self.mock_logger,
         )
         self.assertEqual(len(result[0]["releases"]), 1)

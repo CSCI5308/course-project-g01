@@ -9,7 +9,7 @@ from progress.bar import Bar
 from src.configuration import Configuration, parseAliasArgs
 from src.repoLoader import getRepo
 from strsimpy.metric_lcs import MetricLCS
-from utils import authorIdExtractor
+from utils import author_id_extractor
 
 
 def main():
@@ -41,7 +41,7 @@ def extractAliases(config: Configuration, repo: git.Repo, aliasPath: str):
 
     # get all distinct author emails
     emails = set(
-        authorIdExtractor(commit.author) for commit in Bar("Processing").iter(commits)
+        author_id_extractor(commit.author) for commit in Bar("Processing").iter(commits)
     )
 
     # get a commit per email
@@ -51,7 +51,7 @@ def extractAliases(config: Configuration, repo: git.Repo, aliasPath: str):
         commit = next(
             commit
             for commit in repo.iter_commits()
-            if authorIdExtractor(commit.author) == email
+            if author_id_extractor(commit.author) == email
         )
 
         shasByEmail[email] = commit.hexsha

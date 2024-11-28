@@ -1,7 +1,7 @@
 import git
 
 
-def authorIdExtractor(author: git.Actor):
+def author_id_extractor(author: git.Actor):
     id = ""
 
     if author.email is None:
@@ -13,5 +13,5 @@ def authorIdExtractor(author: git.Actor):
     return id
 
 
-def iterLen(obj: iter):
+def iter_len(obj: iter):
     return sum(1 for _ in obj)

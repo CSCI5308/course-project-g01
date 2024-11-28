@@ -12,7 +12,7 @@ from sentistrength import PySentiStr
 
 from MLbackend.src.configuration import Configuration
 from MLbackend.src.statsAnalysis import outputStatistics
-from MLbackend.src.utils import authorIdExtractor
+from MLbackend.src.utils import author_id_extractor
 from MLbackend.src.utils.result import Result
 
 
@@ -35,30 +35,30 @@ def commitAnalysis(
     if config.startDate is not None:
         startDate = datetime.strptime(config.startDate, "%Y-%m-%d")
         startDate = startDate.replace(tzinfo=pytz.UTC)
-    batchStartDate = None
-    batchEndDate = None
-    batchDates = []
+    batch_start_date = None
+    batch_end_date = None
+    batch_dates = []
 
     for commit in commits:
         if startDate is not None and startDate > commit.committed_datetime:
             continue
         # prepare first batch
-        if batchStartDate is None:
-            batchStartDate = commit.committed_datetime
-            batchEndDate = batchStartDate + delta
+        if batch_start_date is None:
+            batch_start_date = commit.committed_datetime
+            batch_end_date = batch_start_date + delta
 
-            batchDates.append(batchStartDate)
-            result.addBatchDates([batchStartDate])
+            batch_dates.append(batch_start_date)
+            result.addBatchDates([batch_start_date])
 
         # prepare next batch
-        elif commit.committed_datetime > batchEndDate:
+        elif commit.committed_datetime > batch_end_date:
             batches.append(batch)
             batch = []
-            batchStartDate = commit.committed_datetime
-            batchEndDate = batchStartDate + delta
+            batch_start_date = commit.committed_datetime
+            batch_end_date = batch_start_date + delta
 
-            batchDates.append(batchStartDate)
-            result.addBatchDates([batchStartDate])
+            batch_dates.append(batch_start_date)
+            result.addBatchDates([batch_start_date])
 
         # populate current batch
         batch.append(commit)
@@ -69,7 +69,7 @@ def commitAnalysis(
 
     # run analysis per batch
     authorInfoDict = {}
-    daysActive = list()
+    days_active = list()
     meta_results = []
     metric_results = []
     for idx, batch in enumerate(batches):
@@ -84,9 +84,9 @@ def commitAnalysis(
 
         # combine with main lists
         authorInfoDict.update(batchAuthorInfoDict)
-        daysActive.append(batchDaysActive)
+        days_active.append(batchDaysActive)
 
-    return batchDates, authorInfoDict, daysActive, meta_results[0], metric_results[0]
+    return batch_dates, authorInfoDict, days_active, meta_results[0], metric_results[0]
 
 
 def commitBatchAnalysis(
@@ -124,13 +124,13 @@ def commitBatchAnalysis(
         firstDate = commit.committed_date
         realCommitCount = realCommitCount + 1
         # extract info
-        author = authorIdExtractor(commit.author)
+        author = author_id_extractor(commit.author)
         timezone = commit.author_tz_offset
         time = commit.authored_datetime
 
         # get timezone
         timezoneInfo = timezoneInfoDict.setdefault(
-            timezone, dict(commitCount=0, authors=set())
+            timezone, dict(commit_count=0, authors=set())
         )
 
         # save info
@@ -140,13 +140,13 @@ def commitBatchAnalysis(
             commitMessages.append(commit.message)
 
         # increase commit count
-        timezoneInfo["commitCount"] += 1
+        timezoneInfo["commit_count"] += 1
 
         # get author
         authorInfo = authorInfoDict.setdefault(
             author,
             dict(
-                commitCount=0,
+                commit_count=0,
                 sponsoredCommitCount=0,
                 earliestCommitDate=time,
                 latestCommitDate=time,
@@ -157,7 +157,7 @@ def commitBatchAnalysis(
         )
 
         # increase commit count
-        authorInfo["commitCount"] += 1
+        authorInfo["commit_count"] += 1
 
         # validate earliest commit
         # by default GitPython orders commits from latest to earliest
@@ -189,9 +189,9 @@ def commitBatchAnalysis(
     for login, author in authorInfoDict.items():
 
         # check if sponsored
-        commitCount = int(author["commitCount"])
+        commit_count = int(author["commit_count"])
         sponsoredCommitCount = int(author["sponsoredCommitCount"])
-        diff = sponsoredCommitCount / commitCount
+        diff = sponsoredCommitCount / commit_count
         if diff >= 0.95:
             author["sponsored"] = True
             sponsoredAuthorCount += 1
@@ -228,12 +228,12 @@ def commitBatchAnalysis(
         firstCommitDate = datetime.fromtimestamp(firstDate)
     if lastDate is not None:
         lastCommitDate = datetime.fromtimestamp(lastDate)
-    daysActive = 0
+    days_active = 0
     if lastCommitDate is not None:
-        daysActive = (lastCommitDate - firstCommitDate).days
+        days_active = (lastCommitDate - firstCommitDate).days
     result.addFirstCommitDate(batch_idx=idx, first_commit_date=firstCommitDate)
     result.addLastCommitDate(batch_idx=idx, last_commit_date=lastCommitDate)
-    result.addDaysActive(batch_idx=idx, days_active=daysActive)
+    result.addDaysActive(batch_idx=idx, days_active=days_active)
 
     logger.info("Outputting CSVs")
 
@@ -255,7 +255,7 @@ def commitBatchAnalysis(
         w = csv.writer(f, delimiter=",")
         w.writerow(["Author", "Commit Count"])
         for login, author in authorInfoDict.items():
-            w.writerow([login, author["commitCount"]])
+            w.writerow([login, author["commit_count"]])
 
     # output timezones
     with open(
@@ -264,15 +264,15 @@ def commitBatchAnalysis(
         w = csv.writer(f, delimiter=",")
         w.writerow(["Timezone Offset", "Author Count", "Commit Count"])
         for key, timezone in timezoneInfoDict.items():
-            w.writerow([key, len(timezone["authors"]), timezone["commitCount"]])
+            w.writerow([key, len(timezone["authors"]), timezone["commit_count"]])
 
     # output results
     with open(
         os.path.join(config.resultsPath, f"results_{idx}.csv"), "a", newline=""
     ) as f:
         w = csv.writer(f, delimiter=",")
-        w.writerow(["CommitCount", realCommitCount])
-        w.writerow(["DaysActive", daysActive])
+        w.writerow(["commit_count", realCommitCount])
+        w.writerow(["days_active", days_active])
         w.writerow(["FirstCommitDate", "{:%Y-%m-%d}".format(firstCommitDate)])
         w.writerow(["LastCommitDate", "{:%Y-%m-%d}".format(lastCommitDate)])
         w.writerow(["AuthorCount", len([*authorInfoDict])])
@@ -282,8 +282,8 @@ def commitBatchAnalysis(
 
     result_meta = [
         ["Metrics", "Value"],
-        ["CommitCount", realCommitCount],
-        ["DaysActive", daysActive],
+        ["commit_count", realCommitCount],
+        ["days_active", days_active],
         ["FirstCommitDate", "{:%Y-%m-%d}".format(firstCommitDate)],
         ["LastCommitDate", "{:%Y-%m-%d}".format(lastCommitDate)],
         ["AuthorCount", len([*authorInfoDict])],
@@ -305,7 +305,7 @@ def commitBatchAnalysis(
 
     commit_author = outputStatistics(
         idx,
-        [author["commitCount"] for login, author in authorInfoDict.items()],
+        [author["commit_count"] for login, author in authorInfoDict.items()],
         "AuthorCommitCount",
         config.resultsPath,
         logger,
@@ -323,7 +323,7 @@ def commitBatchAnalysis(
 
     times_commit = outputStatistics(
         idx,
-        [timezone["commitCount"] for key, timezone in timezoneInfoDict.items()],
+        [timezone["commit_count"] for key, timezone in timezoneInfoDict.items()],
         "TimezoneCommitCount",
         config.resultsPath,
         logger,
@@ -360,4 +360,4 @@ def commitBatchAnalysis(
         [active, commit_author, times, times_commit, senti_msg, positive, negative]
     )
 
-    return authorInfoDict, daysActive, result_meta, metrics_data
+    return authorInfoDict, days_active, result_meta, metrics_data

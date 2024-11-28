@@ -22,7 +22,7 @@ def issueAnalysis(
     config: Configuration,
     senti: sentistrength.PySentiStr,
     delta: relativedelta,
-    batchDates: List[datetime],
+    batch_dates: List[datetime],
     logger: Logger, 
     result:Result   
 
@@ -34,31 +34,31 @@ def issueAnalysis(
         config.repositoryOwner,
         config.repositoryName,
         delta,
-        batchDates,
+        batch_dates,
         logger,
     )
 
-    batchParticipants = list()
-    batchComments = list()
+    batch_participants = list()
+    batch_comments = list()
     results_meta = []
     results_metrics = []
     results_meta1 = []
     results_metrics1 = []
 
-    for batchIdx, batch in enumerate(batches):
-        logger.info(f"Analyzing issue batch #{batchIdx}")
+    for batch_idx, batch in enumerate(batches):
+        logger.info(f"Analyzing issue batch #{batch_idx}")
 
         # extract data from batch
         issueCount = len(batch)
         participants = list(
             issue["participants"] for issue in batch if len(issue["participants"]) > 0
         )
-        batchParticipants.append(participants)
+        batch_participants.append(participants)
 
-        allComments = list()
+        all_comments = list()
         issuePositiveComments = list()
         issueNegativeComments = list()
-        generallyNegative = list()
+        generally_negative = list()
 
         semaphore = threading.Semaphore(15)
         threads = []
@@ -68,38 +68,38 @@ def issueAnalysis(
             )
 
             # split comments that are longer than 20KB
-            splitComments = []
+            split_comments = []
             for comment in comments:
 
                 # calc number of chunks
-                byteChunks = math.ceil(sys.getsizeof(comment) / (20 * 1024))
-                if byteChunks > 1:
+                byte_chunks = math.ceil(sys.getsizeof(comment) / (20 * 1024))
+                if byte_chunks > 1:
 
                     # calc desired max length of each chunk
-                    chunkLength = math.floor(len(comment) / byteChunks)
+                    chunk_length = math.floor(len(comment) / byte_chunks)
 
                     # divide comment into chunks
                     chunks = [
-                        comment[i * chunkLength : i * chunkLength + chunkLength]
-                        for i in range(0, byteChunks)
+                        comment[i * chunk_length : i * chunk_length + chunk_length]
+                        for i in range(0, byte_chunks)
                     ]
 
                     # save chunks
-                    splitComments.extend(chunks)
+                    split_comments.extend(chunks)
 
                 else:
                     # append comment as-is
-                    splitComments.append(comment)
+                    split_comments.append(comment)
 
             # re-assign comments after chunking
-            comments = splitComments
+            comments = split_comments
 
             if len(comments) == 0:
                 issuePositiveComments.append(0)
                 issueNegativeComments.append(0)
                 continue
 
-            allComments.extend(comments)
+            all_comments.extend(comments)
 
             thread = threading.Thread(
                 target=analyzeSentiments,
@@ -108,7 +108,7 @@ def issueAnalysis(
                     comments,
                     issuePositiveComments,
                     issueNegativeComments,
-                    generallyNegative,
+                    generally_negative,
                     semaphore,
                 ),
             )
@@ -121,66 +121,66 @@ def issueAnalysis(
             thread.join()
 
         # save comments
-        batchComments.append(allComments)
+        batch_comments.append(all_comments)
 
         # get comment length stats
-        commentLengths = [len(c) for c in allComments]
+        comment_lengths = [len(c) for c in all_comments]
 
         try:
-            generallyNegativeRatio = len(generallyNegative) / issueCount
+            generally_negative_ratio = len(generally_negative) / issueCount
         except ZeroDivisionError:
-            generallyNegativeRatio = 0
+            generally_negative_ratio = 0
             logger.warning(
-                f"There are no Issues for batch #{batchIdx} setting generally negative ratio as 0."
+                f"There are no Issues for batch #{batch_idx} setting generally negative ratio as 0."
             )
 
         # get pr duration stats
-        durations = [(pr["closedAt"] - pr["createdAt"]).days for pr in batch]
+        durations = [(pr["closedAt"] - pr["created_at"]).days for pr in batch]
 
         # analyze comment issue sentiment
-        commentSentiments = []
-        commentSentimentsPositive = 0
-        commentSentimentsNegative = 0
+        comment_sentiments = []
+        comment_sentiments_positive = 0
+        comment_sentiments_negative = 0
 
-        if len(allComments) > 0:
-            commentSentiments = senti.getSentiment(allComments)
-            commentSentimentsPositive = sum(
-                1 for _ in filter(lambda value: value >= 1, commentSentiments)
+        if len(all_comments) > 0:
+            comment_sentiments = senti.getSentiment(all_comments)
+            comment_sentiments_positive = sum(
+                1 for _ in filter(lambda value: value >= 1, comment_sentiments)
             )
-            commentSentimentsNegative = sum(
-                1 for _ in filter(lambda value: value <= -1, commentSentiments)
+            comment_sentiments_negative = sum(
+                1 for _ in filter(lambda value: value <= -1, comment_sentiments)
             )
 
-        toxicityPercentage = getToxicityPercentage(config, allComments, logger)
+        toxicityPercentage = getToxicityPercentage(config, all_comments, logger)
 
-        author, meta, metrics_data = centrality.buildGraphQlNetwork(batchIdx, participants, "Issues", config, logger,result)
+        author, meta, metrics_data = centrality.buildGraphQlNetwork(batch_idx, participants, "Issues", config, logger,result)
 
         logger.info("Writing GraphQL analysis results")
         with open(
-            os.path.join(config.resultsPath, f"results_{batchIdx}.csv"),
+            os.path.join(config.resultsPath, f"results_{batch_idx}.csv"),
             "a",
             newline="",
         ) as f:
             w = csv.writer(f, delimiter=",")
             w.writerow(["NumberIssues", len(batch)])
-            w.writerow(["NumberIssueComments", len(allComments)])
-            w.writerow(["IssueCommentsPositive", commentSentimentsPositive])
-            w.writerow(["IssueCommentsNegative", commentSentimentsNegative])
-            w.writerow(["IssueCommentsNegativeRatio", generallyNegativeRatio])
+            w.writerow(["NumberIssueComments", len(all_comments)])
+            w.writerow(["IssueCommentsPositive", comment_sentiments_positive])
+            w.writerow(["IssueCommentsNegative", comment_sentiments_negative])
+            w.writerow(["IssueCommentsNegativeRatio", generally_negative_ratio])
             w.writerow(["IssueCommentsToxicityPercentage", toxicityPercentage])
 
         meta1 = [
             ["Metrics", "Issue"],
             ["NumberIssues", len(batch)],
-            ["NumberIssueComments", len(allComments)],
-            ["IssueCommentsPositive", commentSentimentsPositive],
-            ["IssueCommentsNegative", commentSentimentsNegative],
-            ["IssueCommentsNegativeRatio", generallyNegativeRatio],
+            ["NumberIssueComments", len(all_comments)],
+            ["IssueCommentsPositive", comment_sentiments_positive],
+            ["IssueCommentsNegative", comment_sentiments_negative],
+            ["IssueCommentsNegativeRatio", generally_negative_ratio],
             ["IssueCommentsToxicityPercentage", toxicityPercentage],
         ]
 
         with open(
-            os.path.join(config.metricsPath, f"issueCommentsCount_{batchIdx}.csv"),
+            os.path.join(config.metricsPath, f"issueCommentsCount_{batch_idx}.csv"),
             "a",
             newline="",
         ) as f:
@@ -190,7 +190,7 @@ def issueAnalysis(
                 w.writerow([issue["number"], len(issue["comments"])])
 
         with open(
-            os.path.join(config.metricsPath, f"issueParticipantCount_{batchIdx}.csv"),
+            os.path.join(config.metricsPath, f"issueParticipantCount_{batch_idx}.csv"),
             "a",
             newline="",
         ) as f:
@@ -201,15 +201,15 @@ def issueAnalysis(
 
         # output statistics
         issue_len = stats.outputStatistics(
-            batchIdx,
-            commentLengths,
+            batch_idx,
+            comment_lengths,
             "IssueCommentsLength",
             config.resultsPath,
             logger,
         )
 
         issue_dur = stats.outputStatistics(
-            batchIdx,
+            batch_idx,
             durations,
             "IssueDuration",
             config.resultsPath,
@@ -217,7 +217,7 @@ def issueAnalysis(
         )
 
         issue_com = stats.outputStatistics(
-            batchIdx,
+            batch_idx,
             [len(issue["comments"]) for issue in batch],
             "IssueCommentsCount",
             config.resultsPath,
@@ -225,15 +225,15 @@ def issueAnalysis(
         )
 
         sent = stats.outputStatistics(
-            batchIdx,
-            commentSentiments,
+            batch_idx,
+            comment_sentiments,
             "IssueCommentSentiments",
             config.resultsPath,
             logger,
         )
 
         part = stats.outputStatistics(
-            batchIdx,
+            batch_idx,
             [len(set(issue["participants"])) for issue in batch],
             "IssueParticipantCount",
             config.resultsPath,
@@ -241,7 +241,7 @@ def issueAnalysis(
         )
 
         pos = stats.outputStatistics(
-            batchIdx,
+            batch_idx,
             issuePositiveComments,
             "IssueCountPositiveComments",
             config.resultsPath,
@@ -249,7 +249,7 @@ def issueAnalysis(
         )
 
         neg = stats.outputStatistics(
-            batchIdx,
+            batch_idx,
             issueNegativeComments,
             "IssueCountNegativeComments",
             config.resultsPath,
@@ -263,8 +263,8 @@ def issueAnalysis(
         results_metrics1.append(metrics_data1)
 
     return (
-        batchParticipants,
-        batchComments,
+        batch_participants,
+        batch_comments,
         results_meta[0],
         results_metrics[0],
         results_meta1[0],
@@ -273,29 +273,29 @@ def issueAnalysis(
 
 
 def analyzeSentiments(
-    senti, comments, positiveComments, negativeComments, generallyNegative, semaphore
+    senti, comments, positive_comments, negative_comments, generally_negative, semaphore
 ):
     with semaphore:
-        commentSentiments = (
+        comment_sentiments = (
             senti.getSentiment(comments, score="scale")
             if len(comments) > 1
             else senti.getSentiment(comments[0])
         )
 
-        commentSentimentsPositive = sum(
-            1 for _ in filter(lambda value: value >= 1, commentSentiments)
+        comment_sentiments_positive = sum(
+            1 for _ in filter(lambda value: value >= 1, comment_sentiments)
         )
-        commentSentimentsNegative = sum(
-            1 for _ in filter(lambda value: value <= -1, commentSentiments)
+        comment_sentiments_negative = sum(
+            1 for _ in filter(lambda value: value <= -1, comment_sentiments)
         )
 
         lock = threading.Lock()
         with lock:
-            positiveComments.append(commentSentimentsPositive)
-            negativeComments.append(commentSentimentsNegative)
+            positive_comments.append(comment_sentiments_positive)
+            negative_comments.append(comment_sentiments_negative)
 
-            if commentSentimentsNegative / len(comments) > 0.5:
-                generallyNegative.append(True)
+            if comment_sentiments_negative / len(comments) > 0.5:
+                generally_negative.append(True)
 
 
 def issueRequest(
@@ -332,7 +332,7 @@ def issueRequest(
         # Add all nodes that are required
         for node in nodes:
 
-            created_at: datetime = isoparse(node["createdAt"])
+            created_at: datetime = isoparse(node["created_at"])
             closed_at: datetime = (
                 current_time if node["closedAt"] is None else isoparse(node["closedAt"])
             )
@@ -345,7 +345,7 @@ def issueRequest(
             # Create the issue dictionary
             issue: Dict[str, Any] = {
                 "number": node["number"],
-                "createdAt": created_at,
+                "created_at": created_at,
                 "closedAt": closed_at,
                 "comments": [
                     comment["bodyText"] for comment in node["comments"]["nodes"]
@@ -369,7 +369,7 @@ def issueRequest(
                 batches_pre[current_time].append(issue)
 
         # Check for next page
-        page_info = result["repository"]["issues"]["pageInfo"]
+        page_info = result["repository"]["issues"]["page_info"]
         if not page_info["hasNextPage"]:
             no_next_page = True
         else:
@@ -383,13 +383,13 @@ def buildIssueRequestQuery(owner: str, name: str, cursor: str):
     return """{{
         repository(owner: "{0}", name: "{1}") {{
             issues(first: 100{2}) {{
-                pageInfo {{
+                page_info {{
                     hasNextPage
                     endCursor
                 }}
                 nodes {{
                     number
-                    createdAt
+                    created_at
                     closedAt
                     participants(first: 100) {{
                         nodes {{

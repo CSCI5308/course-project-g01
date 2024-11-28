@@ -399,8 +399,8 @@ class Result:
         for idx in range(len(self._batch_dates)):
             result.append(
                 [
-                    ["CommitCount", self._commit_count[idx]],
-                    ["DaysActive", self._days_active[idx]],
+                    ["commit_count", self._commit_count[idx]],
+                    ["days_active", self._days_active[idx]],
                     ["FirstCommitDate", self._first_commit_dates[idx]],
                     ["LastCommitDate", self._last_commit_dates[idx]],
                     ["AuthorCount", self._author_counts[idx]],

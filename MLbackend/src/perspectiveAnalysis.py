@@ -18,20 +18,20 @@ def getToxicityPercentage(config: Configuration, comments: List, logger: Logger)
     # return 0
 
     # estimate completion
-    qpsLimit = 1
+    qps_limit = 1
     buffer = 5
-    queryLimit = (qpsLimit * 60) - buffer
+    query_limit = (qps_limit * 60) - buffer
 
-    toxicityMinutes = math.ceil(len(comments) / queryLimit)
+    toxicity_minutes = math.ceil(len(comments) / query_limit)
     logger.info(
-        f"Toxicity per comment, expecting around {toxicityMinutes} minute(s) completion time"
+        f"Toxicity per comment, expecting around {toxicity_minutes} minute(s) completion time"
     )
 
     # declare toxicity results store
-    toxicResults = 0
+    toxic_results = 0
 
     # wait until the next minute
-    sleepUntilNextMinute()
+    sleep_until_next_minute()
 
     # run analysis
     for idx, comment in enumerate(comments):
@@ -65,21 +65,21 @@ def getToxicityPercentage(config: Configuration, comments: List, logger: Logger)
 
         # add to results store if toxic
         if toxicity >= 0.5:
-            toxicResults += 1
+            toxic_results += 1
 
         # we are only allowed 1 QPS, wait for a minute
-        if (idx + 1) % queryLimit == 0:
+        if (idx + 1) % query_limit == 0:
             logger.info("QPS limit reached, napping")
-            sleepUntilNextMinute()
+            sleep_until_next_minute()
             logger.info("processing")
 
     # calculate percentage of toxic comments
-    percentage = 0 if len(comments) == 0 else toxicResults / len(comments)
+    percentage = 0 if len(comments) == 0 else toxic_results / len(comments)
 
     return percentage
 
 
-def sleepUntilNextMinute():
+def sleep_until_next_minute():
     t = datetime.utcnow()
     sleeptime = 60 - (t.second + t.microsecond / 1000000.0)
     time.sleep(sleeptime)

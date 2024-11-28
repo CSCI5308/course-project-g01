@@ -27,7 +27,7 @@ def outputStatistics(
         w = csv.writer(f, delimiter=",")
 
         for key in stats:
-            outputValue(w, metric, key, stats)
+            output_value(w, metric, key, stats)
 
     if result:
         result.addMetricData(
@@ -59,7 +59,7 @@ def calculateStats(data, logger: Logger):
     return stats
 
 
-def outputValue(w, metric: str, name: str, dict: dict):
+def output_value(w, metric: str, name: str, dict: dict):
     value = dict[name]
     name = "{0}_{1}".format(metric, name)
     w.writerow([name, value])

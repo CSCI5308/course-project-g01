@@ -26,7 +26,7 @@ class TestPRRequest(unittest.TestCase):
             owner="test_owner",
             name="test_name",
             delta=self.delta,
-            batchDates=batch_dates,
+            batch_dates=batch_dates,
             logger=self.mock_logger,
         )
 
@@ -43,14 +43,14 @@ class TestPRRequest(unittest.TestCase):
         mock_runGraphqlRequest.return_value = {
             "repository": {
                 "pullRequests": {
-                    "pageInfo": {
+                    "page_info": {
                         "endCursor": "Y3Vyc29yOnYyOpHOBYEJRz==",
                         "hasNextPage": False,
                     },
                     "nodes": [
                         {
                             "number": 42,
-                            "createdAt": "2024-01-10T09:00:00Z",
+                            "created_at": "2024-01-10T09:00:00Z",
                             "closedAt": "2024-01-12T12:30:00Z",
                             "participants": {
                                 "nodes": [
@@ -79,7 +79,7 @@ class TestPRRequest(unittest.TestCase):
             owner="test_owner",
             name="test_name",
             delta=self.delta,
-            batchDates=batch_dates,
+            batch_dates=batch_dates,
             logger=self.mock_logger,
         )
 
@@ -95,14 +95,14 @@ class TestPRRequest(unittest.TestCase):
         mock_runGraphqlRequest.return_value = {
             "repository": {
                 "pullRequests": {
-                    "pageInfo": {
+                    "page_info": {
                         "endCursor": "Y3Vyc29yOnYyOpHOBYEJRz==",
                         "hasNextPage": False,
                     },
                     "nodes": [
                         {
                             "number": 42,
-                            "createdAt": "2024-09-22T09:00:00Z",
+                            "created_at": "2024-09-22T09:00:00Z",
                             "closedAt": "2024-09-25T12:30:00Z",
                             "participants": {
                                 "nodes": [
@@ -122,7 +122,7 @@ class TestPRRequest(unittest.TestCase):
                         },
                         {
                             "number": 57,
-                            "createdAt": "2024-10-22T09:00:00Z",
+                            "created_at": "2024-10-22T09:00:00Z",
                             "closedAt": None,
                             "participants": {
                                 "nodes": [
@@ -154,7 +154,7 @@ class TestPRRequest(unittest.TestCase):
             owner="test_owner",
             name="test_name",
             delta=relativedelta(months=+1),
-            batchDates=batch_dates,
+            batch_dates=batch_dates,
             logger=self.mock_logger,
         )
 

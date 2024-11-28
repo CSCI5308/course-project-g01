@@ -12,13 +12,13 @@ from MLbackend.src.utils.result import Result
 warnings.filterwarnings("ignore")
 
 
-def smellDetection(config: Configuration, batchIdx: int, logger: Logger, result: Result):
+def smellDetection(config: Configuration, batch_idx: int, logger: Logger, result: Result):
 
     # prepare results holder for easy mapping
     results = {}
 
     # open finalized results for reading
-    project_csv_path = os.path.join(config.resultsPath, f"results_{batchIdx}.csv")
+    project_csv_path = os.path.join(config.resultsPath, f"results_{batch_idx}.csv")
     with open(project_csv_path, newline="") as csvfile:
         rows = csv.reader(csvfile, delimiter=",")
 
@@ -42,15 +42,15 @@ def smellDetection(config: Configuration, batchIdx: int, logger: Logger, result:
         smell_name: smell_model.predict(metrics)
         for smell_name, smell_model in all_models.items()
     }
-    detectedSmells = [smell for smell in smells if rawSmells[smell][0] == 1]
+    detected_smells = [smell for smell in smells if rawSmells[smell][0] == 1]
     for smell in smells:
         if rawSmells[smell][0] == 1:
-            result.addSmell(batch_idx=batchIdx, smell=smell)
+            result.addSmell(batch_idx=batch_idx, smell=smell)
 
         # Prepare additional values
     additional_metrics = {
-        "CommitCount": results.get("CommitCount", 0),
-        "DaysActive": results.get("DaysActive", 0),
+        "commit_count": results.get("commit_count", 0),
+        "days_active": results.get("days_active", 0),
         "FirstCommitDate": results.get("FirstCommitDate", ""),
         "LastCommitDate": results.get("LastCommitDate", ""),
         "AuthorCount": results.get("AuthorCount", 0),
@@ -71,9 +71,9 @@ def smellDetection(config: Configuration, batchIdx: int, logger: Logger, result:
     }
 
     # insert detected smells
-    additional_metrics["DetectedSmells"] = detectedSmells.copy()
-    detectedSmells.insert(0, results["LastCommitDate"])
-    additional_metrics["smell_results"] = detectedSmells
+    additional_metrics["detected_smells"] = detected_smells.copy()
+    detected_smells.insert(0, results["LastCommitDate"])
+    additional_metrics["smell_results"] = detected_smells
     result.setSmellResults(additional_metrics)
 
     return additional_metrics
@@ -84,8 +84,8 @@ def buildMetricsList(results: dict, logger: Logger):
     # declare names to extract from the results file in the right order
     names: List[str] = [
         "AuthorCount",
-        "DaysActive",
-        "CommitCount",
+        "days_active",
+        "commit_count",
         "AuthorCommitCount_stdev",
         "commitCentrality_NumberHighCentralityAuthors",
         "commitCentrality_PercentageHighCentralityAuthors",

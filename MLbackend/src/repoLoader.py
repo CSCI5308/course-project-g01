@@ -5,7 +5,7 @@ from MLbackend.src.configuration import Configuration
 
 
 def getRepo(config: Configuration, logger: Logger):
-    repoPath = os.path.join(
+    repo_path = os.path.join(
         config.repositoryPath,
         "{}.{}".format(config.repositoryOwner, config.repositoryName),
     )
@@ -17,16 +17,16 @@ def getRepo(config: Configuration, logger: Logger):
 
     repo = None
     try:
-        if not os.path.exists(repoPath):
+        if not os.path.exists(repo_path):
             logger.info(f"Repository path does not exist. Cloning from {repoUrl}")
             repo = git.Repo.clone_from(
                 repoUrl,
-                repoPath,
+                repo_path,
                 odbt=git.GitCmdObjectDB,
             )
             logger.info(f"Cloned repository from {repoUrl}")
         else:
-            repo = git.Repo(repoPath, odbt=git.GitCmdObjectDB)
+            repo = git.Repo(repo_path, odbt=git.GitCmdObjectDB)
             logger.info(f"Repository already cloned from {repoUrl}")
     except git.exc.GitCommandError as e:
         logger.error(f"Failed to clone or open repository: {e}")

@@ -18,11 +18,11 @@ from src.configuration import Configuration, parseDevNetworkArgs
 from src.devAnalysis import devAnalysis
 from src.graphqlAnalysis.issueAnalysis import issueAnalysis
 from src.graphqlAnalysis.prAnalysis import prAnalysis
-from src.graphqlAnalysis.releaseAnalysis import releaseAnalysis
-from src.politenessAnalysis import politenessAnalysis
+from src.graphqlAnalysis.release_analysis import release_analysis
+from src.politeness_analysis import politeness_analysis
 from src.repoLoader import getRepo
 from src.smellDetection import smellDetection
-from src.tagAnalysis import tagAnalysis
+from src.tag_analysis import tag_analysis
 
 
 def communitySmellsDetector(config) -> dict:  # Specify the return type
@@ -56,43 +56,43 @@ def communitySmellsDetector(config) -> dict:  # Specify the return type
         commits = list(replaceAliases(repo.iter_commits(), config))
 
         # Run analysis
-        batchDates, authorInfoDict, daysActive = commitAnalysis(
+        batch_dates, authorInfoDict, days_active = commitAnalysis(
             senti, commits, delta, config
         )
 
-        tagAnalysis(repo, delta, batchDates, daysActive, config)
+        tag_analysis(repo, delta, batch_dates, days_active, config)
 
         coreDevs: List[List[Any]] = centrality.centralityAnalysis(
-            commits, delta, batchDates, config
+            commits, delta, batch_dates, config
         )
 
-        releaseAnalysis(commits, config, delta, batchDates)
+        release_analysis(commits, config, delta, batch_dates)
 
-        prParticipantBatches, prCommentBatches = prAnalysis(
+        prParticipantBatches, pr_comment_batches = prAnalysis(
             config,
             senti,
             delta,
-            batchDates,
+            batch_dates,
         )
 
-        issueParticipantBatches, issueCommentBatches = issueAnalysis(
+        issueParticipantBatches, issue_comment_batches = issueAnalysis(
             config,
             senti,
             delta,
-            batchDates,
+            batch_dates,
         )
 
-        politenessAnalysis(config, prCommentBatches, issueCommentBatches)
+        politeness_analysis(config, pr_comment_batches, issue_comment_batches)
 
-        for batchIdx, batchDate in enumerate(batchDates):
+        for batch_idx, batchDate in enumerate(batch_dates):
             # Get combined author lists
             combinedAuthorsInBatch = (
-                prParticipantBatches[batchIdx] + issueParticipantBatches[batchIdx]
+                prParticipantBatches[batch_idx] + issueParticipantBatches[batch_idx]
             )
 
             # Build combined network
             centrality.buildGraphQlNetwork(
-                batchIdx,
+                batch_idx,
                 combinedAuthorsInBatch,
                 "issuesAndPRsCentrality",
                 config,
@@ -100,11 +100,11 @@ def communitySmellsDetector(config) -> dict:  # Specify the return type
 
             # Get combined unique authors for both PRs and issues
             uniqueAuthorsInPrBatch = set(
-                author for pr in prParticipantBatches[batchIdx] for author in pr
+                author for pr in prParticipantBatches[batch_idx] for author in pr
             )
 
             uniqueAuthorsInIssueBatch = set(
-                author for pr in issueParticipantBatches[batchIdx] for author in pr
+                author for pr in issueParticipantBatches[batch_idx] for author in pr
             )
 
             uniqueAuthorsInBatch = uniqueAuthorsInPrBatch.union(
@@ -112,24 +112,24 @@ def communitySmellsDetector(config) -> dict:  # Specify the return type
             )
 
             # Get batch core team
-            batchCoreDevs = coreDevs[batchIdx]
+            batchCoreDevs = coreDevs[batch_idx]
 
             # Run dev analysis
             devAnalysis(
                 authorInfoDict,
-                batchIdx,
+                batch_idx,
                 uniqueAuthorsInBatch,
                 batchCoreDevs,
                 config,
             )
 
             df = pd.read_csv(
-                os.path.join(config.resultsPath, f"results_{batchIdx}.csv")
+                os.path.join(config.resultsPath, f"results_{batch_idx}.csv")
             )
             df.columns = ["Metric", "Value"]
 
             # Run smell detection and collect results
-            smell_results = smellDetection(config, batchIdx)
+            smell_results = smellDetection(config, batch_idx)
             results = {
                 "batch_date": batchDate.strftime("%Y-%m-%d"),
                 "smell_results": list(smell_results),

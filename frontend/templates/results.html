@@ -27,7 +27,7 @@
 
                 <h2>Detected Smells</h2>
                 <ul id="smell-list">
-                    {% for smell in data.DetectedSmells %}
+                    {% for smell in data.detected_smells %}
                     <li class="smell-item" data-smell="{{ smell }}">
                         <span class="smell-full-name"></span>
                     </li>
@@ -228,8 +228,8 @@
 
         // Define a list of elements with their data
         const elements = [
-            { id: "total-commits", value: "{{ data.CommitCount }}" },
-            { id: "days-active", value: "{{ data.DaysActive }}" },
+            { id: "total-commits", value: "{{ data.commit_count }}" },
+            { id: "days-active", value: "{{ data.days_active }}" },
             { id: "total-authors", value: "{{ data.AuthorCount }}" },
             { id: "sponsored-contributors", value: "{{ data.SponsoredAuthorCount }}" },
             { id: "avg-commits-per-author", value: "{{ data.AuthorCommitCount_mean }}" },
@@ -257,9 +257,9 @@
         document.getElementById("percentage-sponsored").textContent = formatToTwoDecimalPlaces(percentageSponsored);
 
         // Calculate and format Commit Frequency
-        const commitCount = parseFloat("{{ data.CommitCount }}");
-        const daysActive = parseFloat("{{ data.DaysActive }}");
-        const commitFrequency = (commitCount / daysActive);
+        const commit_count = parseFloat("{{ data.commit_count }}");
+        const days_active = parseFloat("{{ data.days_active }}");
+        const commitFrequency = (commit_count / days_active);
         document.getElementById("commit-frequency").textContent = formatToTwoDecimalPlaces(commitFrequency);
     </script>
 

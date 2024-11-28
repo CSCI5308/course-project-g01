@@ -6,7 +6,7 @@ import git
 import yaml
 
 from MLbackend.src.configuration import Configuration
-from MLbackend.src.utils import authorIdExtractor
+from MLbackend.src.utils import author_id_extractor
 
 
 def replaceAliases(
@@ -44,7 +44,7 @@ def replaceAliases(
 def replaceAll(commits, aliases) -> Generator[git.Commit, None, None]:
     for commit in list(commits):
         copy = commit
-        author = authorIdExtractor(commit.author)
+        author = author_id_extractor(commit.author)
 
         if author in aliases:
             copy.author.email = aliases[author]

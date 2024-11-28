@@ -11,81 +11,81 @@ from MLbackend.src.configuration import Configuration
 from MLbackend.src.statsAnalysis import outputStatistics
 
 
-def tagAnalysis(
+def tag_analysis(
     repo: git.Repo,
     delta: relativedelta,
-    batchDates: List[datetime.datetime],
-    daysActive: List[int],
+    batch_dates: List[datetime.datetime],
+    days_active: List[int],
     config: Configuration,
     logger: Logger,
 ) -> None:
     logger.info("Analyzing tags")
 
-    tagInfo = []
+    tag_info = []
     logger.info("Sorting tags")
-    tags = sorted(repo.tags, key=getTaggedDate)
+    tags = sorted(repo.tags, key=get_tagged_date)
 
     # get tag list
     if len(tags) > 0:
-        lastTag = None
+        last_tag = None
         for tag in tags:
-            commitCount = 0
-            if lastTag is None:
-                commitCount = len(list(tag.commit.iter_items(repo, tag.commit)))
+            commit_count = 0
+            if last_tag is None:
+                commit_count = len(list(tag.commit.iter_items(repo, tag.commit)))
             else:
-                sinceStr = formatDate(getTaggedDate(lastTag))
-                commitCount = len(
-                    list(tag.commit.iter_items(repo, tag.commit, after=sinceStr))
+                since_str = format_date(get_tagged_date(last_tag))
+                commit_count = len(
+                    list(tag.commit.iter_items(repo, tag.commit, after=since_str))
                 )
 
-            tagInfo.append(
+            tag_info.append(
                 dict(
                     path=tag.path,
-                    rawDate=getTaggedDate(tag),
-                    date=formatDate(getTaggedDate(tag)),
-                    commitCount=commitCount,
+                    rawDate=get_tagged_date(tag),
+                    date=format_date(get_tagged_date(tag)),
+                    commit_count=commit_count,
                 )
             )
 
-            lastTag = tag
+            last_tag = tag
 
     # output tag batches
     res = []
-    for idx, batchStartDate in enumerate(batchDates):
-        batchEndDate = batchStartDate + delta
+    for idx, batch_start_date in enumerate(batch_dates):
+        batch_end_date = batch_start_date + delta
 
-        batchTags = [
+        batch_tags = [
             tag
-            for tag in tagInfo
-            if tag["rawDate"] >= batchStartDate and tag["rawDate"] < batchEndDate
+            for tag in tag_info
+            if tag["rawDate"] >= batch_start_date and tag["rawDate"] < batch_end_date
         ]
 
-        x = outputTags(idx, batchTags, daysActive[idx], config, logger)
+        x = outputTags(idx, batch_tags, days_active[idx], config, logger)
         res.append(x)
     return res
 
 
 def outputTags(
     idx: int,
-    tagInfo: List[dict],
-    daysActive: int,
+    tag_info: List[dict],
+    days_active: int,
     config: Configuration,
     logger: Logger,
 ):
 
     # calculate FN
     try:
-        fn = len(tagInfo) / daysActive * 100
+        fn = len(tag_info) / days_active * 100
     except ZeroDivisionError:
         fn: float = 0
-        logger.warning(f"Number of days active is 0 for tag at date {tagInfo}.")
+        logger.warning(f"Number of days active is 0 for tag at date {tag_info}.")
 
     # output non-tabular results
     with open(
         os.path.join(config.resultsPath, f"results_{idx}.csv"), "a", newline=""
     ) as f:
         w = csv.writer(f, delimiter=",")
-        w.writerow(["Tag Count", len(tagInfo)])
+        w.writerow(["Tag Count", len(tag_info)])
 
     # output tag info
     logger.info("Outputting CSVs with tag information.")
@@ -101,20 +101,20 @@ def outputTags(
     ) as f:
         w = csv.writer(f, delimiter=",")
         w.writerow(["Path", "Date", "Commit Count"])
-        for tag in tagInfo:
-            w.writerow([tag["path"], tag["date"], tag["commitCount"]])
+        for tag in tag_info:
+            w.writerow([tag["path"], tag["date"], tag["commit_count"]])
 
     outputStatistics(
         idx,
-        [tag["commitCount"] for tag in tagInfo],
+        [tag["commit_count"] for tag in tag_info],
         "TagCommitCount",
         config.resultsPath,
         logger,
     )
-    return [tag["commitCount"] for tag in tagInfo]
+    return [tag["commit_count"] for tag in tag_info]
 
 
-def getTaggedDate(tag):
+def get_tagged_date(tag):
     date = None
 
     if tag.tag is None:
@@ -132,5 +132,5 @@ def getTaggedDate(tag):
     return date
 
 
-def formatDate(value):
+def format_date(value):
     return value.strftime("%Y-%m-%d")
