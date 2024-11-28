@@ -43,14 +43,14 @@ def community_smells_detector(config) -> dict:  # Specify the return type
         # Setup sentiment analysis
         senti = sentistrength.PySentiStr()
         senti.setSentiStrengthPath(
-            os.path.join(config.sentiStrengthPath, "SentiStrength.jar")
+            os.path.join(config.senti_strength_path, "SentiStrength.jar")
         )
         senti.setSentiStrengthLanguageFolderPath(
-            os.path.join(config.sentiStrengthPath, "SentiStrength_Data")
+            os.path.join(config.senti_strength_path, "SentiStrength_Data")
         )
 
         # Prepare batch delta
-        delta = relativedelta(months=+config.batchMonths)
+        delta = relativedelta(months=+config.batch_months)
 
         # Handle aliases
         commits = list(replace_aliases(repo.iter_commits(), config))

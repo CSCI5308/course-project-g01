@@ -12,7 +12,7 @@ from MLbackend.src.configuration import Configuration
 
 def getToxicityPercentage(config: Configuration, comments: List, logger: Logger):
 
-    if config.googleKey is None:
+    if config.google_key is None:
         return 0
     # comment out to pause toxicity analysis
     # return 0
@@ -40,7 +40,7 @@ def getToxicityPercentage(config: Configuration, comments: List, logger: Logger)
         url = (
             "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze"
             + "?key="
-            + config.googleKey
+            + config.google_key
         )
         data_dict = {
             "comment": {"text": comment},

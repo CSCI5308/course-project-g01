@@ -47,13 +47,13 @@ def community_smells_detector(
     try:
         # Parse args
         config: Configuration = Configuration(
-            repositoryUrl=repo_url,
-            batchMonths=batch_months,
-            outputPath=output_path,
-            sentiStrengthPath=senti_strength_path,
-            maxDistance=0,
+            repository_url=repo_url,
+            batch_months=batch_months,
+            output_path=output_path,
+            senti_strength_path=senti_strength_path,
+            max_distance=0,
             pat=pat,
-            googleKey=google_api_key,
+            google_key=google_api_key,
             start_date=start_date,
         )
 
@@ -80,14 +80,14 @@ def community_smells_detector(
         # Setup sentiment analysis
         senti = sentistrength.PySentiStr()
         senti.setSentiStrengthPath(
-            os.path.join(config.sentiStrengthPath, "SentiStrength.jar")
+            os.path.join(config.senti_strength_path, "SentiStrength.jar")
         )
         senti.setSentiStrengthLanguageFolderPath(
-            os.path.join(config.sentiStrengthPath, "SentiStrength_Data")
+            os.path.join(config.senti_strength_path, "SentiStrength_Data")
         )
 
         # Prepare batch delta
-        delta = relativedelta(months=+config.batchMonths)
+        delta = relativedelta(months=+config.batch_months)
 
         # Handle aliases
         commits = list(replace_aliases(repo.iter_commits(), config, logger))

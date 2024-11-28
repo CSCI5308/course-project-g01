@@ -96,7 +96,7 @@ def extract_aliases(config: Configuration, repo: git.Repo, alias_path: str) -> N
                     quick_matched = True
                     continue
 
-                if are_similar(authorA, key, config.maxDistance):
+                if are_similar(authorA, key, config.max_distance):
                     alias = used_as_values[key]
                     aliases[alias].append(authorA)
                     used_as_values[authorA] = alias
@@ -112,7 +112,7 @@ def extract_aliases(config: Configuration, repo: git.Repo, alias_path: str) -> N
                     quick_matched = True
                     continue
 
-                if are_similar(authorA, key, config.maxDistance):
+                if are_similar(authorA, key, config.max_distance):
                     aliases[key].append(authorA)
                     used_as_values[authorA] = key
                     quick_matched = True
@@ -126,7 +126,7 @@ def extract_aliases(config: Configuration, repo: git.Repo, alias_path: str) -> N
                 if authorA == authorB:
                     continue
 
-                if are_similar(authorA, authorB, config.maxDistance):
+                if are_similar(authorA, authorB, config.max_distance):
                     aliased_author = aliases.setdefault(authorA, [])
                     aliased_author.append(authorB)
                     used_as_values[authorB] = authorA
