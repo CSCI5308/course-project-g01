@@ -13,14 +13,14 @@ warnings.filterwarnings("ignore")
 
 
 def smell_detection(
-    config: Configuration, batchIdx: int, logger: Logger, result: Result
+    config: Configuration, batch_idx: int, logger: Logger, result: Result
 ):
 
     # prepare results holder for easy mapping
     results = {}
 
     # open finalized results for reading
-    project_csv_path = os.path.join(config.resultsPath, f"results_{batchIdx}.csv")
+    project_csv_path = os.path.join(config.resultsPath, f"results_{batch_idx}.csv")
     with open(project_csv_path, newline="") as csvfile:
         rows = csv.reader(csvfile, delimiter=",")
 
@@ -47,7 +47,7 @@ def smell_detection(
     detectedSmells = [smell for smell in smells if rawSmells[smell][0] == 1]
     for smell in smells:
         if rawSmells[smell][0] == 1:
-            result.addSmell(batch_idx=batchIdx, smell=smell)
+            result.addSmell(batch_idx=batch_idx, smell=smell)
 
         # Prepare additional values
     additional_metrics = {
