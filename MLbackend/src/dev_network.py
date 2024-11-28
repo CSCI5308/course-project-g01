@@ -25,7 +25,7 @@ from MLbackend.src.graphql_analysis.release_analysis import release_analysis
 from MLbackend.src.pdf_generation import generate_pdf
 from MLbackend.src.politeness_analysis import politeness_analysis
 from MLbackend.src.repo_loader import get_repo
-from MLbackend.src.smell_detection import smellDetection
+from MLbackend.src.smell_detection import smell_detection
 from MLbackend.src.tag_analysis import tag_analysis
 from MLbackend.src.utils.result import Result
 
@@ -199,7 +199,7 @@ def community_smells_detector(
             )
             dev_res.append(meta_res)
 
-            smell_results = smellDetection(config, batch_idx, logger, result)
+            smell_results = smell_detection(config, batch_idx, logger, result)
             pdf_results["IssuesAndPRsCentrality Analysis"] = [meta_cent[0],metrics_cent[0]]
             pdf_results["Dev Analysis"] =  dev_res
             result.set_pdf_file_path(
