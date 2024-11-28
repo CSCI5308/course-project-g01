@@ -7,7 +7,7 @@ from typing import Optional
 
 import git
 
-from MLbackend.src.perspective_analysis import getToxicityPercentage
+from MLbackend.src.perspective_analysis import get_toxicity_percentage
 
 
 def author_id_extractor(author: git.Actor):
@@ -153,7 +153,7 @@ def get_comment_stats(all_comments, senti, config, logger, batch):
             1 for _ in filter(lambda value: value <= -1, comment_sentiments)
         )
 
-    toxicity_percentage = getToxicityPercentage(config, all_comments, logger)
+    toxicity_percentage = get_toxicity_percentage(config, all_comments, logger)
     return durations, comment_sentiments, comment_sentiments_positive, comment_sentiments_negative, toxicity_percentage
 
 def create_analysis_batches(batches_pre, created_at: datetime, delta, entity, current_time: datetime):
