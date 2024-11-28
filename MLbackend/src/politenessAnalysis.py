@@ -1,7 +1,7 @@
 import csv
 import os
 from logging import Logger
-from typing import Tuple
+from typing import Any, List, Tuple
 
 import convokit
 
@@ -16,7 +16,7 @@ def politeness_analysis(
     issue_comment_batches: list,
     logger: Logger,
     result: Result,
-) -> None:
+) -> List[List[Any]]:
 
     accl = calculateACCL(config, pr_comment_batches, issue_comment_batches, logger)
     rpc_pr = calculateRPC(config, "PR", pr_comment_batches, logger)
