@@ -1,18 +1,15 @@
 import unittest
 from unittest.mock import MagicMock, patch, mock_open
-from typing import List
-import git
-import yaml
-import os
 from MLbackend.src.alias_worker import replace_aliases
 
 
 class MockConfiguration:
-    def __init__(self, repositoryPath):
-        self.repositoryPath = repositoryPath
+    def __init__(self, repository_path):
+        self.repository_path = repository_path
 
 class MockLogger:
-    def info(self, msg):
+    @staticmethod
+    def info(msg):
         print(msg)
 
 class MockCommit:
@@ -25,7 +22,7 @@ class TestReplaceAliases(unittest.TestCase):
 
     def setUp(self):
         self.mock_logger = MockLogger()
-        self.mock_config = MockConfiguration(repositoryPath="/test/repo")
+        self.mock_config = MockConfiguration(repository_path="/test/repo")
 
     @patch("builtins.open", new_callable=mock_open, read_data="alias1:\n  - email1@example.com\n  - email2@example.com\n")
     @patch("os.path.exists", return_value=True)

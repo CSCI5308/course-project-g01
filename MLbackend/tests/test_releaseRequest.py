@@ -30,9 +30,9 @@ class TestReleaseRequest(unittest.TestCase):
         cls.mock_logger = MagicMock()
         cls.mock_logger.return_value = cls.mock_logger
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
-    def test_noReleaseAvailable(self, mock_runGraphqlRequest) -> None:
-        mock_runGraphqlRequest.return_value = {"repository": None}
+    @patch("MLbackend.src.graphql_analysis.graphql_analysis_helper.run_graphql_request")
+    def test_noReleaseAvailable(self, mock_run_graphql_request) -> None:
+        mock_run_graphql_request.return_value = {"repository": None}
         result = release_request(
             config=self.mock_config_instance,
             delta=self.delta,
@@ -41,27 +41,27 @@ class TestReleaseRequest(unittest.TestCase):
         )
 
         self.assertEqual(result, [])
-        mock_runGraphqlRequest.assert_called_once()
+        mock_run_graphql_request.assert_called_once()
         self.mock_logger.error.assert_called_once_with(
             "There are no releases for this repository"
         )
 
         return None
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
-    def test_releaseAvailableNumberOfBatches(self, mock_runGraphqlRequest) -> None:
-        mock_runGraphqlRequest.return_value = {
+    @patch("MLbackend.src.graphql_analysis.graphql_analysis_helper.run_graphql_request")
+    def test_releaseAvailableNumberOfBatches(self, mock_run_graphql_request) -> None:
+        mock_run_graphql_request.return_value = {
             "repository": {
                 "releases": {
                     "totalCount": 1,
                     "nodes": [
                         {
                             "author": {"login": "sampleAuthor"},
-                            "created_at": "2024-01-15T12:00:00Z",
+                            "createdAt": "2024-01-15T12:00:00Z",
                             "name": "v1.0.0",
                         }
                     ],
-                    "page_info": {
+                    "pageInfo": {
                         "endCursor": "Y3Vyc29yOnYyOpHOBYEJRz==",
                         "hasNextPage": False,
                     },
@@ -77,25 +77,25 @@ class TestReleaseRequest(unittest.TestCase):
         )
         self.assertEqual(len(result), 1)
 
-        mock_runGraphqlRequest.assert_called_once()
+        mock_run_graphql_request.assert_called_once()
         self.mock_logger.assert_not_called()
 
         return None
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
-    def test_releaseAvailableNumberOfItemInBatch(self, mock_runGraphqlRequest) -> None:
-        mock_runGraphqlRequest.return_value = {
+    @patch("MLbackend.src.graphql_analysis.graphql_analysis_helper.run_graphql_request")
+    def test_releaseAvailableNumberOfItemInBatch(self, mock_run_graphql_request) -> None:
+        mock_run_graphql_request.return_value = {
             "repository": {
                 "releases": {
                     "totalCount": 1,
                     "nodes": [
                         {
                             "author": {"login": "sampleAuthor"},
-                            "created_at": "2024-01-15T12:00:00Z",
+                            "createdAt": "2024-01-15T12:00:00Z",
                             "name": "v1.0.0",
                         }
                     ],
-                    "page_info": {
+                    "pageInfo": {
                         "endCursor": "Y3Vyc29yOnYyOpHOBYEJRz==",
                         "hasNextPage": False,
                     },
@@ -111,7 +111,7 @@ class TestReleaseRequest(unittest.TestCase):
         )
         self.assertEqual(len(result[0]["releases"]), 1)
 
-        mock_runGraphqlRequest.assert_called_once()
+        mock_run_graphql_request.assert_called_once()
         self.mock_logger.assert_not_called()
 
         return None

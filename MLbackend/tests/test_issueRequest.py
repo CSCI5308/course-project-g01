@@ -17,9 +17,9 @@ class TestIssueRequest(unittest.TestCase):
         cls.mock_logger = MagicMock()
         cls.mock_logger.return_value = cls.mock_logger
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
-    def test_noIssuesAvailable(self, mock_runGraphqlRequest) -> None:
-        mock_runGraphqlRequest.return_value = {"repository": None}
+    @patch("MLbackend.src.graphql_analysis.graphql_analysis_helper.run_graphql_request")
+    def test_noIssuesAvailable(self, mock_run_graphql_request) -> None:
+        mock_run_graphql_request.return_value = {"repository": None}
         batch_dates: List[datetime] = [datetime.now(timezone.utc)]
         result = issue_request(
             pat="test_pat",
@@ -31,28 +31,28 @@ class TestIssueRequest(unittest.TestCase):
         )
 
         self.assertEqual(result, [[]])
-        mock_runGraphqlRequest.assert_called_once()
+        mock_run_graphql_request.assert_called_once()
         self.mock_logger.error.assert_called_once_with(
             "There are no Issues for this repository"
         )
 
         return None
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
-    def test_issuesAvailableNumberOfBatches(self, mock_runGraphqlRequest) -> None:
+    @patch("MLbackend.src.graphql_analysis.graphql_analysis_helper.run_graphql_request")
+    def test_issuesAvailableNumberOfBatches(self, mock_run_graphql_request) -> None:
         # Generate the created_at date as today's date minus some days
         created_at_date = datetime.now() + timedelta(days=10)
         closed_at_date = datetime.now() + timedelta(days=15)
         created_at_iso = created_at_date.isoformat() + "Z"
         closed_at_iso = closed_at_date.isoformat() + "Z"
-        mock_runGraphqlRequest.return_value = {
+        mock_run_graphql_request.return_value = {
             "repository": {
                 "issues": {
-                    "page_info": {"hasNextPage": False, "endCursor": None},
+                    "pageInfo": {"hasNextPage": False, "endCursor": None},
                     "nodes": [
                         {
                             "number": 1,
-                            "created_at": created_at_iso,
+                            "createdAt": created_at_iso,
                             "closedAt": closed_at_iso,
                             "participants": {
                                 "nodes": [{"login": "user1"}, {"login": "user2"}]
@@ -81,26 +81,26 @@ class TestIssueRequest(unittest.TestCase):
 
         self.assertEqual(len(result), 1)
 
-        mock_runGraphqlRequest.assert_called_once()
+        mock_run_graphql_request.assert_called_once()
         self.mock_logger.assert_not_called()
 
         return None
 
-    @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
-    def test_issuesAvailableTwoOfBatches(self, mock_runGraphqlRequest) -> None:
+    @patch("MLbackend.src.graphql_analysis.graphql_analysis_helper.run_graphql_request")
+    def test_issuesAvailableTwoOfBatches(self, mock_run_graphql_request) -> None:
         created_at_date = datetime.now() - relativedelta(months=1, days=10)
         closed_at_date = datetime.now() - relativedelta(months=1, days=15)
-        mock_runGraphqlRequest.return_value = {
+        mock_run_graphql_request.return_value = {
             "repository": {
                 "issues": {
-                    "page_info": {
+                    "pageInfo": {
                         "endCursor": "Y3Vyc29yOnYyOpHOBYEJRz==",
                         "hasNextPage": False,
                     },
                     "nodes": [
                         {
                             "number": 57,
-                            "created_at": (
+                            "createdAt": (
                                 created_at_date + relativedelta(months=1, days=10)
                             ).isoformat()
                             + "Z",
@@ -116,7 +116,7 @@ class TestIssueRequest(unittest.TestCase):
                         },
                         {
                             "number": 1,
-                            "created_at": (
+                            "createdAt": (
                                 created_at_date + relativedelta(days=10)
                             ).isoformat()
                             + "Z",
@@ -150,7 +150,7 @@ class TestIssueRequest(unittest.TestCase):
 
         self.assertEqual(len(result), 2)
 
-        mock_runGraphqlRequest.assert_called_once()
+        mock_run_graphql_request.assert_called_once()
         self.mock_logger.assert_not_called()
 
         return None
