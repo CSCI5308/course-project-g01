@@ -18,9 +18,9 @@ def politeness_analysis(
     result: Result,
 ) -> List[List[Any]]:
 
-    accl = calculateACCL(config, pr_comment_batches, issue_comment_batches, logger)
-    rpc_pr = calculateRPC(config, "PR", pr_comment_batches, logger)
-    rpc_issues = calculateRPC(config, "Issue", pr_comment_batches, logger)
+    accl = calculate_accl(config, pr_comment_batches, issue_comment_batches, logger)
+    rpc_pr = calculate_rpc(config, "PR", pr_comment_batches, logger)
+    rpc_issues = calculate_rpc(config, "Issue", pr_comment_batches, logger)
     results = [
         ["Metrics", "Value"],
         ["ACCL", accl],
@@ -30,7 +30,7 @@ def politeness_analysis(
     return results
 
 
-def calculateACCL(
+def calculate_accl(
     config, pr_comment_batches, issue_comment_batches, logger
 ) -> Tuple[str, float]:
     logger.info(
@@ -43,12 +43,12 @@ def calculateACCL(
         pr_comment_lengths = list([len(c) for c in batch])
         issue_comment_batch = list([len(c) for c in issue_comment_batches[batch_idx]])
 
-        prCommentLengthsMean = stats.calculate_stats(pr_comment_lengths, logger)["mean"]
-        issueCommentLengthsMean = stats.calculate_stats(issue_comment_batch, logger)[
+        pr_comment_lengths_mean = stats.calculate_stats(pr_comment_lengths, logger)["mean"]
+        issue_comment_lengths_mean = stats.calculate_stats(issue_comment_batch, logger)[
             "mean"
         ]
 
-        accl = prCommentLengthsMean + issueCommentLengthsMean / 2
+        accl = pr_comment_lengths_mean + issue_comment_lengths_mean / 2
         accls.append(accl)
 
         # output results
@@ -62,15 +62,15 @@ def calculateACCL(
     return accls[0]
 
 
-def calculateRPC(
-    config, output_prefix, commentBatches, logger: Logger
+def calculate_rpc(
+    config, output_prefix, comment_batches, logger: Logger
 ) -> Tuple[str, float]:
     logger.info(f"Calculating Relative positive count for {output_prefix}s.")
     rpcs = []
-    for batch_idx, batch in enumerate(commentBatches):
+    for batch_idx, batch in enumerate(comment_batches):
 
         # analyze batch
-        positive_marker_count = getResults(batch) if len(batch) > 0 else 0.0
+        positive_marker_count = get_results(batch) if len(batch) > 0 else 0.0
         rpcs.append((output_prefix, positive_marker_count))
 
         # output results
@@ -84,7 +84,7 @@ def calculateRPC(
     return rpcs[0]
 
 
-def getResults(comments: list) -> float:
+def get_results(comments: list) -> float:
 
     # define default speaker
     speaker = convokit.Speaker(id="default")

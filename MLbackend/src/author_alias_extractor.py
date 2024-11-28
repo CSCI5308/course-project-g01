@@ -6,7 +6,7 @@ import git
 import requests
 import yaml
 from progress.bar import Bar
-from src.configuration import Configuration, parseAliasArgs
+from MLbackend.src.configuration import Configuration, parseDevNetworkArgs
 from MLbackend.src.repo_loader import getRepo
 from strsimpy.metric_lcs import MetricLCS
 from utils import author_id_extractor
@@ -15,20 +15,20 @@ from utils import author_id_extractor
 def main():
     try:
         # parse args
-        config = parseAliasArgs(sys.argv)
+        config = parseDevNetworkArgs(sys.argv)
 
         # get repository reference
         repo = getRepo(config)
 
         # build path
-        aliasPath = os.path.join(config.repositoryPath, "aliases.yml")
+        alias_path = os.path.join(config.repositoryPath, "aliases.yml")
 
         # delete existing alias file if present
-        if os.path.exists(aliasPath):
-            os.remove(aliasPath)
+        if os.path.exists(alias_path):
+            os.remove(alias_path)
 
         # extract aliases
-        extractAliases(config, repo, aliasPath)
+        extract_aliases(config, repo, alias_path)
 
     finally:
         # close repo to avoid resource leaks
@@ -36,7 +36,7 @@ def main():
             del repo
 
 
-def extractAliases(config: Configuration, repo: git.Repo, aliasPath: str):
+def extract_aliases(config: Configuration, repo: git.Repo, alias_path: str) -> None:
     commits = list(repo.iter_commits())
 
     # get all distinct author emails
@@ -45,7 +45,7 @@ def extractAliases(config: Configuration, repo: git.Repo, aliasPath: str):
     )
 
     # get a commit per email
-    shasByEmail = {}
+    shas_by_email = {}
     for email in Bar("Processing").iter(emails):
 
         commit = next(
@@ -54,14 +54,14 @@ def extractAliases(config: Configuration, repo: git.Repo, aliasPath: str):
             if author_id_extractor(commit.author) == email
         )
 
-        shasByEmail[email] = commit.hexsha
+        shas_by_email[email] = commit.hexsha
 
     # query github for author logins by their commits
-    loginsByEmail = dict()
-    emailsWithoutLogins = []
+    logins_by_email = dict()
+    emails_without_logins = []
 
-    for email in Bar("Processing").iter(shasByEmail):
-        sha = shasByEmail[email]
+    for email in Bar("Processing").iter(shas_by_email):
+        sha = shas_by_email[email]
         url = "https://api.github.com/repos/{}/{}/commits/{}".format(
             config.repositoryOwner, config.repositoryName, sha
         )
@@ -72,89 +72,89 @@ def extractAliases(config: Configuration, repo: git.Repo, aliasPath: str):
             continue
 
         if not commit["author"] is None and not commit["author"]["login"] is None:
-            loginsByEmail[email] = commit["author"]["login"]
+            logins_by_email[email] = commit["author"]["login"]
         else:
-            emailsWithoutLogins.append(email)
+            emails_without_logins.append(email)
 
     # build initial alias collection from logins
     aliases = {}
-    usedAsValues = {}
+    used_as_values = {}
 
-    for email in loginsByEmail:
-        login = loginsByEmail[email]
-        aliasEmails = aliases.setdefault(login, [])
-        aliasEmails.append(email)
-        usedAsValues[email] = login
+    for email in logins_by_email:
+        login = logins_by_email[email]
+        alias_emails = aliases.setdefault(login, [])
+        alias_emails.append(email)
+        used_as_values[email] = login
 
-    if len(emailsWithoutLogins) > 0:
-        for authorA in Bar("Processing").iter(emailsWithoutLogins):
-            quickMatched = False
+    if len(emails_without_logins) > 0:
+        for authorA in Bar("Processing").iter(emails_without_logins):
+            quick_matched = False
 
             # go through used values
-            for key in usedAsValues:
+            for key in used_as_values:
                 if authorA == key:
-                    quickMatched = True
+                    quick_matched = True
                     continue
 
-                if areSimilar(authorA, key, config.maxDistance):
-                    alias = usedAsValues[key]
+                if are_similar(authorA, key, config.maxDistance):
+                    alias = used_as_values[key]
                     aliases[alias].append(authorA)
-                    usedAsValues[authorA] = alias
-                    quickMatched = True
+                    used_as_values[authorA] = alias
+                    quick_matched = True
                     break
 
-            if quickMatched:
+            if quick_matched:
                 continue
 
             # go through already extracted keys
             for key in aliases:
                 if authorA == key:
-                    quickMatched = True
+                    quick_matched = True
                     continue
 
-                if areSimilar(authorA, key, config.maxDistance):
+                if are_similar(authorA, key, config.maxDistance):
                     aliases[key].append(authorA)
-                    usedAsValues[authorA] = key
-                    quickMatched = True
+                    used_as_values[authorA] = key
+                    quick_matched = True
                     break
 
-            if quickMatched:
+            if quick_matched:
                 continue
 
             # go through all authors
-            for authorB in emailsWithoutLogins:
+            for authorB in emails_without_logins:
                 if authorA == authorB:
                     continue
 
-                if areSimilar(authorA, authorB, config.maxDistance):
-                    aliasedAuthor = aliases.setdefault(authorA, [])
-                    aliasedAuthor.append(authorB)
-                    usedAsValues[authorB] = authorA
+                if are_similar(authorA, authorB, config.maxDistance):
+                    aliased_author = aliases.setdefault(authorA, [])
+                    aliased_author.append(authorB)
+                    used_as_values[authorB] = authorA
                     break
 
-    if not os.path.exists(os.path.dirname(aliasPath)):
-        os.makedirs(os.path.dirname(aliasPath))
+    if not os.path.exists(os.path.dirname(alias_path)):
+        os.makedirs(os.path.dirname(alias_path))
 
-    with open(aliasPath, "a", newline="") as f:
+    with open(alias_path, "a", newline="") as f:
         yaml.dump(aliases, f)
 
 
-def areSimilar(valueA: str, valueB: str, maxDistance: float):
+def are_similar(value_a: str, value_b: str, max_distance: float) -> None:
     lcs = MetricLCS()
     expr = r"(.+)@"
 
-    localPartAMatches = re.findall(expr, valueA)
-    localPartBMatches = re.findall(expr, valueB)
+    local_part_a_matches = re.findall(expr, value_a)
+    local_part_b_matches = re.findall(expr, value_b)
 
-    if len(localPartAMatches) == 0:
-        localPartAMatches = [valueA]
+    if len(local_part_a_matches) == 0:
+        local_part_a_matches = [value_a]
 
-    if len(localPartBMatches) == 0:
-        localPartBMatches = [valueB]
+    if len(local_part_b_matches) == 0:
+        local_part_b_matches = [value_b]
 
-    distance = lcs.distance(localPartAMatches[0], localPartBMatches[0])
+    distance = lcs.distance(local_part_a_matches[0], local_part_b_matches[0])
 
-    return distance <= maxDistance
+    return distance <= max_distance
 
 
 main()
