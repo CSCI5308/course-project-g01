@@ -8,6 +8,8 @@ class Result:
 
     def __init__(self, logger: Logger) -> None:
 
+        self.smell_results = None
+        self.pdf_file_path = None
         self._batch_dates: List[datetime] = []
         self._commit_count: List[int] = []
         self._core_devs: List[str] = []
@@ -23,12 +25,10 @@ class Result:
         self.logger: Logger = logger
         self.pdf_file_path: Path
 
-        return None
-
-    def setPDFFilePath(self, pdf_file_path: Path) -> None:
+    def set_pdf_file_path(self, pdf_file_path: Path) -> None:
         self.pdf_file_path = pdf_file_path
 
-    def setSmellResults(self, smell_results) -> None:
+    def set_smell_results(self, smell_results) -> None:
         self.smell_results = smell_results
 
     @property
@@ -38,17 +38,17 @@ class Result:
     @commit_count.setter
     def commit_count(self, commit_counts: List[int]) -> None:
         raise AttributeError(
-            "Direct assignment to 'commit_count' is not allowed. Use method addCommitCount to modify this property based on the requirement."
+            "Direct assignment to 'commit_count' is not allowed. Use method add_commit_count to modify this property based on the requirement."
         )
 
     @property
-    def smells(self) -> List[int]:
+    def smells(self) -> list[list[str]]:
         return self._smells
 
     @smells.setter
     def smells(self, smells: List[List[str]]) -> None:
         raise AttributeError(
-            "Direct assignment to 'smells' is not allowed. Use method addSmell to modify this property based on the requirement."
+            "Direct assignment to 'smells' is not allowed. Use method add_smell to modify this property based on the requirement."
         )
 
     @property
@@ -58,7 +58,7 @@ class Result:
     @author_count.setter
     def author_count(self, author_counts: List[int]) -> None:
         raise AttributeError(
-            "Direct assignment to 'author_count' is not allowed. Use method addAuthorCount to modify this property based on the requirement."
+            "Direct assignment to 'author_count' is not allowed. Use method add_author_count to modify this property based on the requirement."
         )
 
     @property
@@ -68,7 +68,7 @@ class Result:
     @sponsored_author_count.setter
     def sponsored_author_count(self, sponsored_author_counts: List[int]) -> None:
         raise AttributeError(
-            "Direct assignment to 'sponsored_author_count' is not allowed. Use method addSponsoredAuthorCount to modify this property based on the requirement."
+            "Direct assignment to 'sponsored_author_count' is not allowed. Use method add_sponsored_author_count to modify this property based on the requirement."
         )
 
     @property
@@ -80,7 +80,7 @@ class Result:
         self, percentage_sponsored_authors: List[int]
     ) -> None:
         raise AttributeError(
-            "Direct assignment to 'percentage_sponsored_author' is not allowed. Use method addPercentageSponsoredAuthor to modify this property based on the requirement."
+            "Direct assignment to 'percentage_sponsored_author' is not allowed. Use method add_percentage_sponsored_author to modify this property based on the requirement."
         )
 
     @property
@@ -90,17 +90,17 @@ class Result:
     @timezone_counts.setter
     def timezone_counts(self, timezone_counts: List[int]) -> None:
         raise AttributeError(
-            "Direct assignment to 'timezone_count' is not allowed. Use method addTimeZoneCount to modify this property based on the requirement."
+            "Direct assignment to 'timezone_count' is not allowed. Use method add_time_zone_count to modify this property based on the requirement."
         )
 
     @property
-    def metric_datas(self) -> List[int]:
+    def metric_datas(self) -> list[tuple[str, int, float, float]]:
         return self._metric_datas
 
     @metric_datas.setter
     def metric_datas(self, metric_datas: List[int]) -> None:
         raise AttributeError(
-            "Direct assignment to 'metric_data' is not allowed. Use method addMetricData to modify this property based on the requirement."
+            "Direct assignment to 'metric_data' is not allowed. Use method add_metric_data to modify this property based on the requirement."
         )
 
     @property
@@ -110,7 +110,7 @@ class Result:
     @first_commit_dates.setter
     def first_commit_dates(self, first_commit_dates: List[str]) -> None:
         raise AttributeError(
-            "Direct assignment to 'first_commit_dates' is not allowed. Use method addFirstCommitDate to modify this property based on the requirement."
+            "Direct assignment to 'first_commit_dates' is not allowed. Use method add_first_commit_date to modify this property based on the requirement."
         )
 
     @property
@@ -120,7 +120,7 @@ class Result:
     @last_commit_dates.setter
     def last_commit_dates(self, last_commit_dates: List[str]) -> None:
         raise AttributeError(
-            "Direct assignment to 'last_commit_dates' is not allowed. Use method addLastCommitDate to modify this property based on the requirement."
+            "Direct assignment to 'last_commit_dates' is not allowed. Use method add_last_commit_date to modify this property based on the requirement."
         )
 
     @property
@@ -130,7 +130,7 @@ class Result:
     @days_active.setter
     def days_active(self, days_active_count: List[int]) -> None:
         raise AttributeError(
-            "Direct assignment to 'days_active' is not allowed. Use method addDaysActive to modify this property based on the requirement."
+            "Direct assignment to 'days_active' is not allowed. Use method add_days_active to modify this property based on the requirement."
         )
 
     @property
@@ -144,16 +144,16 @@ class Result:
         )
 
     @property
-    def core_devs(self) -> List[datetime]:
+    def core_devs(self) -> list[str]:
         return self._core_devs
 
     @core_devs.setter
     def core_devs(self, core_devs: List[int]) -> None:
         raise AttributeError(
-            "Direct assignment to 'core_devs' is not allowed. Use method addCoreDev to modify this property based on the requirement."
+            "Direct assignment to 'core_devs' is not allowed. Use method add_core_dev to modify this property based on the requirement."
         )
 
-    def addCommitCount(self, batch_idx: int, commit_count: int) -> None:
+    def add_commit_count(self, batch_idx: int, commit_count: int) -> None:
         if batch_idx >= len(self._batch_dates):
             self.logger.error(
                 f"Mismatch between batch size of {len(self._batch_dates)} and commit counts of {batch_idx + 1}"
@@ -169,7 +169,7 @@ class Result:
         self._commit_count.insert(batch_idx, commit_count)
         return None
 
-    def addBatchDates(self, batch_dates: List[datetime]) -> None:
+    def add_batch_dates(self, batch_dates: List[datetime]) -> None:
         for batch_date in batch_dates:
             self._batch_dates.append(batch_date)
         self.logger.info("All values of Result are being reset")
@@ -189,7 +189,7 @@ class Result:
 
         return None
 
-    def addCoreDev(self, core_dev: str) -> None:
+    def add_core_dev(self, core_dev: str) -> None:
         if not isinstance(core_dev, str):
             self.logger.error("Incorrect value type for core devs")
             raise ValueError(
@@ -199,7 +199,7 @@ class Result:
         self._core_devs.append(core_dev)
         return None
 
-    def addDaysActive(self, batch_idx: int, days_active: List[int]) -> None:
+    def add_days_active(self, batch_idx: int, days_active: List[int]) -> None:
         if batch_idx >= len(self._batch_dates):
             self.logger.error(
                 f"Mismatch between batch size of {len(self._batch_dates)} and days active count of {batch_idx + 1}"
@@ -216,7 +216,7 @@ class Result:
         self._days_active.insert(batch_idx, days_active)
         return None
 
-    def addFirstCommitDate(self, batch_idx: int, first_commit_date: datetime) -> None:
+    def add_first_commit_date(self, batch_idx: int, first_commit_date: datetime) -> None:
         if batch_idx >= len(self._batch_dates):
             self.logger.error(
                 f"Mismatch between batch size of {len(self._batch_dates)} and first commit dates batch count of {batch_idx + 1}"
@@ -234,7 +234,7 @@ class Result:
         )
         return None
 
-    def addLastCommitDate(self, batch_idx: int, last_commit_date: datetime) -> None:
+    def add_last_commit_date(self, batch_idx: int, last_commit_date: datetime) -> None:
         if batch_idx >= len(self._batch_dates):
             self.logger.error(
                 f"Mismatch between batch size of {len(self._batch_dates)} and last commit dates batch count of {batch_idx + 1}"
@@ -252,7 +252,7 @@ class Result:
         )
         return None
 
-    def addAuthorCount(self, batch_idx: int, author_count: int) -> None:
+    def add_author_count(self, batch_idx: int, author_count: int) -> None:
         if batch_idx >= len(self._batch_dates):
             self.logger.error(
                 f"Mismatch between batch size of {len(self._batch_dates)} and author counts of {batch_idx + 1}"
@@ -268,7 +268,7 @@ class Result:
         self._author_counts.insert(batch_idx, author_count)
         return None
 
-    def addSponsoredAuthorCount(
+    def add_sponsored_author_count(
         self, batch_idx: int, sponsored_author_count: int
     ) -> None:
         if batch_idx >= len(self._batch_dates):
@@ -287,7 +287,7 @@ class Result:
         self._sponsored_author_counts.insert(batch_idx, sponsored_author_count)
         return None
 
-    def addPercentageSponsoredAuthor(
+    def add_percentage_sponsored_author(
         self, batch_idx: int, percentage_sponsored_author: float
     ) -> None:
         if batch_idx >= len(self._batch_dates):
@@ -308,7 +308,7 @@ class Result:
         )
         return None
 
-    def addTimeZoneCount(self, batch_idx: int, timezone_count: int) -> None:
+    def add_time_zone_count(self, batch_idx: int, timezone_count: int) -> None:
         if batch_idx >= len(self._batch_dates):
             self.logger.error(
                 f"Mismatch between batch size of {len(self._batch_dates)} and timezone_count of {batch_idx + 1}"
@@ -325,7 +325,7 @@ class Result:
         self._timezone_counts.insert(batch_idx, timezone_count)
         return None
 
-    def addMetricData(
+    def add_metric_data(
         self, batch_idx: int, metric: str, count: int, mean: float, std_dev: float
     ) -> None:
         if batch_idx >= len(self._batch_dates):
@@ -343,14 +343,14 @@ class Result:
         ):
             self.logger.error("Incorrect value type for metric data")
             raise ValueError(
-                f"Incorrect arguments passed for addMetricData function. The expected value type and passed value type are as follows\nArgument\tExpected\tReceived\nmetric\tstr\t{type(metric)}\ncount\tint\t{type(count)}\nmean\tfloat\t{type(mean)}\nstd_dev\tfloat\t{type(std_dev)}"
+                f"Incorrect arguments passed for add_metric_data function. The expected value type and passed value type are as follows\nArgument\tExpected\tReceived\nmetric\tstr\t{type(metric)}\ncount\tint\t{type(count)}\nmean\tfloat\t{type(mean)}\nstd_dev\tfloat\t{type(std_dev)}"
             )
         if batch_idx >= len(self._metric_datas):
             self._metric_datas.insert(batch_idx, [("Metric", "Count", "Mean", "Stdev")])
         self._metric_datas[batch_idx].append((metric, count, mean, std_dev))
         return None
 
-    def addSmell(self, batch_idx: int, smell: str) -> None:
+    def add_smell(self, batch_idx: int, smell: str) -> None:
         if batch_idx >= len(self._batch_dates):
             self.logger.error(
                 f"Mismatch between batch size of {len(self._batch_dates)} and smells of {batch_idx + 1}"
@@ -361,7 +361,7 @@ class Result:
         elif not isinstance(smell, str):
             self.logger.error("Incorrect value type for smell")
             raise ValueError(
-                f"Incorrect arguments passed for addSmell function. The expected value type is str but got {type(smell)}"
+                f"Incorrect arguments passed for add_smell function. The expected value type is str but got {type(smell)}"
             )
         elif smell not in [
             "OSE",
@@ -394,7 +394,7 @@ class Result:
             self._smells.insert(batch_idx, [])
         self._smells[batch_idx].append(smell)
 
-    def getMetaResults(self) -> List[List[List[Any]]] | List[List[Any]]:
+    def get_meta_results(self) -> List[List[List[Any]]] | List[List[Any]]:
         result: List[List[List[Any]]] = []
         for idx in range(len(self._batch_dates)):
             result.append(
@@ -418,12 +418,12 @@ class Result:
         else:
             return result
 
-    def getWebResult(self) -> Dict[str, Any]:
+    def get_web_result(self) -> Dict[str, Any]:
         if len(self._batch_dates) == 1:
             return dict(
                 batch_date=self._batch_dates[0].strftime("%Y-%m-%d"),
                 **self.smell_results,
                 core_devs=self._core_devs,
-                meta=self.getMetaResults(),
+                meta=self.get_meta_results(),
                 metrics=self._metric_datas[0],
             )

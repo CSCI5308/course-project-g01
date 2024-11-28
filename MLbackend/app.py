@@ -48,7 +48,7 @@ def detect_smells():
             )
         pdf_path = result.pdf_file_path
         send_email(email=email)
-        return render_template("results.html", data=result.getWebResult())
+        return render_template("results.html", data=result.get_web_result())
     except InvalidInputError as input_error:
         return jsonify({"status": "error", "message": str(input_error)}), 400
     except Exception as e:

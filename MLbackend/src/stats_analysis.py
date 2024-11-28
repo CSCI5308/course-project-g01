@@ -30,7 +30,7 @@ def output_statistics(
             output_value(w, metric, key, stats)
 
     if result:
-        result.addMetricData(
+        result.add_metric_data(
             batch_idx=idx,
             metric=metric,
             count=stats["count"],

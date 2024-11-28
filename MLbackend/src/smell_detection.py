@@ -45,7 +45,7 @@ def smellDetection(config: Configuration, batch_idx: int, logger: Logger, result
     detected_smells = [smell for smell in smells if rawSmells[smell][0] == 1]
     for smell in smells:
         if rawSmells[smell][0] == 1:
-            result.addSmell(batch_idx=batch_idx, smell=smell)
+            result.add_smell(batch_idx=batch_idx, smell=smell)
 
         # Prepare additional values
     additional_metrics = {
@@ -74,7 +74,7 @@ def smellDetection(config: Configuration, batch_idx: int, logger: Logger, result
     additional_metrics["detected_smells"] = detected_smells.copy()
     detected_smells.insert(0, results["LastCommitDate"])
     additional_metrics["smell_results"] = detected_smells
-    result.setSmellResults(additional_metrics)
+    result.set_smell_results(additional_metrics)
 
     return additional_metrics
 

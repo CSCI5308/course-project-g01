@@ -159,7 +159,7 @@ def prepare_graph(
     ]
     if result:
         for author in highCentralityAuthors:
-            result.addCoreDev(author)
+            result.add_core_dev(author)
 
     number_high_centrality_authors = len(highCentralityAuthors)
 

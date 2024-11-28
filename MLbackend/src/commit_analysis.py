@@ -48,7 +48,7 @@ def commit_analysis(
             batch_end_date = batch_start_date + delta
 
             batch_dates.append(batch_start_date)
-            result.addBatchDates([batch_start_date])
+            result.add_batch_dates([batch_start_date])
 
         # prepare next batch
         elif commit.committed_datetime > batch_end_date:
@@ -58,7 +58,7 @@ def commit_analysis(
             batch_end_date = batch_start_date + delta
 
             batch_dates.append(batch_start_date)
-            result.addBatchDates([batch_start_date])
+            result.add_batch_dates([batch_start_date])
 
         # populate current batch
         batch.append(commit)
@@ -168,8 +168,8 @@ def commit_batch_analysis(
         if not commit.author_tz_offset == 0 and time.hour >= 9 and time.hour <= 17:
             author_info["sponsored_commit_count"] += 1
 
-    result.addTimeZoneCount(batch_idx=idx, timezone_count=len([*timezone_info_dict]))
-    result.addCommitCount(batch_idx=idx, commit_count=real_commit_count)
+    result.add_time_zone_count(batch_idx=idx, timezone_count=len([*timezone_info_dict]))
+    result.add_commit_count(batch_idx=idx, commit_count=real_commit_count)
     logger.info("Analyzing commit message sentiment")
     sentiment_scores = []
     commit_message_sentiments_positive = []
@@ -213,11 +213,11 @@ def commit_batch_analysis(
     except ZeroDivisionError:
         percentage_sponsored_authors = 0
 
-    result.addAuthorCount(batch_idx=idx, author_count=len([*author_info_dict]))
-    result.addSponsoredAuthorCount(
+    result.add_author_count(batch_idx=idx, author_count=len([*author_info_dict]))
+    result.add_sponsored_author_count(
         batch_idx=idx, sponsored_author_count=sponsored_author_count
     )
-    result.addPercentageSponsoredAuthor(
+    result.add_percentage_sponsored_author(
         batch_idx=idx, percentage_sponsored_author=percentage_sponsored_authors
     )
 
@@ -231,9 +231,9 @@ def commit_batch_analysis(
     days_active = 0
     if last_commit_date is not None:
         days_active = (last_commit_date - first_commit_date).days
-    result.addFirstCommitDate(batch_idx=idx, first_commit_date=first_commit_date)
-    result.addLastCommitDate(batch_idx=idx, last_commit_date=last_commit_date)
-    result.addDaysActive(batch_idx=idx, days_active=days_active)
+    result.add_first_commit_date(batch_idx=idx, first_commit_date=first_commit_date)
+    result.add_last_commit_date(batch_idx=idx, last_commit_date=last_commit_date)
+    result.add_days_active(batch_idx=idx, days_active=days_active)
 
     logger.info("Outputting CSVs")
 
