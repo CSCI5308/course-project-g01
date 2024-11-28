@@ -3,6 +3,7 @@ import time
 from logging import Logger
 
 import requests
+from requests import HTTPError
 
 
 def build_next_page_query(cursor: str):
@@ -12,7 +13,7 @@ def build_next_page_query(cursor: str):
 
 
 def run_graphql_request(pat: str, query: str, logger: Logger):
-    headers = {"Authorization": "Bearer {0}".format(pat)}
+    headers = {"Authorization": f"Bearer {pat}"}
 
     sleep_time = random.randint(0, 8)
     time.sleep(sleep_time)
@@ -27,10 +28,11 @@ def run_graphql_request(pat: str, query: str, logger: Logger):
     logger.error(
         f"Query execution failed with code {request.status_code}: {request.text}."
     )
-    raise Exception(
-        "Query execution failed with code {0}: {1}".format(
-            request.status_code, request.text
-        )
+
+    # Raising a more specific HTTPError with detailed information
+    raise HTTPError(
+        f"Query execution failed with code {request.status_code}: {request.text}",
+        response=request
     )
 
 

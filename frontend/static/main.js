@@ -116,7 +116,7 @@ function validateEmail(email) {
 
 // Function to validate GitHub URL format
 function validateGitHubUrl(url) {
-    const re = /^https:\/\/github\.com\/[^\/]+\/[^\/]+$/; // Matches "https://github.com/username/repository"
+    const re = /^https:\/\/github\.com\/[^/]+\/[^/]+$/; // Matches "https://github.com/username/repository"
     return re.test(url);
 }
 

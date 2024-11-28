@@ -67,12 +67,12 @@ def processBatch(
         earliest_date = commit_date + relativedelta(months=-1)
         latest_date = commit_date + relativedelta(months=+1)
 
-        commitRelatedCommits = filter(
+        commit_related_commits = filter(
             lambda c: find_related_commits(author, earliest_date, latest_date, c), commits
         )
 
         commitRelatedAuthors = set(
-            list(map(lambda c: author_id_extractor(c.author), commitRelatedCommits))
+            list(map(lambda c: author_id_extractor(c.author), commit_related_commits))
         )
 
         # get current related authors collection and update it

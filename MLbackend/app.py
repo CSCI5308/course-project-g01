@@ -62,7 +62,7 @@ def generate_pdf():
     try:
         pdf_path1 = Path(pdf_path).resolve()
         return send_file(pdf_path1, as_attachment=True)
-    except Exception as e:
+    except Exception as _:
         return (
             jsonify(
                 {

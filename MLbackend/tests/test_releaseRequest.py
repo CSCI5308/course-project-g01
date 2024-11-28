@@ -31,8 +31,8 @@ class TestReleaseRequest(unittest.TestCase):
         cls.mock_logger.return_value = cls.mock_logger
 
     @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
-    def test_noReleaseAvailable(self, mock_runGraphqlRequest) -> None:
-        mock_runGraphqlRequest.return_value = {"repository": None}
+    def test_noReleaseAvailable(self, mock_run_graphql_request) -> None:
+        mock_run_graphql_request.return_value = {"repository": None}
         result = release_request(
             config=self.mock_config_instance,
             delta=self.delta,
@@ -41,7 +41,7 @@ class TestReleaseRequest(unittest.TestCase):
         )
 
         self.assertEqual(result, [])
-        mock_runGraphqlRequest.assert_called_once()
+        mock_run_graphql_request.assert_called_once()
         self.mock_logger.error.assert_called_once_with(
             "There are no releases for this repository"
         )
@@ -49,8 +49,8 @@ class TestReleaseRequest(unittest.TestCase):
         return None
 
     @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
-    def test_releaseAvailableNumberOfBatches(self, mock_runGraphqlRequest) -> None:
-        mock_runGraphqlRequest.return_value = {
+    def test_releaseAvailableNumberOfBatches(self, mock_run_graphql_request) -> None:
+        mock_run_graphql_request.return_value = {
             "repository": {
                 "releases": {
                     "totalCount": 1,
@@ -77,14 +77,14 @@ class TestReleaseRequest(unittest.TestCase):
         )
         self.assertEqual(len(result), 1)
 
-        mock_runGraphqlRequest.assert_called_once()
+        mock_run_graphql_request.assert_called_once()
         self.mock_logger.assert_not_called()
 
         return None
 
     @patch("MLbackend.src.graphqlAnalysis.graphqlAnalysisHelper.run_graphql_request")
-    def test_releaseAvailableNumberOfItemInBatch(self, mock_runGraphqlRequest) -> None:
-        mock_runGraphqlRequest.return_value = {
+    def test_releaseAvailableNumberOfItemInBatch(self, mock_run_graphql_request) -> None:
+        mock_run_graphql_request.return_value = {
             "repository": {
                 "releases": {
                     "totalCount": 1,
@@ -111,7 +111,7 @@ class TestReleaseRequest(unittest.TestCase):
         )
         self.assertEqual(len(result[0]["releases"]), 1)
 
-        mock_runGraphqlRequest.assert_called_once()
+        mock_run_graphql_request.assert_called_once()
         self.mock_logger.assert_not_called()
 
         return None
