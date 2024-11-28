@@ -6,11 +6,11 @@ from statistics import StatisticsError, mean, stdev
 from MLbackend.src.utils.result import Result
 
 
-def outputStatistics(
+def output_statistics(
     idx: int,
     data: list,
     metric: str,
-    outputDir: str,
+    output_dir: str,
     logger: Logger,
     result: Result = None,
 ):
@@ -20,17 +20,17 @@ def outputStatistics(
         return metric, 0, 0, 0
 
     # calculate and output
-    stats = calculateStats(data, logger)
+    stats = calculate_stats(data, logger)
 
     # output
-    with open(os.path.join(outputDir, f"results_{idx}.csv"), "a", newline="") as f:
+    with open(os.path.join(output_dir, f"results_{idx}.csv"), "a", newline="") as f:
         w = csv.writer(f, delimiter=",")
 
         for key in stats:
             output_value(w, metric, key, stats)
 
     if result:
-        result.addMetricData(
+        result.add_metric_data(
             batch_idx=idx,
             metric=metric,
             count=stats["count"],
@@ -45,7 +45,7 @@ def outputStatistics(
     )
 
 
-def calculateStats(data, logger: Logger):
+def calculate_stats(data, logger: Logger):
 
     try:
         stats = dict(
@@ -55,6 +55,7 @@ def calculateStats(data, logger: Logger):
         )
     except StatisticsError:
         logger.error(f"There was a statistical error. The data was {data}")
+        stats = dict()
 
     return stats
 

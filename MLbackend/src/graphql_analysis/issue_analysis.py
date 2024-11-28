@@ -105,7 +105,7 @@ def issue_analysis(
                 w.writerow([issue["number"], len(set(issue["participants"]))])
 
         # output statistics
-        issue_len = stats.outputStatistics(
+        issue_len = stats.output_statistics(
             batch_idx,
             comment_lengths,
             "IssueCommentsLength",
@@ -113,7 +113,7 @@ def issue_analysis(
             logger,
         )
 
-        issue_dur = stats.outputStatistics(
+        issue_dur = stats.output_statistics(
             batch_idx,
             durations,
             "IssueDuration",
@@ -121,7 +121,7 @@ def issue_analysis(
             logger,
         )
 
-        issue_com = stats.outputStatistics(
+        issue_com = stats.output_statistics(
             batch_idx,
             [len(issue["comments"]) for issue in batch],
             "IssueCommentsCount",
@@ -129,7 +129,7 @@ def issue_analysis(
             logger,
         )
 
-        sent = stats.outputStatistics(
+        sent = stats.output_statistics(
             batch_idx,
             comment_sentiments,
             "IssueCommentSentiments",
@@ -137,7 +137,7 @@ def issue_analysis(
             logger,
         )
 
-        part = stats.outputStatistics(
+        part = stats.output_statistics(
             batch_idx,
             [len(set(issue["participants"])) for issue in batch],
             "IssueParticipantCount",
@@ -145,7 +145,7 @@ def issue_analysis(
             logger,
         )
 
-        pos = stats.outputStatistics(
+        pos = stats.output_statistics(
             batch_idx,
             issue_positive_comments,
             "IssueCountPositiveComments",
@@ -153,7 +153,7 @@ def issue_analysis(
             logger,
         )
 
-        neg = stats.outputStatistics(
+        neg = stats.output_statistics(
             batch_idx,
             issue_negative_comments,
             "IssueCountNegativeComments",

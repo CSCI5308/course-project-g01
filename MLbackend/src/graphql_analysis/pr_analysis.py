@@ -106,7 +106,7 @@ def pr_analysis(
                 w.writerow([pr["number"], len(set(pr["participants"]))])
 
         # output statistics
-        len_com = stats.outputStatistics(
+        len_com = stats.output_statistics(
             batch_idx,
             comment_lengths,
             "PRCommentsLength",
@@ -114,7 +114,7 @@ def pr_analysis(
             logger,
         )
 
-        pr_dur = stats.outputStatistics(
+        pr_dur = stats.output_statistics(
             batch_idx,
             durations,
             "PRDuration",
@@ -122,7 +122,7 @@ def pr_analysis(
             logger,
         )
 
-        pr_com_c = stats.outputStatistics(
+        pr_com_c = stats.output_statistics(
             batch_idx,
             [len(pr["comments"]) for pr in batch],
             "PRCommentsCount",
@@ -130,7 +130,7 @@ def pr_analysis(
             logger,
         )
 
-        pr_com = stats.outputStatistics(
+        pr_com = stats.output_statistics(
             batch_idx,
             [pr["commit_count"] for pr in batch],
             "PRCommitsCount",
@@ -138,7 +138,7 @@ def pr_analysis(
             logger,
         )
 
-        pr_com_sent = stats.outputStatistics(
+        pr_com_sent = stats.output_statistics(
             batch_idx,
             comment_sentiments,
             "PRCommentSentiments",
@@ -146,7 +146,7 @@ def pr_analysis(
             logger,
         )
 
-        pr_part = stats.outputStatistics(
+        pr_part = stats.output_statistics(
             batch_idx,
             [len(set(pr["participants"])) for pr in batch],
             "PRParticipantsCount",
@@ -154,7 +154,7 @@ def pr_analysis(
             logger,
         )
 
-        pr_pos = stats.outputStatistics(
+        pr_pos = stats.output_statistics(
             batch_idx,
             pr_positive_comments,
             "PRCountPositiveComments",
@@ -162,7 +162,7 @@ def pr_analysis(
             logger,
         )
 
-        pr_neg = stats.outputStatistics(
+        pr_neg = stats.output_statistics(
             batch_idx,
             pr_negative_comments,
             "PRCountNegativeComments",

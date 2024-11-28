@@ -11,7 +11,7 @@ from git.objects import Commit
 from networkx.algorithms.community import greedy_modularity_communities
 
 from MLbackend.src.configuration import Configuration
-from MLbackend.src.stats_analysis import outputStatistics
+from MLbackend.src.stats_analysis import output_statistics
 from MLbackend.src.utils import author_id_extractor
 from MLbackend.src.utils.result import Result
 
@@ -159,7 +159,7 @@ def prepare_graph(
     ]
     if result:
         for author in high_centrality_authors:
-            result.addCoreDev(author)
+            result.add_core_dev(author)
 
     number_high_centrality_authors = len(high_centrality_authors)
 
@@ -269,7 +269,7 @@ def prepare_graph(
     )
 
     # output statistics
-    close = outputStatistics(
+    close = output_statistics(
         batch_idx,
         [value for key, value in closeness.items()],
         f"{output_prefix}_Closeness",
@@ -277,7 +277,7 @@ def prepare_graph(
         logger,
     )
 
-    between = outputStatistics(
+    between = output_statistics(
         batch_idx,
         [value for key, value in betweenness.items()],
         f"{output_prefix}_Betweenness",
@@ -285,7 +285,7 @@ def prepare_graph(
         logger,
     )
 
-    central = outputStatistics(
+    central = output_statistics(
         batch_idx,
         [value for key, value in centrality.items()],
         f"{output_prefix}_Centrality",
@@ -293,7 +293,7 @@ def prepare_graph(
         logger,
     )
 
-    author_c = outputStatistics(
+    author_c = output_statistics(
         batch_idx,
         [community[0] for community in modularity],
         f"{output_prefix}_CommunityAuthorCount",
@@ -301,7 +301,7 @@ def prepare_graph(
         logger,
     )
 
-    author_item = outputStatistics(
+    author_item = output_statistics(
         batch_idx,
         [community[1] for community in modularity],
         f"{output_prefix}_CommunityAuthorItemCount",

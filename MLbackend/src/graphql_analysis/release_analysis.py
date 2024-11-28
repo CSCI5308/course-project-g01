@@ -111,7 +111,7 @@ def release_analysis(
                     ]
                 )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batch_idx,
             [value["authorsCount"] for key, value in release_commits_count.items()],
             "ReleaseAuthorCount",
@@ -119,7 +119,7 @@ def release_analysis(
             logger,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batch_idx,
             [value["commitsCount"] for key, value in release_commits_count.items()],
             "ReleaseCommitCount",
