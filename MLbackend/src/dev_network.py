@@ -24,7 +24,7 @@ from MLbackend.src.graphql_analysis.pr_analysis import pr_analysis
 from MLbackend.src.graphql_analysis.release_analysis import release_analysis
 from MLbackend.src.pdf_generation import generate_pdf
 from MLbackend.src.politeness_analysis import politeness_analysis
-from MLbackend.src.repo_loader import getRepo
+from MLbackend.src.repo_loader import get_repo
 from MLbackend.src.smell_detection import smellDetection
 from MLbackend.src.tag_analysis import tag_analysis
 from MLbackend.src.utils.result import Result
@@ -75,7 +75,7 @@ def community_smells_detector(
         os.makedirs(config.metricsPath)
 
         # Get repository reference
-        repo = getRepo(config, logger)
+        repo = get_repo(config, logger)
 
         # Setup sentiment analysis
         senti = sentistrength.PySentiStr()
