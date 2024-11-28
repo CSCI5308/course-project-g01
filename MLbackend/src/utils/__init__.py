@@ -11,15 +11,15 @@ from MLbackend.src.perspective_analysis import get_toxicity_percentage
 
 
 def author_id_extractor(author: git.Actor):
-    id = ""
+    author_id = ""
 
     if author.email is None:
-        id = author.name
+        author_id = author.name
     else:
-        id = author.email
+        author_id = author.email
 
-    id = id.lower().strip()
-    return id
+    author_id = author_id.lower().strip()
+    return author_id
 
 
 def iter_len(obj: iter):
