@@ -8,9 +8,14 @@ from typing import List
 import requests
 
 from MLbackend.src.configuration import Configuration
+from requests import RequestException
 
 
-def get_toxicity_percentage(config: Configuration, comments: List, logger: Logger):
+class ToxicityAnalysisError(Exception):
+    """Custom exception for errors occurring during toxicity analysis."""
+    pass
+
+def get_toxicity_percentage(config: Configuration, comments: List[str], logger: Logger) -> float:
 
     if config.google_key is None:
         return 0
@@ -48,24 +53,35 @@ def get_toxicity_percentage(config: Configuration, comments: List, logger: Logge
             "requestedAttributes": {"TOXICITY": {}},
         }
 
-        # send request
-        response = requests.post(url=url, data=json.dumps(data_dict))
-
-        # parse response
-        response_dict = json.loads(response.content)
-
         try:
-            toxicity = float(
-                response_dict["attributeScores"]["TOXICITY"]["summaryScore"]["value"]
-            )
-        except KeyError:
-            e = response_dict["error"]
-            logger.error(f"Error {e['code']} {e['status']}: {e['message']}")
-            raise Exception(f'Error {e["code"]} {e["status"]}: {e["message"]}')
+            # send request
+            response = requests.post(url=url, data=json.dumps(data_dict))
+            response.raise_for_status()  # Raise an HTTPError if the response was unsuccessful
+            parsed_response = response.json()
 
-        # add to results store if toxic
-        if toxicity >= 0.5:
-            toxic_results += 1
+            toxicity = float(
+                parsed_response["attributeScores"]["TOXICITY"]["summaryScore"]["value"]
+            )
+
+            # add to results store if toxic
+            if toxicity >= 0.5:
+                toxic_results += 1
+
+        except RequestException as req_err:
+            logger.error(f"Request error: {req_err}")
+            raise ToxicityAnalysisError(f"Request error: {req_err}") from req_err
+
+        except KeyError as key_err:
+            logger.error("Response parsing error: Missing expected keys.")
+            raise ToxicityAnalysisError("Response parsing error: Missing expected keys.") from key_err
+
+        except ValueError as val_err:
+            logger.error("Invalid toxicity value in response.")
+            raise ToxicityAnalysisError("Invalid toxicity value in response.") from val_err
+
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            raise ToxicityAnalysisError(f"Unexpected error: {e}") from e
 
         # we are only allowed 1 QPS, wait for a minute
         if (idx + 1) % query_limit == 0:

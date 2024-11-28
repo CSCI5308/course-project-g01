@@ -1,9 +1,7 @@
-
 import unittest
 from unittest.mock import MagicMock, patch, mock_open
 from logging import Logger
 import os
-import csv
 from  MLbackend.src.stats_analysis import output_statistics
 
 
@@ -28,7 +26,7 @@ class TestOutputStatistics(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open)
     @patch("csv.writer")
     @patch(
-        "MLbackend.src.statsAnalysis.calculateStats", side_effect=mock_calculate_stats
+        "MLbackend.src.stats_analysis.calculate_stats", side_effect=mock_calculate_stats
     )
     def test_output_statistics_with_data(
         self, mock_calculate_stats, mock_csv_writer, mock_open
