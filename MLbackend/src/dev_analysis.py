@@ -9,7 +9,7 @@ def dev_analysis(
     author_info_dict: set,
     batch_idx: int,
     devs: set,
-    coreDevs: set,
+    core_devs: set,
     config: Configuration,
     logger: Logger,
 ):
@@ -24,7 +24,7 @@ def dev_analysis(
 
     # calculate bus factor
     try:
-        bus_factor = (len(devs) - len(coreDevs)) / len(devs)
+        bus_factor = (len(devs) - len(core_devs)) / len(devs)
     except ZeroDivisionError:
         logger.warning(
             f"There are no devs in this batch #{batch_idx}, so we are considering bus factor as 0"

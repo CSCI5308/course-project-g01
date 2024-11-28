@@ -21,7 +21,7 @@ class Configuration:
         self.senti_strength_path = senti_strength_path
         self.max_distance = max_distance
         self.pat = pat
-        self.googleKey = google_key
+        self.google_key = google_key
         self.start_date = start_date
 
         # parse repo name into owner and project name

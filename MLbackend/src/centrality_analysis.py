@@ -24,7 +24,7 @@ def centrality_analysis(
     logger: Logger,
     result:Result,
 ) -> List[List[Any]]:
-    coreDevs: List[List[Any]] = list()
+    core_devs: List[List[Any]] = list()
 
     # work with batched commits
     central_meta = []
@@ -43,9 +43,9 @@ def centrality_analysis(
         batch_core_devs, cen_meta, cen_metric = process_batch(idx, batch, config, logger, result)
         central_meta.append(cen_meta)
         central_metric.append(cen_metric)
-        coreDevs.append(batch_core_devs)
+        core_devs.append(batch_core_devs)
 
-    return coreDevs, central_meta[0], central_metric[0]
+    return core_devs, central_meta[0], central_metric[0]
 
 
 def process_batch(
