@@ -71,7 +71,7 @@ def extract_aliases(config: Configuration, repo: git.Repo, alias_path: str) -> N
         if "author" not in commit.keys():
             continue
 
-        if not commit["author"] is None and not commit["author"]["login"] is None:
+        if commit["author"] is not None and commit["author"]["login"] is not None:
             logins_by_email[email] = commit["author"]["login"]
         else:
             emails_without_logins.append(email)

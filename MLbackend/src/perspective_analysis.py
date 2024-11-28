@@ -1,7 +1,7 @@
 import json
 import math
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from logging import Logger
 from typing import List
 
@@ -10,7 +10,7 @@ import requests
 from MLbackend.src.configuration import Configuration
 
 
-def getToxicityPercentage(config: Configuration, comments: List, logger: Logger):
+def get_toxicity_percentage(config: Configuration, comments: List, logger: Logger):
 
     if config.google_key is None:
         return 0
@@ -52,14 +52,14 @@ def getToxicityPercentage(config: Configuration, comments: List, logger: Logger)
         response = requests.post(url=url, data=json.dumps(data_dict))
 
         # parse response
-        dict = json.loads(response.content)
+        response_dict = json.loads(response.content)
 
         try:
             toxicity = float(
-                dict["attributeScores"]["TOXICITY"]["summaryScore"]["value"]
+                response_dict["attributeScores"]["TOXICITY"]["summaryScore"]["value"]
             )
-        except Exception:
-            e = dict["error"]
+        except KeyError:
+            e = response_dict["error"]
             logger.error(f"Error {e['code']} {e['status']}: {e['message']}")
             raise Exception(f'Error {e["code"]} {e["status"]}: {e["message"]}')
 
@@ -80,6 +80,6 @@ def getToxicityPercentage(config: Configuration, comments: List, logger: Logger)
 
 
 def sleep_until_next_minute():
-    t = datetime.utcnow()
-    sleeptime = 60 - (t.second + t.microsecond / 1000000.0)
-    time.sleep(sleeptime)
+    t = datetime.now(timezone.utc)
+    sleep_time = 60 - (t.second + t.microsecond / 1000000.0)
+    time.sleep(sleep_time)

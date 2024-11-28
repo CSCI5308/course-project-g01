@@ -149,7 +149,6 @@ def prepare_graph(
         logger.warning(
             f"A zero division error occured while preparing graph for {output_prefix}."
         )
-        pass
 
     # finding high centrality authors
     high_centrality_authors: List[Any] = [
