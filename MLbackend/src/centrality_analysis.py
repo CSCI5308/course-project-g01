@@ -16,7 +16,7 @@ from MLbackend.src.utils import author_id_extractor
 from MLbackend.src.utils.result import Result
 
 
-def centralityAnalysis(
+def centrality_analysis(
     commits: List[Commit],
     delta: relativedelta,
     batch_dates: List[datetime],
@@ -40,7 +40,7 @@ def centralityAnalysis(
             and commit.committed_datetime < batch_end_date
         ]
 
-        batch_core_devs, cen_meta, cen_metric = processBatch(idx, batch, config,logger,result)
+        batch_core_devs, cen_meta, cen_metric = process_batch(idx, batch, config, logger, result)
         central_meta.append(cen_meta)
         central_metric.append(cen_metric)
         coreDevs.append(batch_core_devs)
@@ -48,11 +48,11 @@ def centralityAnalysis(
     return coreDevs, central_meta[0], central_metric[0]
 
 
-def processBatch(
+def process_batch(
     batch_idx: int, commits: List[Commit], config: Configuration, logger: Logger, result: Result
 ) -> List[Any]:
     all_related_authors = {}
-    authorCommits = Counter({})
+    author_commits = Counter({})
 
     # for all commits...
     logger.info("Analyzing centrality for commits")
@@ -60,32 +60,32 @@ def processBatch(
         author = author_id_extractor(commit.author)
 
         # increase author commit count
-        authorCommits.update({author: 1})
+        author_commits.update({author: 1})
 
         # initialize dates for related author analysis
         commit_date = datetime.fromtimestamp(commit.committed_date)
         earliest_date = commit_date + relativedelta(months=-1)
         latest_date = commit_date + relativedelta(months=+1)
 
-        commitRelatedCommits = filter(
+        commit_related_commits = filter(
             lambda c: find_related_commits(author, earliest_date, latest_date, c), commits
         )
 
-        commitRelatedAuthors = set(
-            list(map(lambda c: author_id_extractor(c.author), commitRelatedCommits))
+        commit_related_authors = set(
+            list(map(lambda c: author_id_extractor(c.author), commit_related_commits))
         )
 
         # get current related authors collection and update it
         author_related_authors = all_related_authors.setdefault(author, set())
-        author_related_authors.update(commitRelatedAuthors)
+        author_related_authors.update(commit_related_authors)
 
     return prepare_graph(
-        all_related_authors, authorCommits, batch_idx, "commitCentrality", config, logger, result
+        all_related_authors, author_commits, batch_idx, "commitCentrality", config, logger, result
     )
 
 
-def buildGraphQlNetwork(
-    batch_idx: int, batch: list, prefix: str, config: Configuration, logger: Logger, result: Result | None
+def build_grapql_network(
+    batch_idx: int, batch: list, prefix: str, config: Configuration, logger: Logger, result: Result
 ):
     all_related_authors = {}
     author_items = Counter({})
@@ -152,16 +152,16 @@ def prepare_graph(
         pass
 
     # finding high centrality authors
-    highCentralityAuthors: List[Any] = [
+    high_centrality_authors: List[Any] = [
         author
         for author, centrality_value in centrality.items()
         if centrality_value > 0.5
     ]
     if result:
-        for author in highCentralityAuthors:
+        for author in high_centrality_authors:
             result.add_core_dev(author)
 
-    number_high_centrality_authors = len(highCentralityAuthors)
+    number_high_centrality_authors = len(high_centrality_authors)
 
     try:
         percentage_high_centrality_authors = number_high_centrality_authors / len(
@@ -179,7 +179,7 @@ def prepare_graph(
     # calculate TFC
     try:
         tfc = (
-            sum(author_items[author] for author in highCentralityAuthors)
+            sum(author_items[author] for author in high_centrality_authors)
             / sum(author_items.values())
             * 100
         )
@@ -316,7 +316,7 @@ def prepare_graph(
         G, os.path.join(config.resultsPath, f"{output_prefix}_{batch_idx}.xml")
     )
 
-    return highCentralityAuthors, results_meta, metrics_data
+    return high_centrality_authors, results_meta, metrics_data
 
 
 # helper functions

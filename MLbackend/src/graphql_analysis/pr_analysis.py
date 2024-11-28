@@ -59,7 +59,7 @@ def pr_analysis(
         # get pr duration stats
         durations, comment_sentiments, comment_sentiments_positive, comment_sentiments_negative, toxicity_percentage = get_comment_stats(all_comments=all_comments, senti=senti, config=config, logger=logger, batch=batch)
 
-        author, meta, metrics_data = centrality.buildGraphQlNetwork(batch_idx, participants, "PRs", config, logger, result)
+        author, meta, metrics_data = centrality.build_grapql_network(batch_idx, participants, "PRs", config, logger, result)
 
         logger.info("Writing results of PR analysis to CSVs.")
         with open(
