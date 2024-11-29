@@ -76,15 +76,15 @@ def commit_analysis(
 
         # get batch authors
 
-        batchAuthorInfoDict, batchDaysActive, meta_res, metric_res = (
+        batch_author_info_dict, batch_days_active, meta_res, metric_res = (
             commit_batch_analysis(idx, senti, batch, config, logger, result)
         )
         meta_results.append(meta_res)
         metric_results.append(metric_res)
 
         # combine with main lists
-        author_info_dict.update(batchAuthorInfoDict)
-        days_active.append(batchDaysActive)
+        author_info_dict.update(batch_author_info_dict)
+        days_active.append(batch_days_active)
 
     return batch_dates, author_info_dict, days_active, meta_results[0], metric_results[0]
 

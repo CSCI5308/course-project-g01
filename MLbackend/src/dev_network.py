@@ -41,7 +41,6 @@ def community_smells_detector(
     batch_months: float = 9999,
     start_date: Optional[str] = None,
 ) -> None:  # Specify the return type
-    
 
     pdf_results = {}
     try:
