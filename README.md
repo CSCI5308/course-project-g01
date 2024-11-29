@@ -244,6 +244,233 @@ You can access it in your browser at http://localhost:3000
 
 **Note: The web application is fully responsive and can be used seamlessly on any screen size, including desktops, tablets, and mobile devices.**
 
+### Design Principles Followed
+
+#### 1. **Single Responsibility Principle (SRP)**
+
+Each module, class, or function in our code has a single responsibility. This means that each component of the application is designed to perform one specific task or function. By following this principle, we ensure that the system is easier to maintain, test, and extend.
+
+![Single Responsibility Principle](images/screenshot1.jpeg)
+
+#### 2. **Loosely Coupled Methods**
+
+We aimed to design methods that are loosely coupled. This means that each method operates independently of others, with minimal dependencies. This leads to a more flexible and modular system where changes in one method are less likely to affect others.
+
+
+#### 3. **Modularization**
+
+Our codebase is modularized, meaning the application is broken down into smaller, manageable, and independent modules. Each module is responsible for a specific feature or functionality, making it easier to maintain, test, and extend the application.
+
+
+#### 4. **No Hierarchy**
+
+We avoided creating complex hierarchies in our application design. Instead, we kept the structure simple and flat, which prevents excessive complexity in navigating and understanding the codebase.
+
+
+#### 5. **No Interfaces**
+
+We avoided using interfaces in favor of more direct implementation methods. This decision ensures the code remains simple and flexible, with minimal boilerplate and overhead, allowing for faster development and easier modification.
+
+
+### Test-Driven Development (TDD) and Unit Testing
+
+In this project, we have applied **Test-Driven Development (TDD)** for the **Result class**, ensuring that its functionality is thoroughly tested before implementation. The TDD approach ensures that we catch issues early, create clean and maintainable code, and have a solid foundation for future refactoring.
+
+In addition to TDD for the Result class, we have also written **unit tests** for other classes to verify the functionality of various components of the application. These unit tests help ensure that each class performs its intended function correctly and that changes or additions to the codebase do not break existing functionality.
+
+---
+
+### Test Coverage
+
+The following image shows the **test coverage** for each class in the project. It provides a breakdown of which parts of the code are tested and how much of the codebase is covered by our tests.
+
+![TDD](images/tdd.jpeg)
+
+
+*Screenshot of the test coverage for each class.*
+
+As shown in the image, we strive to maintain high test coverage to ensure that our application remains robust and reliable. The coverage data helps us identify areas that require more tests and maintain the quality of the application.
+
+
+**TDD commit hashes**
+
+806b11bdebac2cf378ebc8a72e2716b9fe266a93
+
+58063b83ff7b467e4733cebaae507b52fbaa54b9
+
+1e3c0e187bd955bd89a693ef4399594a2071637f
+
+f556695aff814638fbb5323b0351931483f669f9
+
+152b52a768ab0e9f7c2da04816c6640d88c87375
+
+573f75d95b112264a78cfd71f3cc774f26dde93d
+
+f6f1ea50d0264895c33f9f911019554886b6e217
+
+7941bc4722066c8ebba3858107033335fb9ca59b
+
+4b82037f09f53e7975d58f1eb24f21e09c5df098
+
+c35523a6c7c60c5a35bcf7886267da34b9519498
+
+d5589354ec9e68a06e2db38e8b25ecee5ec1546d
+
+8d0772801b544fe7df2e16ecd14b392b33a99a21
+
+4b8fded37c273e3ac644d0829ff0877df697ae12
+
+744ff378c85cfe56925413b05f3e6fe5b97f1504
+
+1bed31a60d627fa069d0587e4076d8625248f652
+
+5fbe0875364ff4e9f56429f8d50f014c1704449f
+
+7381e076defa673a1f24a01ceae7fcd307adb11b
+
+07dfebeafccc4e63492d0b582f10926b720cb7d0
+
+03376f08099e8da329a6799ebf88ebaee2c48239
+
+2307257693013d0a84a76ca5fd31a59fa6aab6e1
+
+
+aa3f47d1c9ee76d7fc85c508c95b32c26a193e31
+
+622a7874451e8ef5f818efc2956cdc24d1354789
+
+52f5d9d3405bffa2ef912fcd07bf079810a4b3a2
+
+81048242f99fea62dc0a16be286fb9f3a6190d6d
+
+861747ee4802bda6b2aea5d1ab65a9a59a025371
+
+
+fb79dbe84b473d365706ff297f66b7ceb7760675
+
+1eb5cac6306baf5fa08c8fe124b6da0dfcd32fc4
+
+2a28f8268771e020f1132f387fc6d69e95cd168e
+
+dc91f15480e2c5059879bf3c9e43eb1e248caa47
+
+eea7b8562d9343c4d6113c3f55cc7e596a2fd1ab
+
+89675138cfd0920b4dbe49aba0ca335ce14c55c1
+
+6c08c6aeeca41b01af46009b6ed6abb1e0c3cfcf
+
+e6fa934c0febee6c46e45b700225ca9879421630
+
+8aa690350ef4bb4ddebdd4980f23d207f00b8ad8
+
+8aa690350ef4bb4ddebdd4980f23d207f00b8ad8
+
+5f8198495129f5acda755614350f368f31aa14ec
+
+44e7795ff7a662ec4d3d895c6930b707e4802603
+
+9a16744b63fe1c4dcaa52d52efa3885ea0c33d6b
+
+c2c1f55a58ac7b231167ad4236b76f14b0a103b9
+
+cc306c1df575b573e57ce2dc50cd2013f8be2a92
+
+f13840a6da5338170732cc81befe13e53f199e2a
+
+725fa0966ceab0791b83fbabfbd7f48d151ff229
+
+e4efae038e023b1a92d04ce739b41130f2fb5b96
+
+832514ec4c9222200f060989d9e6c14a60e3231c
+
+0105c26d2ba48d33b0a1bdf49124417d075a60dc
+
+42a92cfd0758ad9914aa8ebcc6a18709a40157af
+
+6e93b4e911105034cb66a43ff285dee7bb8c1585
+
+8e988e2ce7ee8faf051afd5a14cb9d2205debd1b
+
+70eea8690e0516177cf88575ea7dd80f021775cc
+
+66091eaac8895711b9c9fc1317ee6e3bec249c7f
+
+df428852d94c57195741f00931ee66fae0c08bc6
+
+f55f48d36c8be5814284766f8e40937b68a7dc92
+
+b079559981aec629a8d3f459c4f4e2e1ce8bfce3
+
+11e034b9fb24e6ea9ae49c27dc5f6b2b8f304e56
+
+219c240f42d621db4ea662048790f9a2a81f8a7a
+
+f27b3b3da2f6abe6f48187912a05301b1984683d
+
+7495da86c936eb8eb409ef52273a03a816b91bf6
+
+901e13aa4ea1850a4da5d9b8305a23e268c38d1b
+
+
+ef7f10458e4b13c54ebdb7be4cccccf96ee4fde7
+
+6ed3ca297f431060dbe9894f175737e862e04142
+
+0fd634a173f51f17e85190f3d05e06d5fda87ec7
+
+5c1b3703b0d05fa00e6bbac332dfea21d7f157bb
+
+cff44f53d7a6f55955621d9778987a28c43985d5
+
+a4b3145de00370f897ad451ccecabbf25f2559c8
+
+50d09bc4b3b28842948235d8366b268c1064af65
+
+7645c99ec3d5133d7342af427240b1c8d54ec126
+
+b96f9d99fbf467e9c3ed8d29d71f26c84b04e3e9
+
+d5ac81476463720b02c508b61dfeabd03145167d
+
+0094727f0f4174039c40c68dce1e8954934f6b6e
+
+55c52c5ddbef110a139d2a512105b0ffc3181a17
+
+37af974be7bb74cc05db6ecf10f7a25d101a3646
+
+a197f200ae53be7bdc2568bcedff8c79d47f3dc1
+
+4de1767c9f7ec053cf467eb1bd1eb11bbe2b5b2b
+
+d64e3fa2c92b6673da4a841727557a94156bb805
+
+900de323681c71f9ec9919437ec66fc57b406011
+
+a493e42cd96fb79de958afd0606cc53ecd998b6a
+
+ee276a47237a5745015316f9a24aa4a0401168f7
+
+37788ba2bfbb01dbc8cb865c97488dce5eb926c5
+
+2bad7308a9320570233dc062c3648f10176e0b23
+
+0c00c33e00b53ebab583b196275586c9ae9d6c4b
+
+ba8089afb6963ea50f0bae4808e674d711a085bf
+
+16297b356d34c415989c67e13d1dcd2d0b4efc47
+
+5f17831fec8f71e502dbc462df7d7dc87c5be3cc
+
+b6b60ace8853a2cfd26a800d23a48f4433da3247
+
+6e858dfb108a450eed21457d9505fbb2623efd4as
+
+fa39614bf0af97b9f7b58dff96ac6d66b223fe18
+
+a66a3c866c60184243060db0b5cea9fa7011aeac
+
 ## Folder Structure
 
 - **frontend/**: This directory contains all the code related to the client-side of the application, including user interface components, styling, and client-side logic
