@@ -9,7 +9,7 @@
 
 Community Smell Detection Tool is a web application solution designed to assist developers in automatically identifying "community smells" within their GitHub repositories. These smells represent patterns of ineffective collaboration, communication, or organizational practices within development teams that can negatively impact project productivity, quality, and timeline. By simply entering the URL of an GitHub repository, developers can analyze their projects for potential community smells and gain actionable insights to improve team dynamics and project outcomes.
 
-This project is built upon and extends the existing [ **CSDetector** ](https://github.com/Nuri22/csDetector) tool, originally created by Nuri Almarimi and others. We have transformed the original command-line interface (CLI) tool into a more accessible and user-friendly web application. This web-based version enhances usability and ensures that the tool is available to a broader audience, including those who may not be comfortable with CLI environments.
+This project is built upon and extends the existing [ **CSDetector** ](https://github.com/Nuri22/csDetector) tool, originally created by Nuri Almarimi and others [ **CSDetector Paper** ](https://mkaouer.net/publication/almarimi-2021-csdetector/almarimi-2021-csdetector.pdf). We have transformed the original command-line interface (CLI) tool into a more accessible and user-friendly web application. This web-based version enhances usability and ensures that the tool is available to a broader audience, including those who may not be comfortable with CLI environments.
 
 
 **Key Features:**
