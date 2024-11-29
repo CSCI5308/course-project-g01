@@ -206,8 +206,43 @@ You can access it in your browser at http://localhost:3000
 
 ## Work flow diagram
 
-![User Flow Diagram](userflow.svg)
+![User Flow Diagram](images/userflow.svg)
 
+## User Scenarios
+
+### 1. Homepage
+
+- This is the initial view of the application, where users interact with the homepage to begin.
+
+  ![Homepage Screenshot](images/homepage_screenshot.png)
+
+### 2. Form Validation Errors
+
+-  When users submit the form with invalid or empty fields, validation errors are displayed to guide them on what needs to be corrected.
+
+  ![Form Validation Screenshot](images/validation_errors_screenshot.png)
+
+### 3. Form Filled Correctly
+
+-  Once all input fields are filled correctly, the form is ready for submission.
+
+  ![Form Filled Screenshot](images/filled_form_screenshot.png)
+
+### 4. Loading Screen
+
+-  After submitting the form, a loading screen is displayed to indicate that the request is being processed.
+
+  ![Loading Screen Screenshot](images/loading_screen_screenshot.png)
+
+### 5. Success/Results Screen
+
+-  After the process is complete, the user is redirected to results page.
+
+  ![Success Screen Screenshot](./images/success_screen_screenshot.png)
+
+  ![Success Screen Screenshot](./images/success_screen_screenshot2.png)
+
+**Note: The web application is fully responsive and can be used seamlessly on any screen size, including desktops, tablets, and mobile devices.**
 
 ## Folder Structure
 
