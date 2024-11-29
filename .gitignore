@@ -11,7 +11,7 @@ coverage.xml
 .idea/misc.xml
 .idea/vcs.xml
 .idea/course-project-g01.iml
-.idea
+.idea/
 .coverage
 
 *.pyc
