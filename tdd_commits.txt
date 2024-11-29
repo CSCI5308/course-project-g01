@@ -1,8 +1,4 @@
-818574f refactor: corrected all the reference issues in tests. Also added back the deleted test for result class
-135b4d2 merge: resolved merge conflicts and deleted unnecessary test.py
-9cbef7b chore: updated git ignore to ignore test coverage report file
-840a11f Pytests Edge cases coverage and Null values replacement
-c92fae9 refactor: Ran black formatter on test file
+
 d558935 test(#58): Added test for handling none value being passed for std_dev in metrics of result class
 744ff37 test(#58): Added test for checking if a valid smell is passed
 5fbe087 test(#58): Added test for checking type of value passed for detected smell
@@ -39,19 +35,4 @@ ba8089a test(#58): Added test for checking batch size when adding commit count
 16297b3 refactor(#58): Added pytest fixture for Result and Logger class for better handling of them
 b6b60ac test(#58): Added test considering logger in the Result class
 a66a3c8 test(#58): Test to add commit count properly
-7d685fb chore: Added __init__ files for the test to run properly
-18d856f test: add unit tests for validation functions
-91c4fc7 feat(#14): handled test 2 issue 2 batch case | previous commit message should be test
-65ded63 feat(#14): handled test 2 issue 2 batch case
-dbe8177 feat(#14): handled test 1 issue 1 batch case
-9365c80 test(#14): Test 1 issue 1 batch case
-4b59193 test(#14): Test for when no issues exist
-5874c37 test(#14): Testing multiple batches generation.
-3a30aea test(#14): Number of batches generated for PRs.
-a9f5d88 test(#14): Testing PR request case.
-2b8b2e7 test(#14): One release in the repo checking releases number in the batch.
-73a3b6b test(#14): One release in the repo checking batches generated.
-4cde198 refactor(#14): Refactor test for no release in the repo causes program to fail.
-736acc9 test(#14): Testing no release in the repo causes program to fail.
-b7d512f feat: add dummy data to API response for testing
-59bbd68 Update README to reflect latest project structure changes
+
