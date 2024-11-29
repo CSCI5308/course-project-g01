@@ -87,3 +87,4 @@ python-dotenv==1.0.1
 black
 isort
 flask_mail
+python-dotenv
